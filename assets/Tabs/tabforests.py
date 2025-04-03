@@ -1,4 +1,6 @@
-import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
+from dash import html
+from dash import dcc
+import dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.COLORS import *
 
@@ -7,10 +9,10 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                              children=[
                          dcc.Tab(label='NMA', id='tab1', value='tab1', className='control-tab',
                                  style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
-                                        'align-items': 'center',
+                                        'alignItems': 'center',
                                         'font-size': '12px', 'color': 'black', 'padding': '0'},
                                  selected_style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
-                                                 'align-items': 'center','background-color': '#f5c198',
+                                                 'alignItems': 'center','background-color': '#f5c198',
                                                  'font-size': '12px', 'padding': '0'},
                                  children=[html.Div([dbc.Row([
                                     #  dbc.Col([
@@ -126,9 +128,9 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
 
                                  ]),
                                 #  dcc.Tab(label='Pairwise', id='tab2', value='Tab2',  className='control-tab',
-                                #          style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center',
+                                #          style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'alignItems':'center',
                                 #                 'font-size':'12px', 'color':'black','padding': '0'},
-                                #          selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center',
+                                #          selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'alignItems':'center',
                                 #                          'font-size':'12px','padding': '0'},
                                 #          children=[html.Div([dbc.Row([
                                 #           dbc.Col(html.P(
@@ -176,9 +178,9 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                 #          ]),
 
                                  dcc.Tab(label='Bi-dimensional NMA', id='black', value='Tab3',  className='control-tab',
-                                         style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center',
+                                         style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'alignItems':'center',
                                                 'font-size':'12px', 'color':'grey','padding': '0'},
-                                         selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center','background-color': '#f5c198',
+                                         selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'alignItems':'center','background-color': '#f5c198',
                                                          'font-size':'12px','padding': '0'},
                                          children=[
                                              dbc.Row([dbc.Col(html.P([html.Div(id='tapNodeData-info-bidim', className="box__title",
@@ -195,7 +197,7 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                  [
                                                 #  html.P(f"Select outcome 1",className="selectbox", style={'display': 'flex', 
                                                 #                                                           "text-align": 'right',
-                                                #                                                           'align-items': 'center',
+                                                #                                                           'alignItems': 'center',
                                                 #                                                           'margin-right': '12px', 'font-size': '12px'}),
                                                 #  dcc.Dropdown(id='biforest_outcome_select1', searchable=True, placeholder="...", className="box", value=0,
                                                 #                clearable=False, 
@@ -209,7 +211,7 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                 #                       'font-size': '10px','margin-left':'-7px'}),
                                                  html.P(f"Select outcome 2",className="selectbox", style={'display': 'flex', 
                                                                                                           "text-align": 'right',
-                                                                                                          'align-items': 'center',
+                                                                                                          'alignItems': 'center',
                                                                                                           'margin-left': '10px', 'font-size': '12px'}),
                                                  dcc.Dropdown(id='biforest_outcome_select2', searchable=True, placeholder="...", className="box", value=1,
                                                                clearable=False, 

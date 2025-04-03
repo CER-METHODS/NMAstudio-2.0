@@ -188,15 +188,15 @@ for j in range(0, row_data_default.shape[0]):
         
 
 
-style_certainty = {'white-space': 'pre','display': 'grid','text-align': 'center','align-items': 'center','border-left': 'solid 0.8px'}
-style_mixed = {'border-left': 'solid 0.8px',
+style_certainty = {'whiteSpace': 'pre','display': 'grid','textAlign': 'center','alignItems': 'center','borderLeft': 'solid 0.8px'}
+style_mixed = {'borderLeft': 'solid 0.8px',
                    'backgroud-color':'white',
-                #    'line-height': '20px',
-                   "text-align":'center',
-                   'white-space': 'pre',
+                #    'lineHeight': '20px',
+                   "textAlign":'center',
+                   'whiteSpace': 'pre',
                    'display': 'grid',
-                   'line-height': 'normal',
-                   'align-items': 'center'}
+                   'lineHeight': 'normal',
+                   'alignItems': 'center'}
 
 masterColumnDefs = [
     {
@@ -205,8 +205,8 @@ masterColumnDefs = [
         "field": "Reference",
         'headerTooltip': 'Click a treatment to open a nested table',
         "cellRenderer": "agGroupCellRenderer",
-        'cellStyle': {'border-left': 'solid 0.8px',
-                      'border-right': 'solid 0.8px'}
+        'cellStyle': {'borderLeft': 'solid 0.8px',
+                      'borderRight': 'solid 0.8px'}
         # "cellRendererParams": {
         #     'innerRenderer': "DCC_GraphClickData",
         # },
@@ -216,7 +216,7 @@ masterColumnDefs = [
      "field": "pscore",
      "editable": True,
      'cellStyle': {
-        'border-right': 'solid 0.8px'}
+        'borderRight': 'solid 0.8px'}
      },
 
       
@@ -224,21 +224,21 @@ masterColumnDefs = [
      "field": "risk_range",
      "editable": True,
      'cellStyle': {
-        'border-right': 'solid 0.8px'}
+        'borderRight': 'solid 0.8px'}
      },
 
     {"headerName": "Risk per 1000", 
      "field": "risk",
      "editable": True,
      'cellStyle': {
-        'color': 'grey','border-right': 'solid 0.8px'}
+        'color': 'grey','borderRight': 'solid 0.8px'}
      },
      
      {"headerName": "The rationality of selecting the risk", 
      "field": "rationality",
      "editable": True,
      'cellStyle': {
-        'color': 'grey','border-right': 'solid 0.8px'}
+        'color': 'grey','borderRight': 'solid 0.8px'}
      },
     
      {"headerName": "Scale lower\n(forestplots)", 
@@ -246,14 +246,14 @@ masterColumnDefs = [
      'headerTooltip': 'This is for the forest plots in the nested table',
      "editable": True,
      'cellStyle': {
-        'color': 'grey','border-right': 'solid 0.8px'}
+        'color': 'grey','borderRight': 'solid 0.8px'}
      },
     {"headerName": "Scale upper\n(forestplots)", 
      "field": "Scale_upper",
      'headerTooltip': 'This is for the forest plots in the nested table',
      "editable": True,
      'cellStyle': {
-        'color': 'grey','border-right': 'solid 0.8px'}}
+        'color': 'grey','borderRight': 'solid 0.8px'}}
 ]
 detailColumnDefs = [
    
@@ -270,10 +270,10 @@ detailColumnDefs = [
       "resizable": True ,
       'cellStyle': {
         'display': 'grid',
-        "text-align":'center',
-        'white-space': 'pre',
-        'line-height': 'normal',
-        'align-items': 'center'
+        "textAlign":'center',
+        'whiteSpace': 'pre',
+        'lineHeight': 'normal',
+        'alignItems': 'center'
           }},
     
     {"field": "RR", 
@@ -297,14 +297,14 @@ detailColumnDefs = [
     #  'headerTooltip': 'Specify a value for the reference treatment in \'Risk per 1000\'',
     #  "width": 180,
     #  "resizable": True,
-    #  'cellStyle': {'border-left': 'solid 0.8px',
+    #  'cellStyle': {'borderLeft': 'solid 0.8px',
     #                'backgroud-color':'white',
-    #             #    'line-height': '20px',
-    #                "text-align":'center',
-    #                'white-space': 'pre',
+    #             #    'lineHeight': '20px',
+    #                "textAlign":'center',
+    #                'whiteSpace': 'pre',
     #                'display': 'grid',
-    #                'line-height': 'normal',
-    #                'align-items': 'center'
+    #                'lineHeight': 'normal',
+    #                'alignItems': 'center'
     #                }
     #    },
 
@@ -313,14 +313,14 @@ detailColumnDefs = [
      'headerTooltip': 'Specify a value for the reference treatment in \'Risk per 1000\'',
      "width": 180,
      "resizable": True,
-     'cellStyle': {'border-left': 'solid 0.8px',
+     'cellStyle': {'borderLeft': 'solid 0.8px',
                    'backgroud-color':'white',
-                #    'line-height': '20px',
-                   "text-align":'center',
-                   'white-space': 'pre',
+                #    'lineHeight': '20px',
+                   "textAlign":'center',
+                   'whiteSpace': 'pre',
                    'display': 'grid',
-                   'line-height': 'normal',
-                   'align-items': 'center'
+                   'lineHeight': 'normal',
+                   'alignItems': 'center'
                    }
        },
 
@@ -330,8 +330,8 @@ detailColumnDefs = [
         "headerName": "Forest plot",
         "width": 300,
         "resizable": True,
-        'cellStyle': {'border-left': 'solid 0.8px',
-                      'border-right': 'solid 0.8px' ,'backgroud-color':'white'}
+        'cellStyle': {'borderLeft': 'solid 0.8px',
+                      'borderRight': 'solid 0.8px' ,'backgroud-color':'white'}
 
     },
     {"field": "direct",
@@ -339,20 +339,20 @@ detailColumnDefs = [
      'headerTooltip': 'Click a cell with values to open the pairwise forest plot',
       "width": 170,
       "resizable": True,
-      'cellStyle': {'color': '#707B7C', "text-align":'center', 'display': 'grid',
-                    'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
+      'cellStyle': {'color': '#707B7C', "textAlign":'center', 'display': 'grid',
+                    'whiteSpace': 'pre', 'lineHeight': 'normal', 'alignItems': 'center'}},
     {"field": "indirect",
      "headerName": "Indirect effect\n(95%CI)",
       "width": 170,
       "resizable": True,
-      'cellStyle': {'color': '#ABB2B9', "text-align":'center','display': 'grid',
-                    'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
+      'cellStyle': {'color': '#ABB2B9', "textAlign":'center','display': 'grid',
+                    'whiteSpace': 'pre', 'lineHeight': 'normal', 'alignItems': 'center'}},
     {"field": "p-value",
      "headerName": "p-value\n(Consistency)",
       "width": 140,
       "resizable": True,
-      'cellStyle': {"text-align":'center', 'display': 'grid','line-height': 'normal',
-                    'white-space': 'pre', 'align-items': 'center'}
+      'cellStyle': {"textAlign":'center', 'display': 'grid','lineHeight': 'normal',
+                    'whiteSpace': 'pre', 'alignItems': 'center'}
       },
     {"field": "Certainty", 
      "headerName": "Certainty",
@@ -373,7 +373,7 @@ detailColumnDefs = [
      'headerTooltip': 'Editable for adding comments', 
      "resizable": True,
      'editable': True,
-     'cellStyle': {'border-left': 'solid 0.5px',"text-align":'center', 'display': 'grid','border-right': 'solid 0.8px'}},
+     'cellStyle': {'borderLeft': 'solid 0.5px',"textAlign":'center', 'display': 'grid','borderRight': 'solid 0.8px'}},
     
     ]
 
@@ -382,7 +382,7 @@ getRowStyle = {
     "styleConditions": [
         {
             "condition": "params.data.RR === 'RR'",
-            "style": {"backgroundColor": "#faead7",'font-weight': 'bold'},
+            "style": {"backgroundColor": "#faead7",'fontWeight': 'bold'},
         },
     ]
 }
@@ -442,12 +442,12 @@ grid = dag.AgGrid(
                     "enableRowGroup": False,
                     "enableValue": False,
                     "enablePivot": False,
-                    'cellStyle': {'white-space': 'pre',
+                    'cellStyle': {'whiteSpace': 'pre',
                                   'display': 'grid',
-                                  'text-align': 'center',
-                                  'align-items': 'center',
-                                  'border-bottom': 'solid 0.5px',
-                                #   'background-color':'#faead7'
+                                  'textAlign': 'center',
+                                  'alignItems': 'center',
+                                  'borderBottom': 'solid 0.5px',
+                                #   'backgroundColor':'#faead7'
                                   },
                     # "tooltipComponent": "CustomTooltip"
                     },
@@ -480,15 +480,15 @@ model_transitivity = dbc.Modal(
                          dbc.ModalBody(html.Div([html.Div([dbc.Row([html.P("Choose effect modifier:", className="graph__title2",
                                          style={'display': 'inline-block',
                                                 'verticalAlign':"top",
-                                                'font-size': '12px',
-                                                'margin-bottom': '-10px'}),
+                                                'fontSize': '12px',
+                                                'marginBottom': '-10px'}),
                                   dcc.Dropdown(id='ddskt-trans', options=OPTIONS,
                                                clearable=True, placeholder="",
                                                className="tapEdgeData-fig-class",
                                                style={'width': '150px', 'height': '30px',
-                                                      'display': 'inline-block', # 'background-color': '#40515e'
+                                                      'display': 'inline-block', # 'backgroundColor': '#40515e'
                                                       })
-                                  ])], style={'margin-top':'4px'}),
+                                  ])], style={'marginTop':'4px'}),
                                   html.Div([dcc.Graph(id='boxplot_skt',
                                                       style={'height': '98%',
                                                              'width': '-webkit-fill-available'},
@@ -510,7 +510,7 @@ model_transitivity = dbc.Modal(
                                                                'scale': 5
                                                                },
                                           'displaylogo': False})
-                    ], style={'margin-top':'-30px', 
+                    ], style={'marginTop':'-30px', 
                               'height':'500px',
                               })])),
                          dbc.ModalFooter(dbc.Button( "Close", id="close_trans", className="ms-auto", n_clicks=0)),
@@ -569,7 +569,7 @@ model_skt_stand2 = dbc.Modal(
                                                         
 radio_treattment = dbc.RadioItems(id='ref_selected', options=treatment_list, value='PBO',inline=True, 
                                                                                        inputStyle={'width':'30px'}, 
-                                                                                style={'display': 'contents','font-size':"medium"},
+                                                                                style={'display': 'contents','fontSize':"medium"},
                                                                                       labelCheckedStyle={"color": "red"},)
 
 display_treatment = [html.Span(treat, className='span_treat') for treat in treat_list[0]]
@@ -581,10 +581,10 @@ model_password = dbc.Modal(
         [
             dbc.ModalBody(
                 [
-                html.Span('Input the password:', style={'font-size':'large'}),
+                html.Span('Input the password:', style={'fontSize':'large'}),
                 dcc.Input(id='password', className='upload_radio', style={'width':'150px'}),
                 html.Br(),
-                dbc.Button( "OK", id="password_ok",n_clicks=0, style={'background-color':'grey'})
+                dbc.Button( "OK", id="password_ok",n_clicks=0, style={'backgroundColor':'grey'})
                 ]),
     ],id="pass_model", is_open=True, contentClassName="pass_content", style={'display':'block'})
 ####################################################################################################################################################################
@@ -592,7 +592,7 @@ model_password = dbc.Modal(
 # instruct_plot = ('/assets/figure/instruction_skt1.png')
 
 empty = [html.Span('Instruction',className='skt_span1', 
-                   style={'color': '#B85042', 'font-weight': 'bold'}),
+                   style={'color': '#B85042', 'fontWeight': 'bold'}),
          html.Span([html.Strong('Ref:'), ' selected reference treatment\n',
                     html.Strong('Treatment:'), ' click the cell to see the corresponding comparison information\n',
                     html.Strong('Direct effect:'), ' click to see the forestplot for the corresponding comparsion\n',
@@ -623,8 +623,8 @@ def Sktpage():
 #                      dcc.Markdown('Select your profile',
 #                                                 className="markdown_style_main",
 #                                                 style={
-#                                                     "font-size": '40px',
-#                                                     'text-align': 'center',
+#                                                     "fontSize": '40px',
+#                                                     'textAlign': 'center',
 #                                                     'color':'#5c7780',
 #                                                        }),
 #                            html.Br(), html.Br(),
@@ -648,9 +648,9 @@ def switch_table():
                     dcc.Markdown('Knowledge Translation Tool',
                                                 className="markdown_style_main",
                                                 style={
-                                                    "font-weight": 'bold',
-                                                    "font-size": '30px',
-                                                    'text-align': 'center',
+                                                    "fontWeight": 'bold',
+                                                    "fontSize": '30px',
+                                                    'textAlign': 'center',
                                                     'color':'#5c7780',
                                                        }),
                     dbc.Row(dbc.Col([
@@ -659,10 +659,10 @@ def switch_table():
                             id='skttable_1',
                             style={'display': 'inline-block',
                                     'margin': 'auto',
-                                    'font-size': '16px',
-                                    'font-weight': 'bold',
+                                    'fontSize': '16px',
+                                    'fontWeight': 'bold',
                                     'color': 'chocolate',
-                                    'padding-left': '0px'}),
+                                    'paddingLeft': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
                                 value = False,
@@ -671,21 +671,21 @@ def switch_table():
                                         'style': dict(color='white', font='0.5em')},
                                 labelPosition="top",
                                 style={'display': 'inline-block',
-                                        'margin': 'auto', 'font-size': '10px',
-                                        'padding-left': '10px',
-                                        'padding-right': '10px'}),
+                                        'margin': 'auto', 'fontSize': '10px',
+                                        'paddingLeft': '10px',
+                                        'paddingRight': '10px'}),
                             html.P('Advanced Version',
                                     id='skttable_2',
                                     style={'display': 'inline-block',
                                         'margin': 'auto',
                                         'color': 'green',
-                                        'font-weight': 'bold',
-                                        'font-size': '16px',
-                                        'padding-right': '0px'})],
-                            style={'justify-content': 'center',
-                                    # 'margin-left': '70%',
-                                    'font-size': '0.8em', 'margin-top': '2%'},
-                            ), style={'justify-content': 'center',
+                                        'fontWeight': 'bold',
+                                        'fontSize': '16px',
+                                        'paddingRight': '0px'})],
+                            style={'justifyContent': 'center',
+                                    # 'marginLeft': '70%',
+                                    'fontSize': '0.8em', 'marginTop': '2%'},
+                            ), style={'justifyContent': 'center',
                                     'width': '100%'})])
 
 
@@ -695,8 +695,8 @@ def skt_layout():
                 # dcc.Markdown('Scalable Knowledge Translation Tool',
                 #                                 className="markdown_style_main",
                 #                                 style={
-                #                                     "font-size": '30px',
-                #                                     'text-align': 'center',
+                #                                     "fontSize": '30px',
+                #                                     'textAlign': 'center',
                 #                                     'color':'#5c7780',
                 #                                        }),
                                     # html.Button("Export to Excel", id="btn-excel-export"),
@@ -708,8 +708,8 @@ def skt_layout():
                                             #     id='skttable_1',
                                             #     style={'display': 'inline-block',
                                             #             'margin': 'auto',
-                                            #             'font-size': '10px',
-                                            #             'padding-left': '0px'}),
+                                            #             'fontSize': '10px',
+                                            #             'paddingLeft': '0px'}),
                                             #     daq.ToggleSwitch(
                                             #         id='toggle_grid_select',
                                             #         value = False,
@@ -718,36 +718,36 @@ def skt_layout():
                                             #                 'style': dict(color='white', font='0.5em')},
                                             #         labelPosition="top",
                                             #         style={'display': 'inline-block',
-                                            #                 'margin': 'auto', 'font-size': '10px',
-                                            #                 'padding-left': '2px',
-                                            #                 'padding-right': '2px'}),
+                                            #                 'margin': 'auto', 'fontSize': '10px',
+                                            #                 'paddingLeft': '2px',
+                                            #                 'paddingRight': '2px'}),
                                             #     html.P('league table',
                                             #             id='skttable_2',
                                             #             style={'display': 'inline-block',
                                             #                 'margin': 'auto',
-                                            #                 'font-size': '10px',
-                                            #                 'padding-right': '0px'})],
-                                            #     style={'justify-content': 'flex-end',
-                                            #             'margin-left': '70%',
-                                            #             'font-size': '0.8em', 'margin-top': '2%'},
+                                            #                 'fontSize': '10px',
+                                            #                 'paddingRight': '0px'})],
+                                            #     style={'justifyContent': 'flex-end',
+                                            #             'marginLeft': '70%',
+                                            #             'fontSize': '0.8em', 'marginTop': '2%'},
                                             #     ),
                                             html.Br(),html.Br(),
                                             dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
                                                 className="markdown_style_main",
                                                 style={
-                                                    "font-size": '25px',
-                                                    'text-align': 'start',
-                                                    'font-family': 'math',
-                                                    "font-weight": 'bold',
+                                                    "fontSize": '25px',
+                                                    'textAlign': 'start',
+                                                    'fontFamily': 'math',
+                                                    "fontWeight": 'bold',
                                                     'color':'rgb(184 80 66)',
                                                     'width': '90%'
                                                        }),
                                             dbc.Row([html.P(f"Select outcome",className="", style={'display': 'flex', 
-                                                                                                          "text-align": 'right',
-                                                                                                          'align-items': 'center',
-                                                                                                          'font-weight':'bold',
+                                                                                                          "textAlign": 'right',
+                                                                                                          'alignItems': 'center',
+                                                                                                          'fontWeight':'bold',
                                                                                                           'color':'rgb(184, 80, 66)',
-                                                                                                          'margin-left': '10px', 'font-size': 'large'}),
+                                                                                                          'marginLeft': '10px', 'fontSize': 'large'}),
                                             dcc.Dropdown(id='sktdropdown-out', options=[{'label': 'PASI90', 'value': 0}, {'label': 'SAE', 'value': 1}],
                                                clearable=True, placeholder="",
                                                className="sktdropdown-out")], id='outselect_row'),
@@ -793,7 +793,7 @@ def skt_layout():
                                                                 # dbc.Col([
                                                                 #          dbc.Row([html.Span('Interventions', className='inter_label'),
                                                                 #                 #  html.Span('Please tick to select the reference treatment', className='note_tick')
-                                                                #                  ], style={'padding-top': 0}),
+                                                                #                  ], style={'paddingTop': 0}),
                                                                 #          dbc.Toast(
                                                                 #                 display_treatment, 
                                                                 #                 bodyClassName='skt_interbody',
@@ -804,24 +804,24 @@ def skt_layout():
                                                                 #               ], className='tab2_col'),
                                                                 dbc.Col([
                                                                          dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
-                                                                                 ], style={'padding-top': 0}),
+                                                                                 ], style={'paddingTop': 0}),
                                                                          dbc.Row([dbc.Col(cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                                         minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
                                                                                         elements=get_skt_elements(),
                                                                                         style={ 
                                                                                             'height': '40vh', 
                                                                                             'width': '100%', 
-                                                                                            'margin-top': '-2%',
+                                                                                            'marginTop': '-2%',
                                                                                             'z-index': '999',
-                                                                                            'padding-left': '-10px', 
+                                                                                            'paddingLeft': '-10px', 
                                                                                                 # 'max-width': 'calc(52vw)',
                                                                                             },
                                                                                 layout={'name':'circle','animate': False, 'fit':True },
                                                                                 stylesheet=skt_stylesheet()), 
-                                                                                style={'border-right': '3px solid #B85042',
+                                                                                style={'borderRight': '3px solid #B85042',
                                                                                        'width': '50%'}),
                                                                                 dbc.Col(html.Span(id='trigger_info'),
-                                                                                        style={'width': '50%','align-items': 'center', 'display': 'grid'})
+                                                                                        style={'width': '50%','alignItems': 'center', 'display': 'grid'})
                                                                                   ]),
                                                                               ], className='tab3_col')               
                                                                               ], className='row_skt'),
@@ -834,26 +834,26 @@ def skt_layout():
                                                                               html.Span('Number of interventions: 20', className='skt_span1'),
                                                                               html.Span('Number of comparisons with direct evidence: 13', className='skt_span1'),
                                                                               html.Span('Number of comparisons without direct evidence: 8 \n', className='skt_span1',
-                                                                                        #  style={'border-bottom': 'dashed 1px gray'}
+                                                                                        #  style={'borderBottom': 'dashed 1px gray'}
                                                                                          )
                                                                               ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'35%'}),
                                                             dbc.Col(dbc.Toast(
                                                                               [
-                                                                              html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                              html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'fontWeight': 'bold'}),
                                                                               html.Span('Mean age: 45.3',className='skt_span1'),
                                                                               html.Span('Mean male percentage: 43.4%',className='skt_span1'),
                                                                               html.Button('Transitivity check', id='trans_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
-                                                                                                                   'background-color':'#dedecf',
+                                                                                                                   'backgroundColor':'#dedecf',
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
                                                                                                                     'padding': '4px'}),
-                                                                              ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'15%','margin-left': '1%'}),
+                                                                              ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'15%','marginLeft': '1%'}),
                                 
                                                             model_transitivity,                                  
                                                             dbc.Col(
-                                                                    [dbc.Row(html.Span('Options (For the forest plots in the table)', className='option_select'), style={'display':'grid', 'padding-top':'unset'}),
+                                                                    [dbc.Row(html.Span('Options (For the forest plots in the table)', className='option_select'), style={'display':'grid', 'paddingTop':'unset'}),
                                                                      dbc.Col([dbc.Toast([
                                                                             html.Span('Enter the minimum clinical difference value:',className='select_outcome'),
                                                                             dcc.Input(id="range_lower",
@@ -869,7 +869,7 @@ def skt_layout():
                                                                             #             placeholder="e.g. 1.25",style={'width':'80px'}) 
                                                                                                 ],className='skt_studyinfo2', bodyClassName='slect_body',headerClassName='headtab1'),
                                                                             dbc.Col([dcc.Checklist(options= options_effects, value= ['PI', 'direct', 'indirect'], 
-                                                                                          id='checklist_effects', style={'display': 'grid', 'align-items': 'end'}),
+                                                                                          id='checklist_effects', style={'display': 'grid', 'alignItems': 'end'}),
                                                                             # html.Div([
                                                                             #     html.Div([ html.P("The forest plots in the table will be presented on a logarithmic scale.",
                                                                             #      id='logscale-instruction'),
@@ -883,19 +883,19 @@ def skt_layout():
                                                                             #     )),],id="query-logscale",),
                                                                             #     html.P("log scale", id='',
                                                                             #             style={'display': 'inline-block',
-                                                                            #                     'font-size': '12px',
-                                                                            #                     'padding-left': '10px'}),
+                                                                            #                     'fontSize': '12px',
+                                                                            #                     'paddingLeft': '10px'}),
                                                                             #         daq.ToggleSwitch(id='nomal_vs_log',
                                                                             #                         color='', size=30,
                                                                             #                         labelPosition="bottom",
                                                                             #                         style={'display': 'inline-block',
                                                                             #                                 'margin': 'auto',
-                                                                            #                                 'padding-left': '10px',
-                                                                            #                                 'padding-right': '10px'}),
+                                                                            #                                 'paddingLeft': '10px',
+                                                                            #                                 'paddingRight': '10px'}),
                                                                             #         html.P('absolute scale', id='',
                                                                             #             style={'display': 'inline-block', 'margin': 'auto',
-                                                                            #                     'font-size': '12px',
-                                                                            #                     'padding-right': '0px'}),
+                                                                            #                     'fontSize': '12px',
+                                                                            #                     'paddingRight': '0px'}),
                                                                             #         html.Div([ html.P("The forest plots in the table will be presented on a absolute scale.",
                                                                             #                    id='abscale-instruction'),
                                                                             #         html.A(
@@ -906,11 +906,11 @@ def skt_layout():
                                                                             #                 # "float":"right",
                                                                             #                 },
                                                                             #         )),],id="query-abscale",),
-                                                                            #         ], style={'display': 'inline-block', 'margin-top': '0px'})
+                                                                            #         ], style={'display': 'inline-block', 'marginTop': '0px'})
                                                                                     ])],
                                                                                             style={'display': 'grid', 'grid-template-columns': '1fr 1fr'})
                                                                                                 ],
-                                                                    style={'width':'38%','margin-left': '1%', 'border': '1px dashed rgb(184, 80, 66)','display':'grid'}),
+                                                                    style={'width':'38%','marginLeft': '1%', 'border': '1px dashed rgb(184, 80, 66)','display':'grid'}),
                                                                
                                                                           
                                                                           ], className='row_skt'),
@@ -925,19 +925,19 @@ def skt_layout():
                                                 dcc.Markdown('Expert Committee Members',
                                                 className="markdown_style_main",
                                                 style={
-                                                        "font-size": '20px',
-                                                        'text-align': 'center',
+                                                        "fontSize": '20px',
+                                                        'textAlign': 'center',
                                                         'color':'orange',
-                                                        'border-bottom': '2px solid',
-                                                        'font-weight': 'bold',
+                                                        'borderBottom': '2px solid',
+                                                        'fontWeight': 'bold',
                                                         'height': 'fit-content',
-                                                        # 'margin-left': '20px',
+                                                        # 'marginLeft': '20px',
                                                         'width': '100%',
-                                                        'margin-top': '0'
+                                                        'marginTop': '0'
                                                         }),
                                                 dcc.Markdown('Toshi Furukawa, Isabelle Boutron, Emily Karahalios, Tianjing li, Michael Mccaul, Adriani Nikolakopoulou, Haliton Oliveira, Thodoris Papakonstantiou, Georgia Salanti, Guido Schwarzer, Ian Saldanha, Nicky Welton, Sally Yaacoub',
-                                                                className="markdown_style", style={"color": "black", 'font-size': 'large'}),
-                                                html.Br(),html.Br(),html.Br(),],style={ 'width': '95%', 'padding-left': '5%'}) 
+                                                                className="markdown_style", style={"color": "black", 'fontSize': 'large'}),
+                                                html.Br(),html.Br(),html.Br(),],style={ 'width': '95%', 'paddingLeft': '5%'}) 
                                                         ], style={'display':'block'}), 
                                                                               ], id='sky_expert_page')
 
@@ -971,7 +971,7 @@ model_skt_compare_simple = dbc.Modal(
                                     type="text",
                                     name="risk",
                                     placeholder="e.g. 20", 
-                                    style={"width": "80px", "margin-left": "15px"}
+                                    style={"width": "80px", "marginLeft": "15px"}
                                 ),
                                 html.Span(
                                     [html.P("The risk of comparator ranges from 10 per 1000 to 30 per 1000 in the dataset.")], 
@@ -1001,7 +1001,7 @@ model_skt_compare_simple = dbc.Modal(
                                     className="skt_span_info2",
                                     id="mean_modif",
                                 ),
-                            ], style={'margin-right': '20px'}, id= 'text_info_col'
+                            ], style={'marginRight': '20px'}, id= 'text_info_col'
                         ),
                         dbc.Col(dcc.Loading(
                                     html.Div([
@@ -1030,14 +1030,14 @@ model_skt_compare_simple = dbc.Modal(
                     ], 
                     style={'display': 'grid', 
                            'grid-template-columns': '1fr 1fr', 
-                           'align-items': 'center', 'border-bottom': '2px solid green'}
+                           'alignItems': 'center', 'borderBottom': '2px solid green'}
                 ),
                 
                 dbc.Row([html.Span("Study Information", 
                                     className="studyinfo_simple"),
                                     modal_compare_grid],
                         style={'width':'95%', 'justify-self':'center',
-                               'justify-content':'center'}),
+                               'justifyContent':'center'}),
             ],
             className="skt_info_body_simple",
         ),
@@ -1070,18 +1070,18 @@ def skt_nonexpert():
                 # dcc.Markdown('Scalable Knowledge Translation Tool',
                 #                                 className="markdown_style_main",
                 #                                 style={
-                #                                     "font-size": '30px',
-                #                                     'text-align': 'center',
+                #                                     "fontSize": '30px',
+                #                                     'textAlign': 'center',
                 #                                     'color':'#5c7780',
                 #                                        }),
                                             html.Br(id='yoda_stand_start'),html.Br(),
                                             dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
                                                 className="markdown_style_main",
                                                 style={
-                                                    "font-size": '25px',
-                                                    'text-align': 'start',
-                                                    'font-family': 'math',
-                                                    "font-weight": 'bold',
+                                                    "fontSize": '25px',
+                                                    'textAlign': 'start',
+                                                    'fontFamily': 'math',
+                                                    "fontWeight": 'bold',
                                                     'color':'rgb(184 80 66)',
                                                     'width': '90%'
                                                        }),
@@ -1131,17 +1131,17 @@ def skt_nonexpert():
                                                                               ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'25%'}),
                                                             dbc.Col(dbc.Toast(
                                                                               [
-                                                                              html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                              html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'fontWeight': 'bold'}),
                                                                               html.Span('Mean age: 45.3',className='skt_span1'),
                                                                               html.Span('Mean male percentage: 43.4%',className='skt_span1'),
                                                                               html.Button('Distribution of modifiers', id='trans_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
-                                                                                                                   'background-color':'#dedecf',
+                                                                                                                   'backgroundColor':'#dedecf',
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
                                                                                                                     'padding': '4px'}),
-                                                                              ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'25%','margin-left': '1%'}),
+                                                                              ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'25%','marginLeft': '1%'}),
                                 
                                                             model_transitivity,             
                                                                               ], className='row_skt'),
@@ -1161,33 +1161,33 @@ def skt_nonexpert():
                                                                                                             },
                                                                                                             )),],id="query-diagram",)]),
                                                                             dbc.Row([html.Span('Ask Dr.Bot',className='skt_span1', 
-                                                                                              style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                                              style={'color': '#B85042', 'fontWeight': 'bold'}),
                                                                                               html.Img(src="/assets/icons/chatbot.png",
                                                                                                        style={ "height": 30, 
-                                                                                                              'margin-left': '7px'})
-                                                                                              ], style={'justify-content':'center',
-                                                                                                        'align-items': 'center'}),
+                                                                                                              'marginLeft': '7px'})
+                                                                                              ], style={'justifyContent':'center',
+                                                                                                        'alignItems': 'center'}),
                                                                             #  html.Span('Please tick to select the reference treatment', className='note_tick')
-                                                                                ], style={'padding-top': 0, 'display':'grid', 'grid-template-columns': '1fr 1fr'}),
+                                                                                ], style={'paddingTop': 0, 'display':'grid', 'grid-template-columns': '1fr 1fr'}),
                                                                         dbc.Row([dbc.Col(cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
                                                                                     minZoom=0.6,  maxZoom=1.5,  panningEnabled=True,   
                                                                                     elements=get_skt_elements(),
                                                                                     style={ 
                                                                                         'height': '100%', 
                                                                                         'width': '100%', 
-                                                                                        'margin-top': '-2%',
+                                                                                        'marginTop': '-2%',
                                                                                         'z-index': '999',
-                                                                                        'padding-left': '-10px', 
+                                                                                        'paddingLeft': '-10px', 
                                                                                             # 'max-width': 'calc(52vw)',
                                                                                         },
                                                                             layout={'name':'circle','animate': False, 'fit':True },
                                                                             stylesheet=skt_stylesheet()), 
-                                                                            style={'border-right': '3px solid #B85042',
+                                                                            style={'borderRight': '3px solid #B85042',
                                                                                     'width': '50%'}),
                                                                             # dbc.Col(render_chatbot(), style={'width':'50%','justify-items': 'center',"height": "500px"})
                                                                             # dbc.Col([
                                                                             #     # html.Span('Interventions practical issues',className='skt_span1', 
-                                                                            #     #               style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                            #     #               style={'color': '#B85042', 'fontWeight': 'bold'}),
                                                                             #         dbc.Row([
                                                                             #                 dbc.Col([html.Img(src=ROUTINE,
                                                                             #                 width="45px", style={'justify-self':'center'},
@@ -1216,12 +1216,12 @@ def skt_nonexpert():
                                                                             #                 className='col_results1'),
                                                                             #                 ],
                                                                             #                 style={'width' : '-webkit-fill-available',
-                                                                            #                             'justify-content': 'center',}
+                                                                            #                             'justifyContent': 'center',}
                                                                             #                             ),
                                                                             #         dbc.Row(html.Span(id='trigger_info2'),
-                                                                            #             style={'align-items': 'center','margin-bottom': '50%',
-                                                                            #                    'display': 'grid','background-color':'burlywood', 'height': '95%'})
-                                                                            #                             ],style={'width':'50%', 'justify-content': 'center','display': 'grid'})
+                                                                            #             style={'alignItems': 'center','marginBottom': '50%',
+                                                                            #                    'display': 'grid','backgroundColor':'burlywood', 'height': '95%'})
+                                                                            #                             ],style={'width':'50%', 'justifyContent': 'center','display': 'grid'})
                                                                                                         ]),], className='tab3_col2')], className='row_skt'),
                                                       html.Br(),
                                                       dbc.Row(
@@ -1230,10 +1230,10 @@ def skt_nonexpert():
                                                                 model_skt_compare_simple,
                                                                 # dbc.Row([dbc.Col([
                                                                 # html.Span('Absolute Values for Comparators (per 1000)',className='skt_span1', 
-                                                                #         style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                #         style={'color': '#B85042', 'fontWeight': 'bold'}),
                                                                 #         outcome_absolute],className='out_abs_col'),
                                                                 #         # dbc.Col([html.Img(src=RANK, style={'justify-self':'center','width':'300px'}, id='rank_img')],className='out_rank_col')
-                                                                #         ], style={'justify-content':'space-around'}),
+                                                                #         ], style={'justifyContent':'space-around'}),
                                                                         dbc.Row(treat_compare_grid, 
                                                                                 style={'width':'95%', 'justify-self':'center'}),
                                                                         ],
@@ -1244,19 +1244,19 @@ def skt_nonexpert():
                                                 dcc.Markdown('Expert Committee Members',
                                                 className="markdown_style_main",
                                                 style={
-                                                        "font-size": '20px',
-                                                        'text-align': 'center',
+                                                        "fontSize": '20px',
+                                                        'textAlign': 'center',
                                                         'color':'orange',
-                                                        'border-bottom': '2px solid',
-                                                        'font-weight': 'bold',
+                                                        'borderBottom': '2px solid',
+                                                        'fontWeight': 'bold',
                                                         'height': 'fit-content',
-                                                        # 'margin-left': '20px',
+                                                        # 'marginLeft': '20px',
                                                         'width': '100%',
-                                                        'margin-top': '0'
+                                                        'marginTop': '0'
                                                         }),
                                                 dcc.Markdown('Toshi Furukawa, Isabelle Boutron, Emily Karahalios, Tianjing li, Michael Mccaul, Adriani Nikolakopoulou, Haliton Oliveira, Thodoris Papakonstantiou, Georgia Salanti, Guido Schwarzer, Ian Saldanha, Nicky Welton, Sally Yaacoub',
-                                                                className="markdown_style", style={"color": "black", 'font-size': 'large'}),
-                                                html.Br(),html.Br(),html.Br(),],style={ 'width': '95%', 'padding-left': '5%'}) 
+                                                                className="markdown_style", style={"color": "black", 'fontSize': 'large'}),
+                                                html.Br(),html.Br(),html.Br(),],style={ 'width': '95%', 'paddingLeft': '5%'}) 
                                                         ], style={'display':'block'}), 
                                                                               ], id="skt_nonexpert_page",style={'display':'block'})
 ####################################################################################################################################################################
@@ -1414,14 +1414,14 @@ for column_idx, column in enumerate(column_names):
 
 treatnames = df_league.columns[1:]
 
-default_style = {'white-space': 'pre',
+default_style = {'whiteSpace': 'pre',
                 'display': 'grid',
-                'text-align': 'center',
-                # 'align-items': 'center',
+                'textAlign': 'center',
+                # 'alignItems': 'center',
                 'border': 'solid 0.5px gray',
-                # 'line-height': 'initial'
+                # 'lineHeight': 'initial'
                 'height' : '163px',
-                'line-height': 'normal'
+                'lineHeight': 'normal'
                 }
 
 columnDefs2=[
@@ -1431,8 +1431,8 @@ columnDefs2=[
      "tooltipComponentParams": { "color": '#d8f0d3' },
      "sortable": False,
      "filter": True, 
-     'cellStyle': {'font-weight':'bold',
-                    'background-color':'#B85042','color':'white','font-size':'12px', **default_style}}  
+     'cellStyle': {'fontWeight':'bold',
+                    'backgroundColor':'#B85042','color':'white','fontSize':'12px', **default_style}}  
     ]+[{"field": i,
         "cellRenderer": "DCC_GraphClickData",
         "maxWidth": 500,
@@ -1452,11 +1452,11 @@ columnDefs2=[
 #                    "filter": True, "minWidth":125,
 #                    "wrapText": True, 
 #                    'autoHeight': True,
-#                     'cellStyle': {'white-space': 'pre',
+#                     'cellStyle': {'whiteSpace': 'pre',
 #                                   'display': 'grid2',
-#                                   'text-align': 'center',
-#                                 #   'align-items': 'center',
-#                                   'background-color':'#E7E8D1',
+#                                   'textAlign': 'center',
+#                                 #   'alignItems': 'center',
+#                                   'backgroundColor':'#E7E8D1',
 #                                   'border': 'solid 0.5px gray',
 #                                 #   "styleConditions":styleConditions
 #                                     # "styleConditions": [

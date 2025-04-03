@@ -15,7 +15,7 @@ def __update_forest_pairwise(edge, outcome_idx, forest_data_prws, style_pair,net
         slctd_compsinv += [f'{trgt} vs {src}']
         df = pd.read_json(forest_data_prws[outcome_idx], orient='split')
         df = df.reset_index(drop=True)
-        net_data = pd.read_json(net_storage[0], orient='split')
+        net_data = pd.read_json(get_net_data_json(net_storage), orient='split')
         outcome_direction_data = net_data[f'outcome{outcome_idx+1}_direction'].iloc[1]
         outcome_direction = False if outcome_direction_data == 'beneficial' else True
         df['Comparison'] = df['treat1'] + ' vs ' + df['treat2']

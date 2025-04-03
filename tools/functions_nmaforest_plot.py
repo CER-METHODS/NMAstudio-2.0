@@ -16,7 +16,7 @@ def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
             forest_data = pd.read_json(forest_data[i], orient='split')
                 
         df = forest_data[forest_data.Reference == treatment]
-        net_data = pd.read_json(net_storage[0], orient='split')
+        net_data = pd.read_json(get_net_data_json(net_storage), orient='split')
         outcome_direction_data = net_data[f'outcome{i+1}_direction'].iloc[1]
         outcome_direction = False if outcome_direction_data == 'beneficial' else True
         effect_size = df.columns[1]

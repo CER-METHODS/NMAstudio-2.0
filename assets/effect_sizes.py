@@ -1,4 +1,5 @@
 import numpy as np, pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
 from scipy.special import loggamma
 #### OR
 def get_OR(df, effect=1):

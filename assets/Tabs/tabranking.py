@@ -1,4 +1,6 @@
-import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
+from dash import html
+from dash import dcc
+import dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.COLORS import *
 
@@ -6,10 +8,10 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
                              children=[
                          dcc.Tab(label='P-scores Heatmap', id='tab-rank1', value='Tab-rank1', className='control-tab',
                                  style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
-                                        'align-items': 'center',
+                                        'alignItems': 'center',
                                         'font-size': '12px', 'color': 'grey', 'padding': '0'},
                                  selected_style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
-                                                 'align-items': 'center','background-color': '#f5c198',
+                                                 'alignItems': 'center','background-color': '#f5c198',
                                                  'font-size': '12px', 'padding': '0'},
                                  children=[
                                      
@@ -55,10 +57,10 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
 
                          dcc.Tab(label='P-scores Scatter plot', id='tab-rank2', value='Tab-rank2', className='control-tab',
                                  style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
-                                        'align-items': 'center',
+                                        'alignItems': 'center',
                                         'font-size': '12px', 'color': 'grey', 'padding': '0'},
                                  selected_style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
-                                                 'align-items': 'center','background-color': '#f5c198',
+                                                 'alignItems': 'center','background-color': '#f5c198',
                                                  'font-size': '12px', 'padding': '0'},
                                  children=[
                                      dbc.Col(dbc.Row(

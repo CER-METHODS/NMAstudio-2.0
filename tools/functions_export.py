@@ -143,4 +143,5 @@ def __generate_xlsx_netsplit(n_nlicks, consistencydata):
 
     return dash.dcc.send_bytes(to_xlsx, filename="Netsplit_Table.xlsx")
     ###########return dash.dcc.send_data_frame(writer.save(), filename="Netsplit_Table_table.xlsx")
+    
 

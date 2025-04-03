@@ -12,7 +12,7 @@ from functools import lru_cache
 #     df = pd.read_json(ranking_data, orient='split')
 #     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]  # Remove unnamed columns
 #     outcomes = ("Outcome 1", "Outcome 2")
-#     net_storage = pd.read_json(net_data[0], orient='split')
+#     net_storage = pd.read_json(get_net_data_json(net_data), orient='split')
 
 #     outcome_direction_data1 = net_storage['outcome1_direction'].iloc[1]
 #     outcome_direction_1 = False if outcome_direction_data1 == 'beneficial' else True
@@ -73,7 +73,7 @@ def __ranking_plot(ranking_data, out_number, out_idx1, out_idx2,net_data):
     df = df.rename(columns={'pscore': 'pscore1'})
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]  # Remove unnamed columns
     outcomes = tuple(f"Outcome {i+1}" for i in range(out_number))
-    net_storage = pd.read_json(net_data[0], orient='split')
+    net_storage = pd.read_json(get_net_data_json(net_data), orient='split')
     
 
 
@@ -139,7 +139,7 @@ def __ranking_plot(ranking_data, out_number, out_idx1, out_idx2,net_data):
 
 
 # def __ranking_scatter(df, net_data, outcome_direction_1, outcome_direction_2):
-#     net_data = pd.read_json(net_data[0], orient='split')
+#     net_data = pd.read_json(get_net_data_json(net_data), orient='split')
 
 #     if 'pscore2' in df.columns:
 #         df = df.dropna()
@@ -247,7 +247,7 @@ def __ranking_heatmap(treatments, pscores, outcomes, z_text):
 
 
 def __ranking_scatter(df, net_data, outcome_direction_1, outcome_direction_2, out_idx1, out_idx2):
-    net_data = pd.read_json(net_data[0], orient='split')
+    net_data = pd.read_json(get_net_data_json(net_data), orient='split')
     
     if out_idx1 != out_idx2:
         df = df.dropna()

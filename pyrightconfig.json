@@ -1,0 +1,7 @@
+{
+  "include": ["**/*.py"],
+  "exclude": ["**/node_modules", "**/__pycache__"],
+  "extraPaths": ["."],
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "warning"
+}

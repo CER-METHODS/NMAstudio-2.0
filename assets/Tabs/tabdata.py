@@ -3,7 +3,6 @@ import pandas as pd
 import datetime
 from assets.dropdowns_values import *
 from tools.utils import set_slider_marks
-default_data = pd.read_csv('db/psoriasis_wide_complete.csv')
 
 YEARS_DEFAULT = np.array(
     [
@@ -75,8 +74,6 @@ def tab_data(years=YEARS_DEFAULT):
             dash_table.DataTable(
                 id="datatable-upload-container",
                 editable=False,
-                # data = default_data.to_dict('records'),
-                # columns=[{"name": c, "id": c} for c in default_data.columns],
                 # export_format="csv",
                 fixed_rows={"headers": True, "data": 0},
                 style_cell={
@@ -139,9 +136,6 @@ def raw_data():
             dash_table.DataTable(
                 id="datatable-raw-container",
                 editable=False,
-                # data = default_data.to_dict('records'),
-                # columns=[{"name": c, "id": c} for c in default_data.columns],
-                # export_format="csv",
                 fixed_rows={"headers": True, "data": 0},
                 style_cell={
                     "backgroundColor": "white",

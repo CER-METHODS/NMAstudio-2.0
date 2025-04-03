@@ -1,4 +1,6 @@
-import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
+from dash import html
+from dash import dcc
+import dash_bootstrap_components as dbc
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 import numpy as np

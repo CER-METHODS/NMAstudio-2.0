@@ -13,25 +13,26 @@ The app is currently deployed here: www.nmastudioapp.com
 
 First, clone this repository and open a terminal inside the root folder.
 
-Create and activate a new virtual environment (recommended) by running
+Make sure you have installed (mini)conda on your machine.
+
+Create and activate a new conda environment by running
 the following:
 
+Create nmastudio environment and install requirements:
 ```bash
-python3 -m venv myvenv
-source myvenv/bin/activate
+conda env create -f requirements.yml
 ```
 
-Install the requirements:
-
+Activate environment
 ```bash
-pip install -r requirements.txt
+conda activate nmastudio
 ```
 Run the app:
 
 ```bash
 python app.py
 ```
-Open a browser at http://127.0.0.1:8050
+Open a browser at http://127.0.0.1:8080
 
 
  ![demo.gif](assets/favicon.ico) 

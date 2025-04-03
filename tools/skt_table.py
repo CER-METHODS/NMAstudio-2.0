@@ -55,7 +55,7 @@ import json
 #                     'cellStyle': {'white-space': 'pre',
 #                                   'display': 'grid',
 #                                   'text-align': 'center',
-#                                   'align-items': 'center',
+#                                   'alignItems': 'center',
 #                                   'border-bottom': 'solid 0.5px'
 #                                   },
 #                     # "tooltipComponent": "CustomTooltip"
@@ -101,7 +101,7 @@ df['RR_out2'] = df.apply(lambda row: f"{row['RR_out2']}\n({row['CI_lower_out2']}
 
 df_origin = df.copy()
 
-style_certainty = {'white-space': 'pre','display': 'grid','text-align': 'center','align-items': 'center','border-left': 'solid 0.8px'}
+style_certainty = {'white-space': 'pre','display': 'grid','text-align': 'center','alignItems': 'center','border-left': 'solid 0.8px'}
 ColumnDefs_treat_compare = [
    
     {"headerName": "Treatment", 
@@ -219,7 +219,7 @@ treat_compare_grid = dag.AgGrid(
                     'cellStyle': {'white-space': 'pre',
                                   'display': 'grid',
                                   'text-align': 'center',
-                                  'align-items': 'center',
+                                  'alignItems': 'center',
                                   'line-height': 'normal'
                                   },
                     "animateRows": False,
@@ -381,7 +381,7 @@ modal_compare_grid = dag.AgGrid(
                     'cellStyle': {'white-space': 'pre',
                                   'display': 'grid',
                                   'text-align': 'center',
-                                  'align-items': 'center',
+                                  'alignItems': 'center',
                                   'line-height': 'normal'
                                   },
                     "animateRows": False,

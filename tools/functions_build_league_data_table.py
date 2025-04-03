@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd
-import dash, dash_html_components as html
-import dash_table
+from dash import html
+from dash import dash_table
 from tools.utils import set_slider_marks
 from assets.COLORS import *
 
@@ -324,15 +324,24 @@ from assets.COLORS import *
 
 
 
+# def __update_output_(slider_value, 
 
-def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, toggle_cinema, toggle_cinema_modal,
-                  league_table_data, cinema_net_data, data_and_league_table_DATA,
-                  forest_data,  reset_btn,  outcome_idx, net_storage, raw_storage):
-    # if outcome_idx:
-    #     outcome_idx = outcome_idx
-    # else:
-    #     outcome_idx = 0
-
+#THIS FUNCTION UPDATES ALMOST EVERYTHING
+def __update_output_new(slider_value, 
+                        store_node,
+                        store_edge,
+                        net_data,
+                        raw_data, 
+                        toggle_cinema, 
+                        toggle_cinema_modal,
+                        league_table_data, 
+                        cinema_net_data, 
+                        data_and_league_table_DATA,
+                        forest_data,
+                        reset_btn,
+                        outcome_idx,
+                        net_storage,
+                        raw_storage):
     YEARS_DEFAULT = np.array([1963, 1990, 1997, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010,
                               2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
 
@@ -577,7 +586,7 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
     return dash_table.DataTable(style_cell={'backgroundColor': 'rgba(0,0,0,0.1)',
                                             'color': 'black',
                                             'border': '1px solid #5d6d95',
-                                            'font-family': 'sans-serif',
+                                            'fontFamily': 'sans-serif',
                                             'fontSize': 11,
                                             'minWidth': '55px',
                                             'textAlign': 'center',
@@ -609,7 +618,7 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
                                     'minWidth': '100%',
                                     'max-height': 'calc(85vh)',
                                     'width': '99%',
-                                    'margin-top': '10px',
+                                    'marginTop': '10px',
                                     'padding': '5px 5px 5px 5px'
                                 },
                                 css=[{"selector": '.dash-cell div.dash-cell-value',  # "table",
@@ -906,5 +915,3 @@ def __update_output_bothout( store_node,store_edge,toggle_cinema,
 
 
     return  league_table, legend, toggle_cinema
-
-

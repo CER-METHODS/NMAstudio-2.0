@@ -83,7 +83,7 @@ def skt_stylesheet(node_size=False, classes=False, edg_col= 'grey', nd_col='#50a
     default_stylesheet = [
         {"selector": 'node',
          'style': {"opacity": nodes_opacity,
-                   'background-color': nd_col,
+                   'backgroundColor': nd_col,
                    'node-text-rotation': 'autorotate',
                    'line-color':'black',
                    'label': "data(label)",
@@ -106,7 +106,7 @@ def skt_stylesheet(node_size=False, classes=False, edg_col= 'grey', nd_col='#50a
     if classes:
        # default_stylesheet[0]['style'].update({"shape": "triangle"})
        list_classes = [{'selector': '.' + f'{x}',
-                        'style': {'background-color': f'{x}',
+                        'style': {'backgroundColor': f'{x}',
                                   }} for x in cmaps_class]
        for x in list_classes:
            default_stylesheet.append(x)
@@ -116,11 +116,11 @@ def skt_stylesheet(node_size=False, classes=False, edg_col= 'grey', nd_col='#50a
     # if edg_col:   default_stylesheet[1]['style'].update({'line-color': edg_col})
     if edg_lbl:   default_stylesheet[1]['style'].update({'label': 'data(weight_lab)'})
     if pie:       default_stylesheet[0]['style'].update({
-                                               'pie-1-background-color': '#E8747C',
+                                               'pie1BackgroundColor': '#E8747C',
                                                'pie-1-background-size': 'mapData(pie3, 0, 1, 0, 100)',
-                                               'pie-2-background-color': '#f8d49d', #'#74CBE8',
+                                               'pie2BackgroundColor': '#f8d49d', #'#74CBE8',
                                                'pie-2-background-size': 'mapData(pie2, 0, 1, 0, 100)',
-                                               'pie-3-background-color': '#5aa469',
+                                               'pie3BackgroundColor': '#5aa469',
                                                'pie-3-background-size': 'mapData(pie1, 0, 1, 0, 100)',
          })
     return default_stylesheet

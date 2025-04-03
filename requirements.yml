@@ -93,8 +93,11 @@ dependencies:
       - typing-extensions==4.12.2
       - tzdata==2021.5
       - tzlocal==4.1
-      - urllib3==2.3.0
-      - werkzeug==3.0.6
-      - xlsxwriter==3.0.2
-      - zipp==3.21.0
+       - urllib3==2.3.0
+       - werkzeug==3.0.6
+       - xlsxwriter==3.0.2
+       - zipp==3.21.0
+       - playwright==1.40.0
+       - pytest-playwright==0.4.0
+       - python-dotenv==1.0.0
 prefix: /opt/anaconda3/envs/nmastudio
