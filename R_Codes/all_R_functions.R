@@ -337,11 +337,11 @@ league_rank_new <- function(dat, i){
                   direct
                 )
 
-                indirect <- ifelse(
-                  length(indirect) > 0 & !is.na(indirect),
-                  paste0(round(indirect, 2), " (", round(indi_lower, 2), ", ", round(indi_upper, 2), ")"),
-                  indirect
-                )
+    indirect <- ifelse(
+      length(indirect) > 0 & !is.na(indirect),
+      paste0(round(indirect, 2), " (", round(indi_lower, 2), ", ", round(indi_upper, 2), ")"),
+      indirect
+    )
     df_cons <- data.frame(comparison, direct, indirect, p)
     colnames(df_cons) <- c("comparison", "direct", "indirect", "p-value")
     comp_all <- ne$compare.random$comparison
@@ -956,7 +956,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
    for (i in 1:num_outcome){
     sm <- dat[[paste0("effect_size", i)]][1] 
     if(sm %in% c('RR','OR')) {
-        pair_dat <- netmeta::pairwise(data=dat,
+        pair_dat <- meta::pairwise(data=dat,
                                        event=list(dat[[paste0("r1", i)]], dat[[paste0("r2", i)]]),
                                        n=list(dat[[paste0("n1", i)]], dat[[paste0("n2", i)]]),
                                        studlab=studlab,
@@ -975,7 +975,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
     }else {
         
-        pair_dat <- netmeta::pairwise(data=dat,
+        pair_dat <- meta::pairwise(data=dat,
                                             mean=list(dat[[paste0("y1", i)]], dat[[paste0("y2", i)]]),
                                             sd=list(dat[[paste0("sd1", i)]], dat[[paste0("sd2", i)]]),
                                             n=list(dat[[paste0("n1", i)]], dat[[paste0("n2", i)]]),
