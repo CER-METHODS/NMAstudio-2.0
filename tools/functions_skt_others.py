@@ -46,10 +46,12 @@ def get_skt_elements():
     max_size = max(all_nodes_sized['n'])
 
     # Calculate the range of 'size'
-    size_range = max_size - min_size
-
+    size_range = (max_size - min_size)
+    
     # Normalize the values in 'size' to the range of 10 to 60
+  
     normalized_size = [(s - min_size) / size_range for s in all_nodes_sized.n]
+    
     number = [int(n * 60) + 20 for n in normalized_size]
     all_nodes_sized['n_2']=number
 

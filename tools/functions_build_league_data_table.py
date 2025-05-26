@@ -355,12 +355,13 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
     if 'rob_vs_cinema.value' in triggered: toggle_cinema_modal = toggle_cinema
     elif 'rob_vs_cinema_modal.value' in triggered: toggle_cinema = toggle_cinema_modal
 
-    if 'slider-year.value' in triggered:
-        _data = pd.read_json(data_and_league_table_DATA['FULL_DATA'], orient='split').round(3)
-        data_output = _data[_data.year <= slider_value].to_dict('records')
-        _OUTPUT0 = data_and_league_table_DATA['OUTPUT']
-        _output = [data_output] + [_OUTPUT0[1]] + [data_output] + _OUTPUT0[3: ]
-        return _output + _out_slider + [data_and_league_table_DATA]
+    # if 'slider-year.value' in triggered:
+    #     _data = pd.read_json(data_and_league_table_DATA['FULL_DATA'], orient='split').round(3)
+    #     data_output = _data[_data.year <= slider_value].to_dict('records')
+    #     _OUTPUT0 = data_and_league_table_DATA['OUTPUT']
+    #     _output = [data_output] + [_OUTPUT0[1]] + [data_output] + _OUTPUT0[3: ]
+        
+    #     return _output + _out_slider + [data_and_league_table_DATA]
 
 
 
@@ -386,11 +387,29 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
     comprs_downgrade  = pd.DataFrame()
     comprs_conf_lt = comprs_conf_ut = None
     
+    # if store_edge or store_node:
+    #     slctd_nods = {n['id'] for n in store_node} if store_node else set()
+    #     slctd_edgs = [e['source'] + e['target'] for e in store_edge] if store_edge else []
+    #     net_data = net_data[net_data.treat1.isin(slctd_nods) | net_data.treat2.isin(slctd_nods)
+    #                 | (net_data.treat1 + net_data.treat2).isin(slctd_edgs) | (net_data.treat2 + net_data.treat1).isin(slctd_edgs)]
     if store_edge or store_node:
+        # Extract selected nodes
         slctd_nods = {n['id'] for n in store_node} if store_node else set()
-        slctd_edgs = [e['source'] + e['target'] for e in store_edge] if store_edge else []
-        net_data = net_data[net_data.treat1.isin(slctd_nods) | net_data.treat2.isin(slctd_nods)
-                    | (net_data.treat1 + net_data.treat2).isin(slctd_edgs) | (net_data.treat2 + net_data.treat1).isin(slctd_edgs)]
+
+        # Extract selected edges by combining sources and targets
+        slctd_edgs = set(e['source'] + e['target'] for e in store_edge) if store_edge else set()
+
+
+        net_data['treat1'] = net_data['treat1'].astype(str)
+        net_data['treat2'] = net_data['treat2'].astype(str)
+
+        # Filter the network data
+        net_data = net_data[
+            net_data.treat1.isin(slctd_nods) |
+            net_data.treat2.isin(slctd_nods) |
+            (net_data.treat1 + net_data.treat2).isin(slctd_edgs) |
+            (net_data.treat2 + net_data.treat1).isin(slctd_edgs)
+        ]
 
 
     if toggle_cinema:
@@ -408,6 +427,7 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
         comprs_conf_lt = comparisons1  # Lower triangle
         comprs_downgrade_lt = comprs_conf_lt
         comprs_downgrade_ut = comprs_conf_ut
+        
         if "Reason(s) for downgrading" in cinema_net_data.columns:
             downgrading1 = cinema_net_data["Reason(s) for downgrading"]
             comprs_downgrade_lt['Downgrading'] = downgrading1
@@ -416,6 +436,7 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
             comprs_downgrade_ut['Downgrading'] = downgrading2
             comprs_downgrade = pd.concat([comprs_downgrade_ut, comprs_downgrade_lt])
             comprs_downgrade = comprs_downgrade.pivot(index=0, columns=1, values='Downgrading')
+        
         comprs_conf_lt['Confidence'] = confidence1
         comprs_conf_ut['Confidence'] = confidence2
         comprs_conf = pd.concat([comprs_conf_ut, comprs_conf_lt])
@@ -431,7 +452,7 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
         slctd_trmnts = [nd['id'] for nd in store_node]
         if len(slctd_trmnts) > 0:
             forest_data = pd.read_json(forest_data[outcome_idx], orient='split')
-            net_data = pd.read_json(net_storage[0], orient='split')
+            # net_data = pd.read_json(net_storage[0], orient='split')
             # forest_data_out2 =  None
             dataselectors = []
             dataselectors += [forest_data.columns[1], net_data["outcome1_direction"].iloc[1]]
@@ -563,7 +584,7 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
 
     data_and_league_table_DATA['FULL_DATA'] = net_data.to_json( orient='split')
     data_and_league_table_DATA['OUTPUT'] = _output
-    data_raw_output = raw_data.to_dict('records')
+    data_raw_output = raw_data[raw_data.year <= slider_value].to_dict('records')
     data_raw_cols = [{"name": c, "id": c} for c in raw_data.columns]
     lis = _output + _out_slider + [data_and_league_table_DATA] +[data_raw_output, data_raw_cols]
     return  _output + _out_slider + [data_and_league_table_DATA] +[data_raw_output, data_raw_cols]

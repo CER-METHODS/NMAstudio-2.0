@@ -251,7 +251,13 @@ def get_network_new(df, i):
     size_range = max_size - min_size
 
     # Normalize the values in 'size' to the range of 10 to 60
-    normalized_size = [(s - min_size) / size_range for s in all_nodes_sized.n]
+    if size_range == 0:
+    # Assign a default normalized size if all values are identical
+        normalized_size = [1.0 for _ in all_nodes_sized.n]  # or any other constant value
+    else:
+        # Perform normalization
+        normalized_size = [(s - min_size) / size_range for s in all_nodes_sized.n]
+    
     number = [int(n * 60) + 20 for n in normalized_size]
     all_nodes_sized['n_2']=number
 

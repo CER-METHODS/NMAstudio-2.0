@@ -353,7 +353,7 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
     # )
 
     # red_palettes = (
-    #     px.colors.sequential.Reds[1::]+
+    #     px.colors.sequential.Reds[1::1]+
     #     px.colors.sequential.Burg[1::]
     # )
     # # Use a qualitative palette with more blues (e.g., 'Dark24' or 'Light24')
@@ -379,9 +379,14 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
     # y_min, y_max = min(df_second['CI_lower']), max(df_second['CI_upper'])
 
     # # Create log-spaced ticks starting from 1 and including 1
-    # x_ticks = np.logspace(np.log10(x_min), np.log10(x_max), 10)  # 10 ticks from 1 to x_max
-    # y_ticks = np.logspace(np.log10(y_min), np.log10(y_max), 10)  # 10 ticks from 1 to y_max
+    # # x_ticks = np.logspace(np.log10(x_min), np.log10(x_max), 10)  # 10 ticks from 1 to x_max
+    # # y_ticks = np.logspace(np.log10(y_min), np.log10(y_max), 10)  # 10 ticks from 1 to y_max
+    # value = [-1, -0.9, -0.8,-0.7,-0.6,-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3]
+    # x_ticks = np.exp(value) 
 
+    # value_y = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+ 
+    # y_ticks = np.exp(value_y)
     # # # Ensure that 1 is included as the first tick
     # # if 1 not in x_ticks:
     # #     x_ticks = np.insert(x_ticks, 0, 1)
@@ -444,7 +449,7 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
     #         )
     #     )
 
-    # # Update axes to match log scale if required
+    # Update axes to match log scale if required
     # fig.update_layout(
     #     xaxis=dict(
     #         type="log" if xlog else "linear",
