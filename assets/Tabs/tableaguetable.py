@@ -1,4 +1,5 @@
 from assets.dropdowns_values import *
+from assets.Infos.leagueInfo import infoCinema
 
 
 tab_league = html.Div([
@@ -66,7 +67,7 @@ tab_league = html.Div([
                                   ]),
 
         dbc.Row([html.Div([
-                             html.Button('Export', id='league-export', n_clicks=0, className="btn-export",
+                             html.Button('Export table', id='league-export', n_clicks=0, className="btn-export",
                                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
                                                            'fontSize': 11, 'text-align': 'left',
                                                           'font-weight': '900', 'font-family': 'sans-serif',
@@ -74,20 +75,14 @@ tab_league = html.Div([
                              dcc.Download(id="download_leaguetable")
 
                                   ]),
-              dbc.Col([html.Div([html.P("Upload the CINeMA report file in its original format, with mandatory columns “Comparison” and “Confidence rating”",
-                         id='cinema-instruction',),
-                     html.A(
-                           html.Img(
-                                   src="/assets/icons/query.png",
-                                   style={
-                                   "width": "16px",},)),],
-                     id="queryicon-cinima"),
+              dbc.Col([
                      dcc.Upload(html.A('Upload CINeMA report',
                       style={'margin-left': '5px', 'font-size':'12px','color':'rgb(90, 135, 196)'}),
                id='datatable-secondfile-upload', 
                multiple=False,
                style={'display': 'inline-block', 'font-size': '12px', 'padding-left': '45px'})],
                style={'display': 'inline-block'}),
+               infoCinema,
               dbc.Col([html.Ul(id="file2-list", style={'margin-left': '15px', 'color':'#dae8e8',
                                                  'font-size':'11px'})],
             style={'display': 'inline-block'}
@@ -181,7 +176,7 @@ tab_league = html.Div([
 tab_league_both = html.Div([
 
         dbc.Row([html.Div([
-                             html.Button('Export', id='league-export-both', n_clicks=0, className="btn-export",
+                             html.Button('Export table', id='league-export-both', n_clicks=0, className="btn-export",
                                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
                                                            'fontSize': 11, 'text-align': 'left',
                                                           'font-weight': '900', 'font-family': 'sans-serif',
@@ -189,14 +184,7 @@ tab_league_both = html.Div([
                              dcc.Download(id="download_leaguetable_both")
 
                                   ]),
-              dbc.Col([html.Div([html.P("Upload the CINeMA report file in its original format, with mandatory columns “Comparison” and “Confidence rating”",
-                         id='cinema-instruction',),
-                     html.A(
-                           html.Img(
-                                   src="/assets/icons/query.png",
-                                   style={
-                                   "width": "16px",},)),],
-                     id="queryicon-cinima"),
+              dbc.Col([
                      dcc.Upload(html.A('Upload CINeMA report for outcome 1',
                       style={'margin-left': '5px', 'font-size':'12px','color':'rgb(90, 135, 196)'}),
                id='datatable-secondfile-upload-1', 

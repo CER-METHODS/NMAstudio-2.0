@@ -1,6 +1,7 @@
 import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.COLORS import *
+from assets.Infos.rankInfo import infoRank
 
 tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, persistence=True,
                              children=[
@@ -61,6 +62,7 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
                                                  'align-items': 'center','background-color': '#f5c198',
                                                  'font-size': '12px', 'padding': '0'},
                                  children=[
+                                     infoRank,
                                      dbc.Col(dbc.Row(
                                                  [
                                                 #  html.P(f"Select outcome 1",className="selectbox", style={'display': 'inline-block', "text-align": 'right',

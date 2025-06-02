@@ -1,12 +1,22 @@
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html, dcc
 
-def InfoModal(infoid,infotitle,infotxt):
+def __info_modal(infoid,infotitle,infotxt, direction="right"):
     infomodal = html.Div(
         [
             dbc.Button(
-                infotitle, id=f'open-body-{infoid}', n_clicks=0,
-                className="icon-info-sign"
+                 html.Img(
+                    src="/assets/icons/query.png",
+                    style={
+                        'display': 'inline-block',
+                        "width": "16px",
+                        "margin-top": "0px",
+                        "border-radius": "0px",},
+                ),
+                id=f'open-body-{infoid}', n_clicks=0,
+                className="icon-info-sign",
+                style={'display': 'inline-block',
+                       'float': f'{direction}'}
             ),
             dbc.Modal(
                 [

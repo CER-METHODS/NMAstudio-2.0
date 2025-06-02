@@ -13,6 +13,9 @@ from assets.storage import STORAGE
 from assets.alerts import alert_outcome_type, alert_data_type, R_errors_data, R_errors_nma, R_errors_pair, R_errors_league, R_errors_funnel, dataupload_error
 from dash_extensions import Download
 from assets.Tabs.saveload_modal_button import saveload_modal
+from assets.Infos.graphInfo import infoGraph
+from assets.Infos.dataInfo import infoExpand
+from assets.Infos.leagueInfo import infoLeague2, infoLeague1, infoRoB
 
 
 UP_LOGO = "/assets/logos/universite.jpeg"
@@ -92,29 +95,31 @@ def real_homelayout():
 
                                     html.Br(), html.Br(),
                                     html.Div([dbc.Row([
-                                                      dbc.Col([html.Img(src=BOXPLOT,
-                                                      width="70px", style={'justify-self':'center'}),
-                                                      html.Span('Boxplots for transitivity checks',className= 'main_results')], 
-                                                      className='col_results'),
                                                       dbc.Col([html.Img(src=NETPLOT,
                                                       width="70px", style={'justify-self':'center'}),
                                                       html.Span('Network plot for interventions', className= 'main_results')],
                                                       className='col_results'),
+                                                      dbc.Col([html.Img(src=BOXPLOT,
+                                                      width="70px", style={'justify-self':'center'}),
+                                                      html.Span('Boxplots for transitivity checks',className= 'main_results')], 
+                                                      className='col_results'),
                                                       dbc.Col([html.Img(src=FOREST,
                                                       width="70px", style={'justify-self':'center'}),
-                                                      html.Span('Forest plots for NMA & PWMA', className= 'main_results')],
+                                                      html.Span('Forest plots \
+                                                      for direct and network \
+                                                      estimates', className= 'main_results')],
                                                       className='col_results'),
                                                       dbc.Col([html.Img(src=TABLE,
                                                       width="70px", style={'justify-self':'center'}),
                                                       html.Span('League Table for relative effects', className= 'main_results')],
                                                       className='col_results'),
-                                                      dbc.Col([html.Img(src=CONS,
-                                                      width="70px", style={'justify-self':'center'}),
-                                                      html.Span('Global & Local consistency checks', className= 'main_results')],
-                                                      className='col_results'),
                                                       dbc.Col([html.Img(src=RANK,
                                                       width="70px", style={'justify-self':'center'}),
                                                       html.Span('Ranking plots for interventions', className= 'main_results')],
+                                                      className='col_results'),
+                                                      dbc.Col([html.Img(src=CONS,
+                                                      width="70px", style={'justify-self':'center'}),
+                                                      html.Span('Global & Local consistency checks', className= 'main_results')],
                                                       className='col_results'),
                                                       dbc.Col([html.Img(src=FUNEL,
                                                       width="70px", style={'justify-self':'center'}),
@@ -132,14 +137,14 @@ def real_homelayout():
                                         'color':'#5c7780',
                                             }),
                                     html.Br(),
-                                    dbc.Row([html.Button('Download Tutorial', id='full-tuto-pdf',
+                                    dbc.Row([html.Button('Download a Tutorial', id='full-tuto-pdf',
                                              style={'color': 'black',
                                                     'display': 'inline-block',
                                                     'justify-self':'center',
                                                     'padding': '4px'}),
                                     Download(id="download-tuto"),
                                     html.Span('or', style={'justify-self':'center','align-self': 'center'}),
-                                    dbc.NavLink('See the embeded example', href="/results", external_link=True,
+                                    dbc.NavLink('See an embeded example', href="/results", external_link=True,
                                                 className='go_to_example'),
                                     ], style={"display": 'grid', 'width':'450px', 'justify-self':'center','grid-template-columns': '1fr 1fr 1fr'}),
                                     html.Br(), html.Br(),
@@ -400,13 +405,12 @@ def home_layout():
                                                                        'letter-spacing': '0.3rem'},
                                                                 placement='top',
                                                                 target='network-zoomout'),
-                                                    
-                                                    dbc.Col([html.H4("Label size:",style={'font-size':'13px', 
+                                                    dbc.Col([html.H4("Font size:",style={'font-size':'13px', 
                                                                                                 #     'margin-left':'60px',
                                                                                                     'font-family': 'system-ui','width': '90px'}),
                                                            dcc.Input(id="label_size_input",
                                                               type="text",
-                                                              name='Label size',
+                                                              name='Font size',
                                                               style={'background-color':'white',
                                                                 #      'margin-left':'60px',
                                                                        'font-size':'10.5px',
@@ -414,7 +418,7 @@ def home_layout():
                                                                        'width': '70px'}, 
                                                                        placeholder="e.g. 30px",),
                                                                        ], style={'padding-left':'20px','margin-top':'-40px'}),
-                                                    dbc.Col([html.H4("Intervention:",style={'font-size':'13px', 
+                                                    dbc.Col([html.H4("Search an Intervention:",style={'font-size':'13px', 
                                                                                                         #      'margin-left':'150px',
                                                                                                              'font-family': 'system-ui',
                                                                                                              'width': '90px'
@@ -422,7 +426,7 @@ def home_layout():
                                                                                                              }),
                                                            dcc.Input(id="treat_name_input",
                                                               type="text",
-                                                              name='Label size',
+                                                              name='Font size',
                                                               style={'background-color':'white',
                                                                 #      'margin-left':'150px',
                                                                        'font-size':'10.5px',
@@ -442,12 +446,8 @@ def home_layout():
                                                         
                                                         ],id="info_icon"),
                                                        html.Div(modal_info, style={'display': 'inline-block', 'font-size': '11px'}),
-                                                        
-
-                                                    
-
+                                                       infoGraph
                                     ]),
-
                                            ], style={'margin-left': '-20px'}),
                          cyto.Cytoscape(id='cytoscape', responsive=False, autoRefreshLayout=True,
                                         minZoom=0.6,  maxZoom=1.2,     
@@ -520,8 +520,8 @@ def home_layout():
                                      ),
                            ),   
                                   html.Div([dbc.Row([
-                                                  html.H6("CLICK + SHIFT to select multiple network items", className="box__title2",
-                                                         ),
+                                                  # html.H6("CLICK + SHIFT to select multiple network items", className="box__title2"),
+                                                  infoExpand
                                                   ]),
                                           ]),
                                   html.Div([html.P(id='cytoscape-mouseTapEdgeData-output',  style={'margin-top':'-20px'},
@@ -585,7 +585,7 @@ def home_layout():
                                                                                 'align-items': 'center','background-color': '#f5c198',
                                                                                 'font-size': '12px', 'padding': '0'},
                                                              ),
-                                                     dcc.Tab(label='Raw Data', 
+                                                     dcc.Tab(label='Imported Data', 
                                                              id='raw_data', value='raw_data',
                                                              className='control-tab',
                                                              children=[raw_data()],
@@ -614,7 +614,7 @@ def home_layout():
                                     style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
                                                     'align-items': 'center'},
-                                    label='Forest plots', children=html.Div(className='control-tab', children=[tab_forests],
+                                    label='Forest plots for network estimates', children=html.Div(className='control-tab', children=[tab_forests],
                                                                             style={'overflowX': 'auto',
                                                                                         'overflowY': 'auto',
                                                                                         'height': '99%',
@@ -623,12 +623,15 @@ def home_layout():
                             dcc.Tab(id='league_tab',value= 'league_tab',style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
                                                     'align-items': 'center'},
-                                    label='League Tables',
-                                    children=html.Div(className='control-tab', children=[tab_league],  
+                                    label="League Tables for one outcome",
+                                    children=[infoLeague1, 
+                                              html.Div(className='control-tab',
+                                                      children=[infoRoB, tab_league],  
                                                                                 style={'overflowX': 'unset',
                                                                                         'overflowY': 'unset',
                                                                                         'height': '99%',
                                                                                                 })
+                                              ]
                             ),
                             dcc.Tab(id='consis_tab',value= 'consis_tab',style={'color': 'grey', 'display': 'none', 'justify-content': 'center', 'align-items': 'center'},
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
@@ -717,7 +720,7 @@ def home_layout():
                                 )], style={'display':'inline-block'}
                                      ),
                         dcc.Tabs(id='results_tabs2', persistence=True, children=[
-                            dcc.Tab(label='Pairwise', id='tab2', value='tab2', className='control-tab',
+                            dcc.Tab(label='Forest plots for direct estimates', id='tab2', value='tab2', className='control-tab',
                                          style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
                                                     'align-items': 'center'},
@@ -770,11 +773,12 @@ def home_layout():
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
                                                     'align-items': 'center'},
                                     label='League Tables for two outcomes',
-                                    children=html.Div(className='control-tab', children=[tab_league_both],  
+                                    children=[infoLeague2, html.Div(className='control-tab', children=[tab_league_both],  
                                                                                 style={'overflowX': 'unset',
                                                                                         'overflowY': 'unset',
                                                                                         'height': '99%',
                                                                                                 })
+                                              ]
                             ),
                             dcc.Tab(id='trans_tab', value= 'trans_tab', style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
                                     selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
