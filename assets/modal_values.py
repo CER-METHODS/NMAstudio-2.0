@@ -301,7 +301,7 @@ modal_data_table = dbc.Modal([
                                             'rule': 'background-color: rgba(0, 116, 217, 0.3) !important;'}])
                                   ]),
                    dbc.ModalFooter([
-                       html.Div([html.Button('Export', id='data-export', n_clicks=0, className="btn-export",
+                       html.Div([html.Button('Export table', id='data-export', n_clicks=0, className="btn-export",
                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
                                           'color': 'black', 'fontSize': 11, 'text-align':'left',
                                           'font-weight': '900', 'font-family': 'sans-serif',
@@ -350,7 +350,7 @@ modal_league_table = dbc.Modal([
                                   ]),
                      dbc.ModalFooter([
                          html.Div([
-                             html.Button('Export', id='league-export', n_clicks=0, className="btn-export",
+                             html.Button('Export table', id='league-export', n_clicks=0, className="btn-export",
                                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
                                                            'fontSize': 11, 'text-align': 'left',
                                                           'font-weight': '900', 'font-family': 'sans-serif',

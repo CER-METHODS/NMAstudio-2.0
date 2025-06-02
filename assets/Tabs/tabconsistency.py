@@ -1,6 +1,7 @@
 import dash_table, dash_daq as daq
 import dash_html_components as html, dash_bootstrap_components as dbc
 import dash_core_components as dcc
+from assets.Infos.inconsInfo import infoIncons
 
 from assets.storage import CONSISTENCY_DATA
 
@@ -8,6 +9,7 @@ def tab_consistency(consistency_data=CONSISTENCY_DATA):
     consistency_data['Q'] = consistency_data['Q'].round(2)
     consistency_data['p-value'] = consistency_data['p-value'].round(3)
     return html.Div([
+        infoIncons,
         html.Div([
        #      dbc.Col([
        #                       html.P(
@@ -107,7 +109,7 @@ def tab_consistency(consistency_data=CONSISTENCY_DATA):
               html.P("Select edge(s) to display specific comparison(s)",
                      style={'font-size': '12px', 'margin-top': '-1.2%', 'display': 'inline-block'},
                      className="box__title") ]),
-              html.Div([html.Button('Export', id='consistency-export', n_clicks=0, className="btn-export2",
+              html.Div([html.Button('Export table', id='consistency-export', n_clicks=0, className="btn-export2",
                                     style={'margin-right': '31%', 'padding': '4px 4px 4px 4px',
                                            'color': 'black', 'fontSize': 10, 'margin-top': '-7%',
                                            'font-weight': '900', 'font-family': 'sans-serif', 'display': 'inline-block',

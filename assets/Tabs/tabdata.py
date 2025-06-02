@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 from assets.dropdowns_values import *
 from tools.utils import set_slider_marks
+from assets.Infos.dataInfo import infoYear
 default_data = pd.read_csv('db/psoriasis_wide_complete.csv')
 
 YEARS_DEFAULT = np.array(
@@ -48,17 +49,17 @@ def tab_data(years=YEARS_DEFAULT):
                     id="slider-year",
                     tooltip=dict(placement="top"),
                 ),
-                html.Div([ html.P("Click the slider to see the evolution of the evidence over time. The data table will be filtered accordingly in real-time.",
-                              id='slider-instruction',),
-                html.A(
-                 html.Img(
-                    src="/assets/icons/query.png",
-                    style={
-                        "width": "16px",
-                        "margin-top": "0px",
-                        "border-radius": "0px",},
-                )),
-                ],id="query-icon",),
+                # html.Div([ html.P("Click the slider to see the evolution of the evidence over time. The data table will be filtered accordingly in real-time.",
+                              # id='slider-instruction',),
+                # html.A(
+                 # html.Img(
+                    # src="/assets/icons/query.png",
+                    # style={
+                        # "width": "16px",
+                        # "margin-top": "0px",
+                        # "border-radius": "0px",},
+                # )),
+                # ],id="query-icon",),
                 ],
                 style={
                     "display": "inline-block",
@@ -70,7 +71,7 @@ def tab_data(years=YEARS_DEFAULT):
                     "margin-left": "15px",
                 }, id='slider-container'
         ), 
-
+        infoYear,
             html.Br(),html.Br(),html.Br(),
             dash_table.DataTable(
                 id="datatable-upload-container",

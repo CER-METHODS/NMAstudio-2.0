@@ -1825,10 +1825,52 @@ def results_display(selected):
         return [style_no_display]*6 + [style_display]*2 + [style_no_display]+['consis_tab']+['funnel_tab']
 
 
-## -------------------------------------------- INFOBOXES CALLBACKS ----------------------------------------------- ##
+## -------------------------------------------- INFOBOXES CALLBACKS TO MIGRATE------------------------------------ ##
 
 ### -------------------------------------------- FUNNEL CALLBACKS ----------------------------------------------- ###
 
+#GRAPH INFO
+@app.callback(
+    Output("modal-body-graph", "is_open"),
+    [
+        Input("open-body-graph", "n_clicks"),
+        Input("close-body-graph", "n_clicks"),
+    ],
+    [State("modal-body-graph", "is_open")],
+)
+def toggle_modal_graph(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+#DATA INFO
+@app.callback(
+    Output("modal-body-expand", "is_open"),
+    [
+        Input("open-body-expand", "n_clicks"),
+        Input("close-body-expand", "n_clicks"),
+    ],
+    [State("modal-body-expand", "is_open")],
+)
+def toggle_modal_expand(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-body-year", "is_open"),
+    [
+        Input("open-body-year", "n_clicks"),
+        Input("close-body-year", "n_clicks"),
+    ],
+    [State("modal-body-year", "is_open")],
+)
+def toggle_modal_year(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+#FUNNEL INFO
 @app.callback(
     Output("modal-body-funnel", "is_open"),
     [
@@ -1842,6 +1884,114 @@ def toggle_modal_funnel(n1, n2, is_open):
         return not is_open
     return is_open
 
+
+#FOREST INFO
+@app.callback(
+    Output("modal-body-forest", "is_open"),
+    [
+        Input("open-body-forest", "n_clicks"),
+        Input("close-body-forest", "n_clicks"),
+    ],
+    [State("modal-body-forest", "is_open")],
+)
+def toggle_modal_forest(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-body-forest2", "is_open"),
+    [
+        Input("open-body-forest2", "n_clicks"),
+        Input("close-body-forest2", "n_clicks"),
+    ],
+    [State("modal-body-forest2", "is_open")],
+)
+def toggle_modal_forest2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+#INCONS INFOG
+@app.callback(
+    Output("modal-body-incons", "is_open"),
+    [
+        Input("open-body-incons", "n_clicks"),
+        Input("close-body-incons", "n_clicks"),
+    ],
+    [State("modal-body-incons", "is_open")],
+)
+def toggle_modal_incons(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+#LEAGUE INFO
+@app.callback(
+    Output("modal-body-league1", "is_open"),
+    [
+        Input("open-body-league1", "n_clicks"),
+        Input("close-body-league1", "n_clicks"),
+    ],
+    [State("modal-body-league1", "is_open")],
+)
+def toggle_modal_league1(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-body-league2", "is_open"),
+    [
+        Input("open-body-league2", "n_clicks"),
+        Input("close-body-league2", "n_clicks"),
+    ],
+    [State("modal-body-league2", "is_open")],
+)
+def toggle_modal_league2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-body-RoB", "is_open"),
+    [
+        Input("open-body-RoB", "n_clicks"),
+        Input("close-body-RoB", "n_clicks"),
+    ],
+    [State("modal-body-RoB", "is_open")],
+)
+def toggle_modal_RoB(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+@app.callback(
+    Output("modal-body-cinema", "is_open"),
+    [
+        Input("open-body-cinema", "n_clicks"),
+        Input("close-body-cinema", "n_clicks"),
+    ],
+    [State("modal-body-cinema", "is_open")],
+)
+def toggle_modal_cinema(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+#RANKING INFO
+@app.callback(
+    Output("modal-body-rank", "is_open"),
+    [
+        Input("open-body-rank", "n_clicks"),
+        Input("close-body-rank", "n_clicks"),
+    ],
+    [State("modal-body-rank", "is_open")],
+)
+def toggle_modal_rank(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 ## -------------------------------------------- END INFOBOXES CALLBACKS ----------------------------------------------- ##
 
 

@@ -1,11 +1,12 @@
 import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.COLORS import *
+from assets.Infos.forestInfo import infoForest, infoForest2
 
 
 tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                              children=[
-                         dcc.Tab(label='NMA', id='tab1', value='tab1', className='control-tab',
+                         dcc.Tab(label='One outcome', id='tab1', value='tab1', className='control-tab',
                                  style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
                                         'font-size': '12px', 'color': 'black', 'padding': '0'},
@@ -62,7 +63,9 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                     #         )], style={'display':'inline-block'}
                                     #  ),
                                      dbc.Col(html.P(id='tapNodeData-info', className="box__title",
-                                                    style={'font-size':'12px', 'margin-top':'0.8%',
+                                                    style={'font-size':'18px',
+                                                           # 'font-weight': 'bold',
+                                                           'margin-top':'0.8%',
                                                            'display': 'inline-block','flex-flow' : 'row nowrap',
                                                            'flex-grow': '0', 'justify-content': 'flex-start'}), style={'display': 'inline-block'}),
                                     html.Div([html.P("", 
@@ -80,7 +83,9 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                 html.P('Add prediction interval',
                                                         style={'display': 'inline-block', 'margin': 'auto',
                                                                 'font-size': '12px',
-                                                                'padding-right': '0px'})
+                                                                'padding-right':
+                                                               '0px'}),
+                                               infoForest
                                                 ],  style={'padding': '5px 5px 5px 5px',
                                                             'display': 'inline-block', 'margin-top': '-2px' })
                                                             ],className='tab_row_all'),
@@ -175,21 +180,22 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                 #              ),
                                 #          ]),
 
-                                 dcc.Tab(label='Bi-dimensional NMA', id='black', value='Tab3',  className='control-tab',
+                                 dcc.Tab(label='Two outcomes', id='black', value='Tab3',  className='control-tab',
                                          style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center',
                                                 'font-size':'12px', 'color':'grey','padding': '0'},
                                          selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center','background-color': '#f5c198',
                                                          'font-size':'12px','padding': '0'},
                                          children=[
                                              dbc.Row([dbc.Col(html.P([html.Div(id='tapNodeData-info-bidim', className="box__title",
-                                                              style={'font-size':'12px', 'margin-top':'0.8%', 'display': 'inline','padding': '2px 2px 2px 2px'}),
-                                                        html.Div([ html.P("Click on the color point of the treatment to remove the corresponding treatment in the plot.",
-                                                        id='forest-instruction',),
-                                                                  html.A( html.Img( src="/assets/icons/query.png",
-                                                                                    style={ "width": "16px",
-                                                                                            "margin-top": "0px",
-                                                                                            "border-radius": "0px"},)),
-                                                         ],style={'display': 'inline'},id="queryicon-forest"),              
+                                                              style={'font-size':'18px', 'margin-top':'0.8%', 'display': 'inline','padding': '2px 2px 2px 2px'}),
+                                                        # html.Div([ html.P("Click on the color point of the treatment to remove the corresponding treatment in the plot.",
+                                                        # id='forest-instruction',),
+                                                                  # html.A( html.Img( src="/assets/icons/query.png",
+                                                                                    # style={ "width": "16px",
+                                                                                            # "margin-top": "0px",
+                                                                                            # "border-radius": "0px"},)),
+                                                         # ],style={'display': 'inline'},id="queryicon-forest"),              
+                                                                  infoForest2,
                                                        html.Br()]),style={'display': 'inline-block'}),
                                               dbc.Col(dbc.Row(
                                                  [

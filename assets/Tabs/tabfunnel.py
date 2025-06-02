@@ -8,11 +8,9 @@ tab_funnel = html.Div([dbc.Row([dbc.Col(html.P("Click on a node to choose refere
                                          className="graph__title2",
                                          style={'display': 'inline-block',
                                                 'verticalAlign':"top",
-                                                'font-size': '12px',
+                                                'font-size': '18px',
                                                 'margin-bottom': '-10px'})),
-                                ]),
-# Uncomment to activate info box funnel 
-                       # infoFunnel,
+                                infoFunnel]),
                        dcc.Loading(
                            dcc.Graph(
                                id='funnel-fig',
