@@ -243,6 +243,7 @@ def get_network_new(df, i):
 
     all_nodes_robs.drop(columns=[col for col in all_nodes_robs if col not in [1.0, 2.0, 3.0, 1, 2, 3, '1','2','3']], inplace=True)
     all_nodes_sized.drop(columns=[col for col in all_nodes_sized if col not in ['treat', 'n', 'class', 1.0, 2.0, 3.0, 1, 2, 3, '1','2','3']], inplace=True)
+    all_nodes_sized = all_nodes_sized.dropna()
     # all_nodes_sized['n_2'] = all_nodes_sized['n']
     min_size = min(all_nodes_sized['n'])
     max_size = max(all_nodes_sized['n'])

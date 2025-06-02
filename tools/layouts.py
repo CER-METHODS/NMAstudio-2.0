@@ -417,7 +417,7 @@ def home_layout():
                                                                        'color':'gray','margin-top': '-6px',
                                                                        'width': '70px'}, 
                                                                        placeholder="e.g. 30px",),
-                                                                       ], style={'padding-left':'20px','margin-top':'-40px'}),
+                                                                       ], ),
                                                     dbc.Col([html.H4("Search an Intervention:",style={'font-size':'13px', 
                                                                                                         #      'margin-left':'150px',
                                                                                                              'font-family': 'system-ui',
@@ -432,7 +432,7 @@ def home_layout():
                                                                        'font-size':'10.5px',
                                                                        'color':'gray','margin-top': '-6px',
                                                                        'width': '70px'}, 
-                                                                       placeholder="e.g. PBO",)], style={'margin-top':'-40px','padding-right':'5px'}),
+                                                                       placeholder="e.g. PBO",)]),
                                                     html.Div([
                                                         html.A(html.Img(src="/assets/icons/list.png",
                                                                            style={"width": "30px",
@@ -447,7 +447,7 @@ def home_layout():
                                                         ],id="info_icon"),
                                                        html.Div(modal_info, style={'display': 'inline-block', 'font-size': '11px'}),
                                                        infoGraph
-                                    ]),
+                                    ], style={'align-items': 'end'}),
                                            ], style={'margin-left': '-20px'}),
                          cyto.Cytoscape(id='cytoscape', responsive=False, autoRefreshLayout=True,
                                         minZoom=0.6,  maxZoom=1.2,     
@@ -469,7 +469,7 @@ def home_layout():
                      html.Div(id='one-half-2', className ="one-half-2 column",
                        children=[html.Div(  # Information box
                                   [
-                                html.Div(
+                                dbc.Row([html.Div(
                                         dbc.Col([
                                          html.A(
                                                 html.Img(
@@ -523,7 +523,7 @@ def home_layout():
                                                   # html.H6("CLICK + SHIFT to select multiple network items", className="box__title2"),
                                                   infoExpand
                                                   ]),
-                                          ]),
+                                          ])]),
                                   html.Div([html.P(id='cytoscape-mouseTapEdgeData-output',  style={'margin-top':'-20px'},
                                                    className="info_box" )],
                                         )], className="info__container"),

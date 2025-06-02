@@ -570,8 +570,8 @@ select { word-wrap: normal }
 @media (prefers-reduced-motion: reduce) {  .btn {transition: none}  }
 
 .btn:hover {color: #212529; text-decoration: none}
-.btn.focus, .btn:focus {outline: 0; box-shadow: 0 0 0 .2rem
-    rgba(44, 62, 80, .25)}
+/* .btn.focus, .btn:focus {outline: 0; box-shadow: 0 0 0 .2rem
+    rgba(44, 62, 80, .25)} */
 .btn.disabled, .btn:disabled {opacity: .65}
 .btn:not(:disabled):not(.disabled) {
     cursor: pointer;
@@ -583,6 +583,19 @@ a.btn.disabled, fieldset:disabled a.btn {pointer-events: none}
     /* background-color: #5c7780; */
     /* border-color: #5c7780 */
 }
+
+.icon-info-sign{
+    background-color: transparent !important;
+    border-color: transparent !important;
+    border: none !important
+}
+
+.icon-info-sign.btn-primary:hover {
+    background-color: transparent !important;
+    color: transparent !important; 
+    border: none !important
+}
+
 .btn-primary:hover {
     color: var(--white);
     background-color: #5c7780;

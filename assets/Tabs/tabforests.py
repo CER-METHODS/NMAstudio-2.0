@@ -87,7 +87,7 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                                '0px'}),
                                                infoForest
                                                 ],  style={'padding': '5px 5px 5px 5px',
-                                                            'display': 'inline-block', 'margin-top': '-2px' })
+                                                            'display': 'inline-flex', 'margin-top': '-2px' })
                                                             ],className='tab_row_all'),
                                     html.Div([
                                      html.Div(dcc.Loading(

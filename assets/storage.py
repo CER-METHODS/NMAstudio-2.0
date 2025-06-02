@@ -30,9 +30,9 @@ LEAGUE_TABLE_DATA2 = LEAGUE_TABLE_DATA2.fillna('')
 LEAGUE_TABLE_DATA2 = pd.DataFrame([[replace_and_strip(col) for col in list(row)] for idx, row in LEAGUE_TABLE_DATA2.iterrows()],
                            columns=LEAGUE_TABLE_DATA2.columns,
                            index=LEAGUE_TABLE_DATA2.index)
-LEAGUE_TABLE_DATA_BOTH = pd.DataFrame([[replace_and_strip(col) for col in list(row)] for idx, row in LEAGUE_TABLE_DATA_BOTH.iterrows()],
-                           columns=LEAGUE_TABLE_DATA_BOTH.columns,
-                           index=LEAGUE_TABLE_DATA_BOTH.index)
+# LEAGUE_TABLE_DATA_BOTH = pd.DataFrame([[replace_and_strip(col) for col in list(row)] for idx, row in LEAGUE_TABLE_DATA_BOTH.iterrows()],
+#                            columns=LEAGUE_TABLE_DATA_BOTH.columns,
+#                            index=LEAGUE_TABLE_DATA_BOTH.index)
 
 CINEMA_NET_DATA1 =  pd.read_csv('db/Cinema/cinema_report_PASI90.csv')
 CINEMA_NET_DATA2 =  pd.read_csv('db/Cinema/cinema_report_SAE.csv')

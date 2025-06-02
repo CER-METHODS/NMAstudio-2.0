@@ -154,14 +154,14 @@ def tab_consistency(consistency_data=CONSISTENCY_DATA):
             },
             {'if': {'filter_query': '{p-value} > 0.05 && {p-value} <= 0.10',
             'column_id': 'p-value'},
-             'color': '#f2940',
+             'color': 'blue',
              'fontWeight': 'bold'
              },
-             {'if': {'filter_query': '{p-value} > 0.10 && {p-value} <= 0.15',
-                         'column_id': 'p-value'},
-                  'color': 'blue',
-                  'fontWeight': 'bold'
-             },
+       #       {'if': {'filter_query': '{p-value} > 0.10 && {p-value} <= 0.15',
+       #                   'column_id': 'p-value'},
+       #            'color': 'blue',
+       #            'fontWeight': 'bold'
+       #       },
             {'if': {'row_index': 'odd'},
             'backgroundColor': 'rgba(0,0,0,0.1)'},
             {'if': {'state': 'active'},

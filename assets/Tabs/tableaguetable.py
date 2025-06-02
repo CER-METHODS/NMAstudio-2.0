@@ -80,7 +80,7 @@ tab_league = html.Div([
                       style={'margin-left': '5px', 'font-size':'12px','color':'rgb(90, 135, 196)'}),
                id='datatable-secondfile-upload', 
                multiple=False,
-               style={'display': 'inline-block', 'font-size': '12px', 'padding-left': '45px'})],
+               style={'display': 'inline-block', 'font-size': '12px', 'padding-top': '12px', 'margin-right': '-30px'})],
                style={'display': 'inline-block'}),
                infoCinema,
               dbc.Col([html.Ul(id="file2-list", style={'margin-left': '15px', 'color':'#dae8e8',
