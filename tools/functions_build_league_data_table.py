@@ -455,7 +455,7 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
             # net_data = pd.read_json(net_storage[0], orient='split')
             # forest_data_out2 =  None
             dataselectors = []
-            dataselectors += [forest_data.columns[1], net_data["outcome1_direction"].iloc[1]]
+            dataselectors += [forest_data.columns[1], net_data["outcome1_direction"].iloc[0]]
             # if 'pscore2' in ranking_data.columns:
             #     dataselectors += [forest_data_out2.columns[1], net_data["outcome2_direction"].iloc[1]]
 

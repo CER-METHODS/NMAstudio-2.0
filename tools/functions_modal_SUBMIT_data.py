@@ -677,7 +677,7 @@ def __modal_SUBMIT_button_new(submit,  reset_btn,
                     # DEFAULT_ELEMENTS_USR = USER_ELEMENTS_USR = get_network_new(df=NET_DATA_USR[0], i=0)
                     FOREST_DATA_USR = [pd.read_csv(f'{path}/TEMP_forest_data_STORAGE_{i}.csv') for i in range(out_num)]
                     FOREST_DATA_PRWS_USR = [pd.read_csv(f'{path}/TEMP_forest_data_prws_STORAGE_{i}.csv') for i in range(out_num)]
-                    LEAGUE_TABLE_DATA_USR = [pd.read_csv(f'{path}/TEMP_league_table_data_STORAGE_{i}.csv', index_col=0)for i in range(0,3)]
+                    LEAGUE_TABLE_DATA_USR = [pd.read_csv(f'{path}/TEMP_league_table_data_STORAGE_{i}.csv', index_col=0)for i in range(out_num)]
                     replace_and_strip = lambda x: x.replace(' (', '\n(').strip()
                     for j in range(out_num):
                         LEAGUE_TABLE_DATA_USR[j] = LEAGUE_TABLE_DATA_USR[j].fillna('')
