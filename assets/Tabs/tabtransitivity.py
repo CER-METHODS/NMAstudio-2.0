@@ -1,20 +1,22 @@
 import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
 from assets.storage import OPTIONS_VAR
 
-OPTIONS = [{'label': '{}'.format(col), 'value': col} for col in ['age', 'male_percentage', 'bmi', 'weight']]
+OPTIONS = [{'label': '{}'.format(col), 'value': col} for col in ['age', 'bmi', 'weight']]
 
 tab_trstvty = html.Div([html.Div([dbc.Row([html.P("Choose effect modifier:", className="graph__title2",
                                          style={'display': 'inline-block',
-                                                'verticalAlign':"top",
-                                                'font-size': '12px',
-                                                'margin-bottom': '-10px'}),
+                                                'verticalAlign':"top",}),
                                   dcc.Dropdown(id='dropdown-effectmod', options=OPTIONS,
                                                clearable=True, placeholder="",
                                                className="tapEdgeData-fig-class",
                                                style={'width': '150px', 'height': '30px',
                                                       'display': 'inline-block', # 'background-color': '#40515e'
                                                       })
-                                  ])], style={'margin-top':'4px'}),
+                                  ])], 
+                                  style={'margin-top':'4px',
+                                         'display': 'flex',
+                                         'justify-content': 'center'
+                                         }),
                 html.Div([dcc.Graph(id='tapEdgeData-fig',
                      style={'height': '98%',
                          #  'max-height': 'calc(51vw)',

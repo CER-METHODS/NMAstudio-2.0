@@ -35,6 +35,7 @@ def __info_modal(infoid,infotitle,infotxt, direction="right"):
                 scrollable=True,
                 is_open=False,
             ),
-        ]
+        ],
+        style={'display': 'inline-flex'}
     )
     return infomodal

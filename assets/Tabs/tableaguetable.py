@@ -77,7 +77,7 @@ tab_league = html.Div([
                                   ]),
               dbc.Col([
                      dcc.Upload(html.A('Upload CINeMA report',
-                      style={'margin-left': '5px', 'font-size':'12px','color':'rgb(90, 135, 196)'}),
+                      style={'margin-left': '5px', 'font-size':'15px','font-weight':'bold','color':'rgb(90, 135, 196)'}),
                id='datatable-secondfile-upload', 
                multiple=False,
                style={'display': 'inline-block', 'font-size': '12px', 'padding-top': '12px', 'margin-right': '-30px'})],
@@ -186,22 +186,22 @@ tab_league_both = html.Div([
                                   ]),
               dbc.Col([
                      dcc.Upload(html.A('Upload CINeMA report for outcome 1',
-                      style={'margin-left': '5px', 'font-size':'12px','color':'rgb(90, 135, 196)'}),
+                      style={'margin-left': '5px', 'font-size':'15px','font-weight':'bold','color':'rgb(90, 135, 196)'}),
                id='datatable-secondfile-upload-1', 
                multiple=False,
-               style={'display': 'inline-block', 'font-size': '12px', 'padding-left': '45px'})],
+               style={'display': 'inline-block', 'font-size': '14px', 'padding-left': '45px'})],
                style={'display': 'inline-block'}),
-              dbc.Col([html.Ul(id="file-list-out1", style={'margin-left': '15px', 'color':'#dae8e8',
+              dbc.Col([html.Ul(id="file-list-out1", style={'margin-left': '15px', 'color':'black',
                                                  'font-size':'11px'})],
             style={'display': 'inline-block'}
             ),
             dbc.Col([dcc.Upload(html.A('Upload CINeMA report 2 for outcome 2',
-                                   style={'margin-left': '5px', 'margin-top': '1px', 'font-size': '12px',
+                                   style={'margin-left': '5px', 'margin-top': '1px', 'font-size': '15px','font-weight':'bold',
                                           'padding-bottom': '4px','color':'rgb(90, 135, 196)'}),
                             id='datatable-secondfile-upload-2', multiple=False,
                             style={'display': 'inline-block', 'font-size': '12px'})],
                 style={'display': 'inline-block'}),
-            dbc.Col([html.Ul(id="file-list-out2", style={'margin-left': '15px', 'color': '#dae8e8',
+            dbc.Col([html.Ul(id="file-list-out2", style={'margin-left': '15px', 'color': 'black',
                                                        'font-size': '11px', 'vertical-alignment':'middle'})],
                 style={'display': 'inline-block', 'margin-top': '0px', 'margin-bottom': '0px'}
                 )

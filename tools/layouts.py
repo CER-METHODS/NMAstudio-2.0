@@ -49,13 +49,13 @@ def real_homelayout():
                                     #        'font-family':'sans-serif'}, 
                                            className='container'), 
                      html.Br(),html.Br(),html.Br(),
-                     dcc.Markdown('Warning: Please, avoid using Firefox because some features might not work well. Preferred browsers are Safari and Chrome.',
-                                                className="markdown_style_main",
-                                                style={
-                                                    "font-size": '20px',
-                                                    'text-align': 'center',
-                                                    'color':'rgb(222 132 83)',
-                                                       }),
+                #      dcc.Markdown('Warning: Please, avoid using Firefox because some features might not work well. Preferred browsers are Safari and Chrome.',
+                #                                 className="markdown_style_main",
+                #                                 style={
+                #                                     "font-size": '20px',
+                #                                     'text-align': 'center',
+                #                                     'color':'rgb(222 132 83)',
+                #                                        }),
                      html.Br(),
                     #  dcc.Markdown('NMAstudio serves as an interactive web application designed to simplifies the whole Network Meta-Analysis (NMA) procedures and enhances the visualization of results.',
                     #                 className="markdown_style", style={"color": "black", "margin-right":"10%"}),
@@ -137,16 +137,22 @@ def real_homelayout():
                                         'color':'#5c7780',
                                             }),
                                     html.Br(),
-                                    dbc.Row([html.Button('Download a Tutorial', id='full-tuto-pdf',
-                                             style={'color': 'black',
-                                                    'display': 'inline-block',
-                                                    'justify-self':'center',
-                                                    'padding': '4px'}),
-                                    Download(id="download-tuto"),
-                                    html.Span('or', style={'justify-self':'center','align-self': 'center'}),
+                                    dbc.Row([
+                                #     html.Button('Download a Tutorial', id='full-tuto-pdf',
+                                #              style={'color': 'black',
+                                #                     'display': 'inline-block',
+                                #                     'justify-self':'center',
+                                #                     'padding': '4px'}),
+                                #     Download(id="download-tuto"),
+                                #     html.Span('or', style={'justify-self':'center','align-self': 'center'}),
                                     dbc.NavLink('See an embeded example', href="/results", external_link=True,
                                                 className='go_to_example'),
-                                    ], style={"display": 'grid', 'width':'450px', 'justify-self':'center','grid-template-columns': '1fr 1fr 1fr'}),
+                                    ], 
+                                    style={"display": 'grid', 
+                                           'width':'250px', 
+                                           'justify-self':'center',
+                                        #    'grid-template-columns': '1fr 1fr 1fr'
+                                           }),
                                     html.Br(), html.Br(),
                                     html.Span('More tutorials coming soon...',style={'justify-self':'center','align-self': 'center'}),    
                                     html.Br(), html.Br(),html.Br(),
@@ -193,7 +199,7 @@ def real_homelayout():
                                                         'border-bottom': '2px solid',
                                                         'font-weight': 'bold',
                                                         'height': 'fit-content',
-                                                        'margin-right': '20px'
+                                                        'width': '80%'
                                                         }),
                                                 dbc.NavLink('Tianqi Yu', href='https://www.cer-methods.com/tianqi-yu/',external_link=True,
                                                         style={'color': '#5b7780',
@@ -208,6 +214,12 @@ def real_homelayout():
                                                                 'display': 'block',
                                                                 'margin-right': '20px'}),
                                                 dbc.NavLink('Silvia Metelli', href='https://www.cer-methods.com/team/',external_link=True,
+                                                        style={'color': '#5b7780',
+                                                                'text-decoration': 'unset',
+                                                                'font-size': 'large',
+                                                                'display': 'block',
+                                                                'margin-right': '20px' }),
+                                                dbc.NavLink('Thodoris Papakonstantinou', href='',external_link=True,
                                                         style={'color': '#5b7780',
                                                                 'text-decoration': 'unset',
                                                                 'font-size': 'large',
@@ -349,7 +361,7 @@ def home_layout():
                         html.Span('Click the Setup Analysis button to upload your own dataset, otherwise the embedded example is shown below.', 
                                   style={'justify-self':'center',
                                          'align-self': 'center', 
-                                         'font-size': 'medium', 'color': 'chocolate'}),
+                                         'font-size': 'large', 'color': 'chocolate'}),
                         html.Hr(style = {'size' : '50', 'borderColor':'orange','borderHeight': "10vh", "width": "100%",'border-top': '3px solid #E1E1E1'}),
                         html.Br(), html.Br(),
 
@@ -545,7 +557,8 @@ def home_layout():
                            html.Div(
                                 dbc.Col(
                                         [html.Span(f"Select outcome",className="selectbox", style={'display': 'inline-block', "text-align": 'right',
-                                                                                        'margin-left': '0px', 'font-size': '16px','white-space': 'nowrap','color': '#5c7780'}),
+                                                                                                   'font-weight': 'bold','margin-right': '0px',
+                                                                                                   'margin-left': '0px', 'font-size': '18px','white-space': 'nowrap','color': '#5c7780'}),
                                         dcc.Dropdown(id='_outcome_select', searchable=True, placeholder="...", className="box",
                                                         clearable=False, value=0,
                                                         style={'width': '80px',  # 'height': '30px',
@@ -557,8 +570,7 @@ def home_layout():
                                                             'color': 'black',
                                                             'font-size': '10px'})], style={'display': 'flex', 
                                                                                            'align-items': 'center',
-                                                                                           'justify-content': 'space-around',
-                                                                                           'width': '200px'
+                                                                                           'justify-content': 'space-around'
                                                                                            }),
                                     style={'display':'inline-block', 'margin-left': '20px'}),
 
@@ -726,9 +738,10 @@ def home_layout():
                                                     'align-items': 'center'},
                                          children=[html.Div([dbc.Row([
                                           dbc.Col(html.P(
-                                             id='tapEdgeData-info', style={'font-size':'12px', 'margin-top':'0.8%'},
+                                             id='tapEdgeData-info', style={ 'margin-top':'0.8%'},
                                              className="box__title"),style={'display': 'inline-block'}),
-                                          html.Br()], className='tab_row_all')], style={'height':'35px'}),
+                                          html.Br()], className='tab_row_all', style={'display': 'flex','justify-content': 'center'})], 
+                                          style={'height':'35px'}),
                                              dcc.Loading(
                                                  html.Div([
                                                      dcc.Graph(
@@ -934,7 +947,7 @@ def upload_data():
 
 
         html.Div(dbc.Row([dbc.Col(id='outcomes_primary'),
-                dbc.Col(html.Div(html.Span('*Select two primary outcomes for league table. Select "skip" if not applicable',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*Select two primary outcomes for league table. Select "skip" if there is only one outcome.',className='upload_instuspan',
                             )), className='upload_instrucol')   
                           ], className= 'upload_row')
         , style={'display':'none', 'justify-content': 'center'}, id='select-out-primary'),

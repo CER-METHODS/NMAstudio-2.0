@@ -52,12 +52,20 @@ def Navbar():
                             'padding-right':'0.6%', 'padding-top':'0.6%',
                            # 'background-color':'#304569'
                             }),
-
+            html.Div(html.Div('Warning: Avoid using Firefox. Preferred browsers are Safari and Chrome.',
+                                                # style={
+                                                #     "font-size": '20px',
+                                                #     'text-align': 'center',
+                                                #     'color':'rgb(222 132 83)',
+                                                #        },
+                                                id='scroll-text'),
+                                                id="scroll-container"),
             html.Div([
                 dbc.Col(children=[dbc.Nav([realhome_button, home_button, setup_button, skt_button],
                                           navbar=True, style={'text-align':'center',
-                                                              'padding-right':'5%','padding-top':'2.5%',
-                                                              'margin-left':'50px',
+                                                            #   'padding-right':'5%',
+                                                              'padding-top':'2.5%',
+                                                            #   'margin-left':'50px',
                                                               'justify-content': 'end'}),
                           ]),
 

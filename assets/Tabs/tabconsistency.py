@@ -56,7 +56,7 @@ def tab_consistency(consistency_data=CONSISTENCY_DATA):
        #                             style={'margin-bottom': '0px', 'justify-content': 'end', 'display': 'flex'}
        #                             ),
         html.Br(), html.Br(),
-        html.P("Design-by-treatment interaction model", style={'font-size': '12px', 'margin-top': '-0.6%'},
+        html.P("Design-by-treatment interaction model", style={'font-size': '14px', 'margin-top': '-0.6%'},
                      className="box__title")]),
         dash_table.DataTable(
         id='consistency-table',
@@ -104,10 +104,10 @@ def tab_consistency(consistency_data=CONSISTENCY_DATA):
     ),
     html.Br(),
     html.Div([ html.Div([ html.P("Side-splitting model",
-                     style={'font-size': '12px', 'margin-top': '0.8%', 'display': 'inline-block'},
+                     style={'font-size': '14px', 'margin-top': '0.8%', 'display': 'inline-block'},
                      className="box__title"),html.Br(),
               html.P("Select edge(s) to display specific comparison(s)",
-                     style={'font-size': '12px', 'margin-top': '-1.2%', 'display': 'inline-block'},
+                     style={'font-size': '13px', 'margin-top': '-1.2%', 'display': 'inline-block'},
                      className="box__title") ]),
               html.Div([html.Button('Export table', id='consistency-export', n_clicks=0, className="btn-export2",
                                     style={'margin-right': '31%', 'padding': '4px 4px 4px 4px',

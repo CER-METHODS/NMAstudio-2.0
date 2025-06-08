@@ -63,12 +63,13 @@ h6 {margin-top: 0;}
 }
 
 .graph__title2 {
-    color: black !important;
+    color: #FF5722 !important;
     letter-spacing: 0.3rem !important;
-    padding: 16px 25px 25px 25px;
+    padding: 0px 25px 25px 25px;
     margin-bottom: 0px !important;
-    font-size: 1em;
+    font-size: 1.5em;
     font-family: "sans-serif";
+    font-weight: bold
 }
 
 
@@ -103,17 +104,19 @@ h6 {margin-top: 0;}
     padding: 2px 5px 2px 15px;
     margin-top: -4px;
     display: inline-block;
-    font-size: 12px;
+    font-size: 1.2em;
     font-family:  "Open Sans", Times, serif !important;
+    font-weight: bold;
 }
 
 .box__title {
     font-family: "Open Sans", Times, serif !important;
-    color: black !important;
+    color: #b71427 !important;
     letter-spacing: 0.3rem !important;
     padding: 2px 15px 2px 15px;
     margin-bottom: 1px;
-    font-size: 0.8em;
+    font-size: 1.2em;
+    font-weight: bold;
 }
 
 .box__title2 {
@@ -1248,7 +1251,7 @@ border:none;
 /*background: none  repeat scroll 0 0 #ffffff;*/
 background: none;
 min-width: 60px;
-max-width:100px;
+max-width:250px;
 width: auto;
 
 }
@@ -2304,4 +2307,47 @@ margin: 10px
     display: none;
 }
 
-
+#scroll-container {
+    overflow: hidden;
+    width: 30%;
+  }
+  
+  #scroll-text {
+    /* animation properties */
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+    
+    -moz-animation: my-animation 25s linear infinite;
+    -webkit-animation: my-animation 25s linear infinite;
+    animation: my-animation 12s linear infinite;
+    text-wrap: nowrap;
+    font-size: large;
+    /* font-weight: bold; */
+    color:chartreuse
+  }
+  
+  /* for Firefox */
+  @-moz-keyframes my-animation {
+    from { -moz-transform: translateX(100%); }
+    to { -moz-transform: translateX(-100%); }
+  }
+  
+  /* for Chrome */
+  @-webkit-keyframes my-animation {
+    from { -webkit-transform: translateX(100%); }
+    to { -webkit-transform: translateX(-100%); }
+  }
+  
+  @keyframes my-animation {
+    from {
+      -moz-transform: translateX(100%);
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    to {
+      -moz-transform: translateX(-100%);
+      -webkit-transform: translateX(-100%);
+      transform: translateX(-100%);
+    }
+  }
