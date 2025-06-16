@@ -13,7 +13,7 @@ from assets.storage import USER_ELEMENTS
 
 
 options_format = [dict(label='long',     value='long'),
-                  dict(label='contrast', value='contrast'),
+                  dict(label='wide', value='contrast'),
                   dict(label='iv',       value='iv')
                   ]
 options_outcomes = [dict(label='continuous', value='continuous'),

@@ -193,13 +193,13 @@ def display_grid(value, children):
 @app.callback([Output('result_page', 'style'),
               Output('upload_page', 'style'),],
               [Input('test_upload', 'n_clicks_timestamp'),
-               Input('back_plot', 'n_clicks_timestamp'),
+            #    Input('back_plot', 'n_clicks_timestamp'),
                Input('submit_modal_data','n_clicks_timestamp')
                ]
                )
-def result_page(click, click_back, click_trans):
-    if ctx.triggered_id == "back_plot":
-        return {'display':'grid'}, {'display':'none'}
+def result_page(click,  click_trans):
+    # if ctx.triggered_id == "back_plot":
+    #     return {'display':'grid'}, {'display':'none'}
 
     if ctx.triggered_id == "test_upload":
         return {'display':'none'}, {'display':'grid'}
@@ -1732,7 +1732,7 @@ def disable_cinema_toggle(filename_cinema1, filename_cinema2,file_data):
               Input("demodata", "n_clicks"),
               prevent_initial_call=True)
 def func(n_clicks):
-     return send_file("Documentation/psoriasis class data.csv")
+     return send_file("db/psoriasis_long_complete.csv")
 
 @app.callback(Output("download-tuto", "data"),
               Input("full-tuto-pdf", "n_clicks"),
@@ -1745,6 +1745,12 @@ def func(n_clicks):
               prevent_initial_call=True)
 def func(n_clicks):
      return send_file("Documentation/NMAstudio_tutorial.pdf")
+
+@app.callback(Output("download-data-explain", "data"),
+              Input("data_explain", "n_clicks"),
+              prevent_initial_call=True)
+def func(n_clicks):
+     return send_file("Documentation/variables_explain.pdf")
 
 
 #################### save project/generate token/laod project ###################

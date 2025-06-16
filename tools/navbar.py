@@ -12,13 +12,13 @@ def Navbar():
     realhome_button = dbc.NavItem(dbc.NavLink('HOME', href="/home", external_link=True,
                                           style = {'color':'#white','font-family': "sans-serif ",
                                                    'font-size': '15px'}))
-    home_button = dbc.NavItem(dbc.NavLink('RESULTS', href="/results", external_link=True,
+    home_button = dbc.NavItem(dbc.NavLink('Setup Analysis', href="/results", external_link=True,
                                           style = {'color':'#white','font-family': "sans-serif ",
                                                    'font-size': '15px'}))
     skt_button = dbc.NavItem(dbc.NavLink('Knowledge Translation (under construction)', href="/skt",external_link=True,
                                          style = {'color':'lightsteelblue','font-family': "sans-serif ",
                                                   'font-size': '15px'}, id= 'skt_button'))
-    setup_button = dbc.NavItem(dbc.NavLink('Setup Analysis (under construction)', href="/setup",external_link=True,
+    setup_button = dbc.NavItem(dbc.NavLink('Results (under construction)', href="/setup",external_link=True,
                                          style = {'color':'lightsteelblue','font-family': "sans-serif ",
                                                   'font-size': '15px'}, id= ''))
     # skt_button = dbc.NavItem(dbc.NavLink('SKT TOOL', n_click=0,

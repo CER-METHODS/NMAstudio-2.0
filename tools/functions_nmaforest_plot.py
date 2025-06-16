@@ -341,127 +341,138 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
                 )
             )
     
-    # # Compute first occurrence indices for each treatment
-    # first_occurrence = df.reset_index().groupby('Treatment')['index'].first().to_dict()
+#    # Compute first occurrence indices for each treatment
+#     first_occurrence = df.reset_index().groupby('Treatment')['index'].first().to_dict()
 
-    # color_mapping = {}
+#     color_mapping = {}
 
-    # # Define blue and red palettes with subsets to avoid overly light colors
-    # blue_palettes = (
-    #     px.colors.sequential.Blues[2::2] +       # Skip lighter blues
-    #     px.colors.sequential.ice[2::2]           # Diverse blues from Dark24 palette
-    # )
+#     # Define distinct blue and red palettes for treatments
+#     blue_palettes = [
+#         "#0253e8",  # Strong Blue
+#         "#afb1b3",  # Steel Blue
+#         "#89eef0",  # Soft Cyan
+#         "#05591d",  # Slate Blue
+#         "#07ed6b",  # Vibrant Sea Green
+#         "#20B2AA",  # Light Sea Green
+#     ]
 
-    # red_palettes = (
-    #     px.colors.sequential.Reds[1::1]+
-    #     px.colors.sequential.Burg[1::]
-    # )
-    # # Use a qualitative palette with more blues (e.g., 'Dark24' or 'Light24')
-    # for treatment in df['Treatment'].unique():
-    #     if '+' in treatment:
-    #         # Use Reds from a qualitative palette
-    #         color_seq = red_palettes  # Reds subset
-    #     else:
-    #         # Use Blues from a qualitative palette
-    #         color_seq = blue_palettes  # Blues subset
-        
-    #     idx = first_occurrence[treatment]
-    #     color_mapping[treatment] = color_seq[idx % len(color_seq)]
-    
+#     red_palettes = [
+#         "#f5a795",  # Soft Red
+#         "#FFA500",  # Vibrant Orange
+#         "#7d4301",  # Brown
+#         "#FF69B4",  # Hot Pink
+#         "#DC143C",  # Deep Crimson
+#         "#f03ad7",  # Bright Magenta
+#     ]
+
+#    # Get sorted lists of treatments grouped by type
+#     single_treatments = sorted([t for t in df['Treatment'].unique() if '+' not in t])
+#     combination_treatments = sorted([t for t in df['Treatment'].unique() if '+' in t])
+
+#     color_mapping = {}
+
+#     # Assign colors using within-group ordering
+#     for idx, treatment in enumerate(single_treatments):
+#         color_mapping[treatment] = blue_palettes[idx % len(blue_palettes)]
+
+#     for idx, treatment in enumerate(combination_treatments):
+#         color_mapping[treatment] = red_palettes[idx % len(red_palettes)]
 
 
-    # # Assign colors and size to the DataFrame
-    # df['color'] = df['Treatment'].map(color_mapping)
-    # df['size'] = df['Treatment'].astype("category").cat.codes
+#     # Assign colors and size to the DataFrame
+#     df['color'] = df['Treatment'].map(color_mapping)
+#     df['size'] = df['Treatment'].astype("category").cat.codes
  
-    # # Example data (replace with your actual data)
-    # x_min, x_max = min(df['CI_lower']), max(df['CI_upper'])
-    # y_min, y_max = min(df_second['CI_lower']), max(df_second['CI_upper'])
+#     # Example data (replace with your actual data)
+#     x_min, x_max = min(df['CI_lower']), max(df['CI_upper'])
+#     y_min, y_max = min(df_second['CI_lower']), max(df_second['CI_upper'])
 
-    # # Create log-spaced ticks starting from 1 and including 1
-    # # x_ticks = np.logspace(np.log10(x_min), np.log10(x_max), 10)  # 10 ticks from 1 to x_max
-    # # y_ticks = np.logspace(np.log10(y_min), np.log10(y_max), 10)  # 10 ticks from 1 to y_max
-    # value = [-1, -0.9, -0.8,-0.7,-0.6,-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3]
-    # x_ticks = np.exp(value) 
+#     # Create log-spaced ticks starting from 1 and including 1
+#     # x_ticks = np.logspace(np.log10(x_min), np.log10(x_max), 10)  # 10 ticks from 1 to x_max
+#     # y_ticks = np.logspace(np.log10(y_min), np.log10(y_max), 10)  # 10 ticks from 1 to y_max
+#     value = [-1, -0.9, -0.8,-0.7,-0.6,-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3]
+#     # value = [-1.2, -0.9, -0.6, -0.3, 0, 0.3]
 
-    # value_y = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+#     x_ticks = np.exp(value) 
+#     value_y = [-0.9, -0.8,-0.7,-0.6,-0.5,-0.4, -0.3, -0.2,-0.1, 0.0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5,0.6]
+#     # value_y = [-0.9, -0.6, -0.3, 0.0, 0.3, 0.6]
  
-    # y_ticks = np.exp(value_y)
-    # # # Ensure that 1 is included as the first tick
-    # # if 1 not in x_ticks:
-    # #     x_ticks = np.insert(x_ticks, 0, 1)
+#     y_ticks = np.exp(value_y)
+#     # # Ensure that 1 is included as the first tick
+#     # if 1 not in x_ticks:
+#     #     x_ticks = np.insert(x_ticks, 0, 1)
 
-    # # if 1 not in y_ticks:
-    # #     y_ticks = np.insert(y_ticks, 0, 1)
+#     # if 1 not in y_ticks:
+#     #     y_ticks = np.insert(y_ticks, 0, 1)
 
-    # # Format the ticks for better readability
-    # x_ticktext = [f'{val:.2f}' for val in x_ticks]
-    # y_ticktext = [f'{val:.2f}' for val in y_ticks]
+#     # Format the ticks for better readability
+#     x_ticktext = [f'{val:.2f}' for val in x_ticks]
+#     y_ticktext = [f'{val:.2f}' for val in y_ticks]
 
-    # import plotly.graph_objects as go
-    # # Prepare the scatter plot with individual traces for each data point
-    # fig = go.Figure()
+#     import plotly.graph_objects as go
+#     # Prepare the scatter plot with individual traces for each data point
+#     fig = go.Figure()
     
-    # # Add a temporary column to identify treatments with '+'
-    # df['is_plus'] = df['Treatment'].str.contains(r'\+').astype(int)
+#     # Add a temporary column to identify treatments with '+'
+#     df['is_plus'] = df['Treatment'].str.contains(r'\+').astype(int)
 
-    # # Sort the DataFrame: treatments without '+' first, then those with '+'
-    # df = df.sort_values(by='is_plus').drop(columns='is_plus')
+#     # Sort the DataFrame: treatments without '+' first, then those with '+'
+#     df = df.sort_values(by='is_plus').drop(columns='is_plus')
     
-    # # After sorting the DataFrame, create ordered treatment list
-    # treatment_order = df['Treatment'].unique()  # Gets treatments in sorted order
+#     # After sorting the DataFrame, create ordered treatment list
+#     treatment_order = df['Treatment'].unique()  # Gets treatments in sorted order
 
-    # # Then group with sort=False
-    # grouped = df.groupby('Treatment', sort=False)  # <-- Add sort=False here
+#     # Then group with sort=False
+#     grouped = df.groupby('Treatment', sort=False)  # <-- Add sort=False here
 
   
-    # for treatment in treatment_order:
-    #     group = grouped.get_group(treatment)  # Get group for this treatment
-    #     color = color_mapping[treatment]
-    #     if df_second.loc[df_second['Treatment'] == treatment, effect_size_2].empty:
-    #         continue
-    #     # Add a single trace for all points in this treatment group
-    #     fig.add_trace(
-    #         go.Scatter(
-    #             x=group[effect_size],
-    #             y = df_second.loc[df_second['Treatment'] == treatment, effect_size_2],  # Ensure alignment with df_second
-    #             error_x=dict(
-    #                 type='data',
-    #                 symmetric=False,
-    #                 array=group['CI_width_hf'] if xlog else group['CI_width'] if data else None,
-    #                 arrayminus=group['lower_error_1'] if xlog else None,
-    #                 color=color,
-    #             ),
-    #             error_y=dict(
-    #                 type='data',
-    #                 symmetric=False,
-    #                 array=df_second.loc[df_second['Treatment'] == treatment, 'CI_width_hf'] if xlog else df_second.loc[df_second['Treatment'] == treatment, 'CI_width'] if data else None,
-    #                 arrayminus=df_second.loc[df_second['Treatment'] == treatment, 'lower_error_2'] if xlog else None,
-    #                 color=color,
-    #             ),
-    #             mode='markers',
-    #             marker=dict(
-    #                 size=10,
-    #                 color=color,
-    #             ),
-    #             name=treatment,  # Name the trace (appears in legend)
-    #             showlegend=True  # Ensure legend is shown for this trace
-    #         )
-    #     )
+#     for treatment in treatment_order:
+#         group = grouped.get_group(treatment)  # Get group for this treatment
+#         color = color_mapping[treatment]
+#         if df_second.loc[df_second['Treatment'] == treatment, effect_size_2].empty:
+#             continue
+#         # Add a single trace for all points in this treatment group
+#         fig.add_trace(
+#             go.Scatter(
+#                 x=group[effect_size],
+#                 y = df_second.loc[df_second['Treatment'] == treatment, effect_size_2],  # Ensure alignment with df_second
+#                 error_x=dict(
+#                     type='data',
+#                     symmetric=False,
+#                     array=group['CI_width_hf'] if xlog else group['CI_width'] if data else None,
+#                     arrayminus=group['lower_error_1'] if xlog else None,
+#                     color=color,
+#                 ),
+#                 error_y=dict(
+#                     type='data',
+#                     symmetric=False,
+#                     array=df_second.loc[df_second['Treatment'] == treatment, 'CI_width_hf'] if xlog else df_second.loc[df_second['Treatment'] == treatment, 'CI_width'] if data else None,
+#                     arrayminus=df_second.loc[df_second['Treatment'] == treatment, 'lower_error_2'] if xlog else None,
+#                     color=color,
+#                 ),
+#                 mode='markers',
+#                 marker=dict(
+#                     size=10,
+#                     color=color,
+#                 ),
+#                 name=treatment,  # Name the trace (appears in legend)
+#                 showlegend=True  # Ensure legend is shown for this trace
+#             )
+#         )
 
-    # Update axes to match log scale if required
-    # fig.update_layout(
-    #     xaxis=dict(
-    #         type="log" if xlog else "linear",
-    #         tickvals=x_ticks,
-    #         ticktext=x_ticktext,
-    #     ),
-    #     yaxis=dict(
-    #         type="log" if xlog else "linear",
-    #         tickvals=y_ticks,
-    #         ticktext=y_ticktext,
-    #     )
-    # )
+#     # Update axes to match log scale if required
+#     fig.update_layout(
+#         xaxis=dict(
+#             type="log" if xlog else "linear",
+#             tickvals=x_ticks,
+#             ticktext=x_ticktext,
+#         ),
+#         yaxis=dict(
+#             type="log" if xlog else "linear",
+#             tickvals=y_ticks,
+#             ticktext=y_ticktext,
+#         )
+#     )
 
         
     

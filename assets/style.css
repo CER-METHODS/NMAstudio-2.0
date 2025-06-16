@@ -2321,7 +2321,7 @@ margin: 10px
     -moz-animation: my-animation 25s linear infinite;
     -webkit-animation: my-animation 25s linear infinite;
     animation: my-animation 12s linear infinite;
-    text-wrap: nowrap;
+    white-space: nowrap;
     font-size: large;
     /* font-weight: bold; */
     color:chartreuse

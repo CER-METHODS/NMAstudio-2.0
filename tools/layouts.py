@@ -145,13 +145,22 @@ def real_homelayout():
                                 #                     'padding': '4px'}),
                                 #     Download(id="download-tuto"),
                                 #     html.Span('or', style={'justify-self':'center','align-self': 'center'}),
-                                    dbc.NavLink('See an embeded example', href="/results", external_link=True,
-                                                className='go_to_example'),
+                                #     dbc.NavLink('See an embeded example', href="/results", external_link=True,
+                                #                 className='go_to_example'),
+                                      html.Div([html.Button("Download demonstration data", 
+                                                            id="demodata", 
+                                                            style={'display': 'inline-block','padding': '1px'}),
+                                                Download(id="download-demodata")]),
+                                      html.Span('and', style={'justify-self':'center','align-self': 'center'}),
+                                      html.Div([html.Button("See the explanation of the variables", 
+                                                            id="data_explain", 
+                                                            style={'display': 'inline-block','padding': '1px'}),
+                                                Download(id="download-data-explain")]),   
                                     ], 
                                     style={"display": 'grid', 
-                                           'width':'250px', 
+                                           'width':'40%', 
                                            'justify-self':'center',
-                                        #    'grid-template-columns': '1fr 1fr 1fr'
+                                           'grid-template-columns': '1fr 1fr 1fr'
                                            }),
                                     html.Br(), html.Br(),
                                     html.Span('More tutorials coming soon...',style={'justify-self':'center','align-self': 'center'}),    
@@ -246,7 +255,7 @@ def real_homelayout():
                                                         'width': '100%',
                                                         'margin-top': '0'
                                                         }),
-                                                dcc.Markdown('Please cite us as: Tianqi Y, Silvia M, Chaimani A. NMAstudio: a fully interactive web-application for producing and visualising network meta-analyses. *Cochrane Colloquium 2023, London, UK.*',
+                                                dcc.Markdown('Please cite us as: Yu T, Metelli S, Chaimani A. NMAstudio: a fully interactive web-application for producing and visualising network meta-analyses. *Cochrane Colloquium 2023, London, UK.*',
                                                                 className="markdown_style", style={"color": "black", "margin-right":"10%"}),
                                                 html.Br(), 
 
@@ -817,15 +826,15 @@ def home_layout():
 
                 ])    
             ]),
-          ],
+          ], style={'display':'none'}
     )
 ####################################Data Upload###########################################
 
 
 def upload_data():
-    return html.Div(id='upload_page',style={'display':'none'},children=[
-        dbc.Row( [html.Img(src="/assets/icons/back_arrow.png",n_clicks=0,
-                style={'width': '40px'}, id='back_plot'), html.P('Back to the results', id='back_result')], id='arrow_back'),
+    return html.Div(id='upload_page',style={'display':'grid'},children=[
+        # dbc.Row( [html.Img(src="/assets/icons/back_arrow.png",n_clicks=0,
+        #         style={'width': '40px'}, id='back_plot'), html.P('Back to the results', id='back_result')], id='arrow_back'),
         html.Br(),
         dbc.Row([dbc.Col([html.P("Provide the link of the protocol of your study:", className="selcect_title",),
                          html.Div(
@@ -862,7 +871,7 @@ def upload_data():
                             )), className='upload_instrucol')], 
                                          id="protocol-link-input", className= 'upload_row'),
         html.Br(),
-        dbc.Row( html.Img(src="/assets/icons/arrow.png",
+        dbc.Row(html.Img(src="/assets/icons/arrow.png",
                 style={'width': '60px'}), 
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_protocol'),
         html.Br(),
@@ -884,7 +893,7 @@ def upload_data():
         #         style={'display': 'inline-block'}),
         dbc.Col(html.Div(html.Span('* The dataset should be uploaded as the csv format',className='upload_instuspan',
                             )), className='upload_instrucol')
-                ], className= 'upload_row', id = 'upload_original_data'),
+                ], style={'display':'none'},className= 'upload_row', id = 'upload_original_data'),
         dbc.Row( html.Img(src="/assets/icons/arrow.png",
                 style={'width': '60px'}), 
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step1'),
@@ -936,7 +945,7 @@ def upload_data():
                                                 'align-items': 'center'
                                                }),
                 dbc.Col(html.Div(html.Span('*NMAStudio now support any number of outcomes.',className='upload_instuspan',
-                            )), className='upload_instrucol')], 
+                            )), className='upload_instrucol')], style={'display': 'none'},
                                          id="number-outcomes-input", className= 'upload_row'),
 
         html.Br(),
