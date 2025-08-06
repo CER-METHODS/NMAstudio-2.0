@@ -1154,7 +1154,7 @@ h6 {margin-top: 0;}
 .Select-placeholder {
     /*color: --CLR_BCKGRND; */
     /*background: #394046;*/
-    #background-image: linear-gradient(#484e55, #3A3F44 60%, #313539);
+    /* background-image: linear-gradient(#484e55, #3A3F44 60%, #313539); */
     left: 0;
     line-height: 20px;
     padding-left: 14px;

@@ -27,6 +27,7 @@ Dropdown_edgecolor = dbc.DropdownMenu(
     children=[dbc.DropdownMenuItem("Default", id='dd_edge_default'),
               dbc.DropdownMenuItem("Custom selection", id='open_modal_dd_eclr_input'), # Calls up Modal
               dbc.DropdownMenuItem("Add label", id='dd_edge_label'),
+              dbc.DropdownMenuItem("Add tau2", id='dd_tau2_label'),
               html.Div(id='dd_eclr', style={'display': 'none'}),
               ], style={'display': 'inline-block',}
 )

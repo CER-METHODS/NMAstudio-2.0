@@ -17,3 +17,11 @@ time. The data table will be filtered accordingly."
                    )
 
 infoYear = __info_modal("year","Infobox", year_info)
+
+scatter_info = html.P("Please include a 'sample_size' column in your dataset to make the scatter point sizes proportional to sample size.\
+ Otherwise, all points will have the same size."
+                   ,className="infoModal"
+                   ,style={'display':'inline-block',"text-align":'left', 'font-size': 'large'}
+                   )
+
+infoscatter = __info_modal("scatter","Infobox", scatter_info)

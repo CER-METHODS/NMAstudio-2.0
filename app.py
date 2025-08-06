@@ -25,7 +25,7 @@ from tools.functions_ranking_plots import __ranking_plot
 from tools.functions_funnel_plot import __Tap_funnelplot
 from tools.functions_nmaforest_plot import __TapNodeData_fig, __TapNodeData_fig_bidim
 from tools.functions_pairwise_plots import __update_forest_pairwise
-from tools.functions_boxplots import __update_boxplot
+from tools.functions_boxplots import __update_boxplot, __update_scatter
 from tools.functions_project_setup import __update_options, __second_options, __effect_modifier_options,__selectbox1_options, __outcomes_type,__variable_selection,__primaryout_selection
 from tools.functions_netsplit import __netsplit
 from tools.functions_build_league_data_table import  __update_output_new,__update_output_bothout
@@ -193,13 +193,13 @@ def display_grid(value, children):
 @app.callback([Output('result_page', 'style'),
               Output('upload_page', 'style'),],
               [Input('test_upload', 'n_clicks_timestamp'),
-            #    Input('back_plot', 'n_clicks_timestamp'),
+               Input('back_plot', 'n_clicks_timestamp'),
                Input('submit_modal_data','n_clicks_timestamp')
                ]
                )
-def result_page(click,  click_trans):
-    # if ctx.triggered_id == "back_plot":
-    #     return {'display':'grid'}, {'display':'none'}
+def result_page(click, click_back,click_trans):
+    if ctx.triggered_id == "back_plot":
+        return {'display':'grid'}, {'display':'none'}
 
     if ctx.triggered_id == "test_upload":
         return {'display':'none'}, {'display':'grid'}
@@ -706,19 +706,17 @@ def get_image(net_download_activation, export):
 
 # ## ----- Update layout with slider ------ ###
 
-
-
-
 @app.callback([Output('cytoscape', 'elements'),
                Output('modal-cytoscape', 'elements'),],
               [
                Input('net_data_STORAGE', 'data'),
+               Input('forest_data_prws_STORAGE', 'data'),
                Input('slider-year', 'value'),
                Input('_outcome_select', 'value'),
                Input('reset_project', 'n_clicks'),
             #    Input('node_size_input', 'value'),
                ])
-def update_layout_year_slider(net_data, slider_year, out_fun,reset_btn):
+def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn):
     
     YEARS_DEFAULT = np.array([1963, 1990, 1997, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010,
                               2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
@@ -739,11 +737,14 @@ def update_layout_year_slider(net_data, slider_year, out_fun,reset_btn):
         outcome = int(outcome)
         net_data = pd.read_json(net_data[0], orient='split')
         net_datajs2 = net_data[net_data.year <= slider_year] if not reset_btn_triggered else net_data[net_data.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs2, i = outcome )
+        pw_data = pd.read_json(pw_data[outcome], orient='split')
+        elements = get_network_new(df=net_datajs2, pw_df = pw_data,i = outcome )
 
     else:
         net_datajs = net_datajs[net_datajs.year <= slider_year] if not reset_btn_triggered else net_datajs[net_datajs.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs,i = 0)
+        pw_data = pd.read_json(pw_data[0], orient='split')
+        elements = get_network_new(df=net_datajs,pw_df = pw_data, i = 0)
+
 
     return elements, elements
 
@@ -865,10 +866,13 @@ def  update_forest_pairwise(edge, outcome_idx, forest_data_prws, style_pair, net
 
 
 @app.callback(Output('tapEdgeData-fig', 'figure'),
-              [Input('dropdown-effectmod', 'value'),
+              [Input('box_vs_scatter', 'value'),
+               Input('dropdown-effectmod', 'value'),
                Input('cytoscape', 'selectedEdgeData'),
                Input('net_data_STORAGE','data')])
-def update_boxplot(value, edges, net_data):
+def update_boxplot(scatter, value, edges, net_data):
+    if scatter:
+        return __update_scatter(value, edges, net_data)
     return __update_boxplot(value, edges, net_data)
 
 
@@ -1092,11 +1096,12 @@ def TapNodeData_info(data):
 ############ - Funnel plot  - ###############
 @app.callback(Output('funnel-fig', 'figure'),
               [Input('cytoscape', 'selectedNodeData'),
+               Input('cytoscape', 'selectedEdgeData'),
                Input("_outcome_select", "value"),
                Input("funnel_data_STORAGE", "data")]
                )
-def Tap_funnelplot(node, outcome_idx, funnel_data):
-    return __Tap_funnelplot(node, outcome_idx, funnel_data)
+def Tap_funnelplot(node, edge, outcome_idx, funnel_data):
+    return __Tap_funnelplot(node, edge, outcome_idx, funnel_data)
 
 
 
@@ -1168,12 +1173,13 @@ def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_m
                Output("open_modal_dd_eclr_input", "n_clicks")],
               [Input('dd_edge_default', 'n_clicks_timestamp'), Input('dd_edge_default', 'children'),
                Input('dd_edge_label', 'n_clicks_timestamp'), Input('dd_edge_label', 'children'),
+               Input('dd_tau2_label', 'n_clicks_timestamp'), Input('dd_tau2_label', 'children'),
                Input('close_modal_dd_eclr_input', 'n_clicks'),
                ],
               prevent_initial_call=True)
-def which_dd_edges(default_t, default_v, eclr_t, eclr_v, closing_modal):
-    values = [default_v, eclr_v]
-    dd_eclr = [default_t or 0, eclr_t or 0]
+def which_dd_edges(default_t, default_v, eclr_t, eclr_v,tau2_t, tau2_v ,closing_modal):
+    values = [default_v, eclr_v, tau2_v]
+    dd_eclr = [default_t or 0, eclr_t or 0, tau2_t or 0]
     which = dd_eclr.index(max(dd_eclr))
     return values[which] if not closing_modal else None, None, None
 
@@ -1875,6 +1881,23 @@ def toggle_modal_year(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
+#SCATTER INFO
+@app.callback(
+    Output("modal-body-scatter", "is_open"),
+    [
+        Input("open-body-scatter", "n_clicks"),
+        Input("close-body-scatter", "n_clicks"),
+    ],
+    [State("modal-body-scatter", "is_open")],
+)
+def toggle_modal_scatter(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
 
 #FUNNEL INFO
 @app.callback(

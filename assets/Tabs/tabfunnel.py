@@ -4,7 +4,7 @@ from assets.Tabs.saveload_modal_button import saveload_modal
 from assets.Infos.funnelInfo import infoFunnel
 
 
-tab_funnel = html.Div([dbc.Row([dbc.Col(html.P("Click on a node to choose reference", #Click treatment sequentially to get desired ordering",
+tab_funnel = html.Div([dbc.Row([dbc.Col(html.P("Click on a node or edges to generate the plot", #Click treatment sequentially to get desired ordering",
                                          className="graph__title2",
                                          style={'display': 'inline-block',
                                                 'verticalAlign':"top",
