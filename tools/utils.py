@@ -201,7 +201,7 @@ CMAP = ['bisque', 'gold', 'light blue', 'tomato', 'orange', 'olivedrab', 'darksl
 
 
 
-def get_network_new(df, pw_df, i):
+def get_network_new(df, i):
     num_classes = None
     df = df.dropna(subset=[f'TE{i+1}', f'seTE{i+1}'])
     # print(df.columns)
@@ -223,23 +223,23 @@ def get_network_new(df, pw_df, i):
     sorted_edges = np.sort(df[['treat1', 'treat2']], axis=1)  ## removes directionality
     df.loc[:,['treat1', 'treat2']] = sorted_edges  
     edges = df.groupby(['treat1', 'treat2'])[f"TE{i+1}"].count().reset_index()
-    # Prepare pw_data with both treat directions
-    if pw_df is not None:
-        pw_df = pw_df[pw_df['studlab'].isin(df['studlab'])]
-        # Step 1: Create a normalized key for both datasets (sorted tuple of treatments)
-        pw_df['pair'] = pw_df.apply(lambda row: tuple(sorted([row['treat1'], row['treat2']])), axis=1)
-        edges['pair'] = edges.apply(lambda row: tuple(sorted([row['treat1'], row['treat2']])), axis=1)
+    # # Prepare pw_data with both treat directions
+    # if pw_df is not None:
+    #     pw_df = pw_df[pw_df['studlab'].isin(df['studlab'])]
+    #     # Step 1: Create a normalized key for both datasets (sorted tuple of treatments)
+    #     pw_df['pair'] = pw_df.apply(lambda row: tuple(sorted([row['treat1'], row['treat2']])), axis=1)
+    #     edges['pair'] = edges.apply(lambda row: tuple(sorted([row['treat1'], row['treat2']])), axis=1)
 
-        # Step 2: Drop duplicates in pw_data (since tau2 is the same for each pair)
-        pw_unique = pw_df[['pair', 'tau2']].drop_duplicates()
+    #     # Step 2: Drop duplicates in pw_data (since tau2 is the same for each pair)
+    #     pw_unique = pw_df[['pair', 'tau2']].drop_duplicates()
 
-        # Step 3: Merge tau2 into edge
-        edges = edges.merge(pw_unique, on='pair', how='left')
-        edges['tau2'] = round(edges['tau2'], 2)
-        # Step 4: Drop helper 'pair' column if you don't need it
-        edges = edges.drop(columns='pair')
-    else:
-        edges['tau2'] = np.nan 
+    #     # Step 3: Merge tau2 into edge
+    #     edges = edges.merge(pw_unique, on='pair', how='left')
+    #     edges['tau2'] = round(edges['tau2'], 2)
+    #     # Step 4: Drop helper 'pair' column if you don't need it
+    #     edges = edges.drop(columns='pair')
+    # else:
+    #     edges['tau2'] = np.nan 
     
     df_n1g = df.rename(columns={'treat1': 'treat', f'n1{i+1}': 'n'}).groupby(['treat'])
     df_n2g = df.rename(columns={'treat2': 'treat', f'n2{i+1}': 'n'}).groupby(['treat'])
@@ -282,9 +282,8 @@ def get_network_new(df, pw_df, i):
 
     cy_edges = [{'data': {'source': source, 'target': target,
                           'weight': weight * 1 if (len(edges)<100 and len(edges)>13) else weight * 0.75 if len(edges)<13  else weight * 0.7,
-                          'weight_lab': weight,
-                          'tau2': tau2,}}
-                for source, target, weight,tau2 in edges.values]
+                          'weight_lab': weight}}
+                for source, target, weight in edges.values]
     # max_trsfrmd_size_nodes = np.sqrt(all_nodes_sized.iloc[:,1].max()) / 70
     # node_size = float(node_size) if node_size is not None else 0
 

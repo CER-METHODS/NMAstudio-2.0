@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd
 import plotly.express as px, plotly.graph_objects as go
-
+from plotly.colors import qualitative
 
 def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
 
@@ -312,8 +312,29 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
     df['value2'] = ['' + '{:.2f} {:<17}'.format(x, y) 
                     for x, y in zip(df_second[effect_size].values, df_second['CI'].values)]
 
+    # Calculate number of unique treatments
+    n_treatments = df['Treatment'].nunique()
 
-    
+    # Combine multiple qualitative color sequences to cover more treatments
+    color_sequences = [
+        qualitative.Plotly, qualitative.Dark24, qualitative.Light24,
+        qualitative.Alphabet, qualitative.Bold, qualitative.Pastel,
+        qualitative.Prism, qualitative.Safe, qualitative.Vivid,
+        qualitative.Set1, qualitative.Set2, qualitative.Set3,
+        qualitative.D3, qualitative.G10, qualitative.T10
+    ]
+    long_color_list = []
+    for seq in color_sequences:
+        long_color_list.extend(seq)
+
+    # Generate distinct colors (recycle if needed)
+    if n_treatments <= len(long_color_list):
+        distinct_colors = long_color_list[:n_treatments]
+    else:
+        # Generate a rainbow spectrum as fallback
+        distinct_colors = [f'hsl({int(360*i/n_treatments)}, 85%, 50%)' 
+                        for i in range(n_treatments)]
+        
     fig = px.scatter(df, x=df[effect_size], y=df_second[effect_size_2],
                  color=df.Treatment,
                  error_x_minus=df['lower_error_1'] if xlog else None,
@@ -323,10 +344,8 @@ def __TapNodeData_fig_bidim(data, forest_data_store,out_idx1, out_idx2,options, 
                  log_x=xlog,
                  log_y=xlog,
                  size_max = 10,
-                 color_discrete_sequence = None,
+                 color_discrete_sequence=distinct_colors,
                  custom_data=['Treatment','label1', 'label2', 'value1', 'value2'] if data else None, 
-                #  color_discrete_sequence = px.colors.qualitative.Light24,
-                #  range_x = [min(low_rng, 0.1), max([up_rng, 10])] if xlog else None,
                  range_x=([max([up_rng, 10]), min(low_rng, 0.1)] if xlog else None) if direct1 == 'harmful' 
                          else ([min(low_rng, 0.1), max([up_rng, 10])] if xlog else None),
                  range_y=([max(df_second[effect_size_2]), min(df_second[effect_size_2])] if direct2 == 'harmful'

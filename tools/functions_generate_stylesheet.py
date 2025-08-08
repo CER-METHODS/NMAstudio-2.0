@@ -18,17 +18,16 @@ def __generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
     pie = dd_nclr == 'Risk of Bias'
     cls = dd_nclr == 'By class'
     edg_lbl = dd_eclr == 'Add label'
-    tau_lbl = dd_eclr == 'Add tau2'
     FOLLOWER_COLOR, FOLLOWING_COLOR = DFLT_ND_CLR, DFLT_ND_CLR
     
     n_cls = elements[-1]["data"]['n_class'] if "n_class" in elements[-1]["data"] and cls else 1
-    stylesheet = get_stylesheet(pie=pie, classes=cls, n_class=n_cls, edg_lbl=edg_lbl, tau_lbl=tau_lbl, edg_col=edges_color,
+    stylesheet = get_stylesheet(pie=pie, classes=cls, n_class=n_cls, edg_lbl=edg_lbl, edg_col=edges_color,
                                 nd_col=nodes_color, node_size=node_size, edge_size=edge_size,label_size=label_size)
     edgedata = [el['data'] for el in elements if 'target' in el['data'].keys()]
     all_nodes_id = [el['data']['id'] for el in elements if 'target' not in el['data'].keys()]
 
     if treat_name is not None:
-        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl,tau_lbl=tau_lbl, edg_col=edges_color,
+        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl, edg_col=edges_color,
                                     nd_col=nodes_color, node_size=node_size,
                                     nodes_opacity=0.2, edges_opacity=0.1,label_size=label_size) + [
                          {"selector": 'node[label = "{}"]'.format(treat_name),
@@ -49,7 +48,7 @@ def __generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
                                  | {e['target'] for e in edgedata if e['source'] in selected_nodes_id
                                     or e['target'] in selected_nodes_id})
 
-        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl, tau_lbl=tau_lbl, edg_col=edges_color,
+        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl, edg_col=edges_color,
                                     nd_col=nodes_color, node_size=node_size,
                                     nodes_opacity=0.2, edges_opacity=0.1,label_size=label_size) + [
                          {"selector": 'node[id = "{}"]'.format(id),
@@ -71,7 +70,7 @@ def __generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
         #                             | {e['target'] for e in edgedata if e['source'] in selected_edge_id
         #                             or e['target'] in selected_edge_id})
 
-        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl, tau_lbl=tau_lbl, edg_col=edges_color,
+        stylesheet = get_stylesheet(pie=pie,  classes=cls,  n_class=n_cls, edg_lbl=edg_lbl, edg_col=edges_color,
                                     nd_col=nodes_color, node_size=node_size,label_size=label_size) + [
                             {"selector": 'edge[id= "{}"]'.format(id),
                             "style": {'opacity': 1,  "line-color": 'rgb(165, 74, 97)',

@@ -737,13 +737,11 @@ def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn)
         outcome = int(outcome)
         net_data = pd.read_json(net_data[0], orient='split')
         net_datajs2 = net_data[net_data.year <= slider_year] if not reset_btn_triggered else net_data[net_data.year <= years_dft_max]
-        pw_data = pd.read_json(pw_data[outcome], orient='split')
-        elements = get_network_new(df=net_datajs2, pw_df = pw_data,i = outcome )
+        elements = get_network_new(df=net_datajs2,i = outcome )
 
     else:
         net_datajs = net_datajs[net_datajs.year <= slider_year] if not reset_btn_triggered else net_datajs[net_datajs.year <= years_dft_max]
-        pw_data = pd.read_json(pw_data[0], orient='split')
-        elements = get_network_new(df=net_datajs,pw_df = pw_data, i = 0)
+        elements = get_network_new(df=net_datajs, i = 0)
 
 
     return elements, elements
@@ -1173,13 +1171,12 @@ def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_m
                Output("open_modal_dd_eclr_input", "n_clicks")],
               [Input('dd_edge_default', 'n_clicks_timestamp'), Input('dd_edge_default', 'children'),
                Input('dd_edge_label', 'n_clicks_timestamp'), Input('dd_edge_label', 'children'),
-               Input('dd_tau2_label', 'n_clicks_timestamp'), Input('dd_tau2_label', 'children'),
                Input('close_modal_dd_eclr_input', 'n_clicks'),
                ],
               prevent_initial_call=True)
-def which_dd_edges(default_t, default_v, eclr_t, eclr_v,tau2_t, tau2_v ,closing_modal):
-    values = [default_v, eclr_v, tau2_v]
-    dd_eclr = [default_t or 0, eclr_t or 0, tau2_t or 0]
+def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
+    values = [default_v, eclr_v]
+    dd_eclr = [default_t or 0, eclr_t or 0]
     which = dd_eclr.index(max(dd_eclr))
     return values[which] if not closing_modal else None, None, None
 
