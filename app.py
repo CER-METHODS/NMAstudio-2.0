@@ -822,13 +822,15 @@ def TapEdgeData(edge):
               [Input('cytoscape', 'selectedNodeData'),
                Input('_outcome_select', 'value'),
                Input("forest_data_STORAGE", "data"),
+               Input('forest_data_prws_STORAGE', 'data'),
                Input('tapNodeData-fig', 'style'),
-               Input('add_pi', 'value')
+               Input('add_pi', 'value'),
+               Input('add_tau2', 'value'),
                ],
               State("net_data_STORAGE", "data")
               )
-def TapNodeData_fig(data, outcome_idx, forest_data, style, pi, net_storage):
-    return __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage)
+def TapNodeData_fig(data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage):
+    return __TapNodeData_fig(data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage)
 
 
 ### ----- display dibim forest plot on node click ------ ###

@@ -2,7 +2,7 @@ import numpy as np, pandas as pd
 import plotly.express as px, plotly.graph_objects as go
 from plotly.colors import qualitative
 
-def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
+def __TapNodeData_fig(data, outcome_idx, forest_data,  pw_forest_data, style, pi, add_tau, net_storage):
 
 
     if data:
@@ -11,11 +11,23 @@ def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
              i = int(outcome_idx)
             #  forest_data = forest_data[i]
              forest_data = pd.read_json(forest_data[i], orient='split')
+             pw_forest_data = pd.read_json(pw_forest_data[i], orient='split')
+
         else:          
             i = 0
             forest_data = pd.read_json(forest_data[i], orient='split')
-                
+            pw_forest_data = pd.read_json(pw_forest_data[i], orient='split')
+
         df = forest_data[forest_data.Reference == treatment]
+        # Step 1: Create sorted keys for both dataframes
+        df["key"] = df.apply(lambda x: tuple(sorted([x["Treatment"], x["Reference"]])), axis=1)
+        pw_forest_data["key"] = pw_forest_data.apply(lambda x: tuple(sorted([x["treat1"], x["treat2"]])), axis=1)
+
+        # Step 2: Drop duplicates in data2 since tau2 is same for each pair
+        pw_forest_unique = pw_forest_data.drop_duplicates(subset=["key"])[["key", "tau2"]].rename(columns={"tau2": "tau2_pw"})
+
+        # Step 3: Merge
+        df = df.merge(pw_forest_unique, on="key", how="left").drop(columns="key")
         net_data = pd.read_json(net_storage[0], orient='split')
         outcome_direction_data = net_data[f'outcome{i+1}_direction'].iloc[1]
         outcome_direction = False if outcome_direction_data == 'beneficial' else True
@@ -42,10 +54,11 @@ def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
                              + f"{'NA' if np.isnan(tau2) else tau2}")
         LEN_FOREST_ANNOT = 25 + len(str(tau2))
         style.update({'height': 200+16*(n-2)})
+
     else:
         effect_size = ''
         outcome_direction = False
-        df = pd.DataFrame([[0] * 9], columns=['Treatment', effect_size, 'CI_lower', 'CI_upper', 'WEIGHT',
+        df = pd.DataFrame([[0] * 10], columns=['Treatment', effect_size, 'tau2_pw', 'CI_lower', 'CI_upper', 'WEIGHT',
                                               'CI_width', 'CI_width_hf','pre_width', 'pre_width_hf'])
         FOREST_ANNOTATION = ''
         LEN_FOREST_ANNOT = 0
@@ -165,11 +178,28 @@ def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
                                  yaxis="y2"))
 
         if pi:
-            ticktext=[' ' + '{:.2f}   {:<17} {:<17}'.format(x,y,z)
-                                    for x, y, z in zip(df[effect_size].values, df['CI'].values, df['PI'].values)]
+            if add_tau:
+                ticktext = [
+                    f" {x:.2f}   {y:<17} {z:<17} {w:.2f}"
+                    for x, y, z, w in zip(df[effect_size], df["CI"], df["PI"], df["tau2_pw"])
+                ]
+            else:
+                ticktext = [
+                    f" {x:.2f}   {y:<17} {z:<17}"
+                    for x, y, z in zip(df[effect_size], df["CI"], df["PI"])
+                ]
         else:
-            ticktext=[' ' + '{:.2f}   {:<17}'.format(x,y)
-                                  for x, y in zip(df[effect_size].values, df['CI'].values)]
+            if add_tau:
+                ticktext = [
+                    f" {x:.2f}   {y:<17} {w:.2f}"
+                    for x, y, w in zip(df[effect_size], df["CI"], df["tau2_pw"])
+                ]
+            else:
+                ticktext = [
+                    f" {x:.2f}   {y:<17}"
+                    for x, y in zip(df[effect_size], df["CI"])
+                ]
+
         fig.update_layout(
             autosize=True,
             width=1500,
@@ -196,6 +226,11 @@ def __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage):
                            xref='paper', yref='y2 domain',
                            text='<b>95% CI</b>',
                            showarrow=False)
+        if add_tau:
+            fig.add_annotation(x=1.33, y=1, align='center',
+                            xref='paper', yref='y2 domain',
+                            text='<b>tau2</b>',
+                            showarrow=False)
         if pi:
             fig.add_annotation(x=1.32, y=1, align='center',
                             xref='paper', yref='y2 domain',

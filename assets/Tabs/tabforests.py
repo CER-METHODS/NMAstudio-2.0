@@ -85,6 +85,23 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                                 'font-size': '12px',
                                                                 'padding-right':
                                                                '0px'}),
+                                                html.P("", 
+                                                        style={'display': 'inline-block',
+                                                                'font-size': '12px',
+                                                                'padding-left': '10px'}),
+                                                daq.ToggleSwitch(id='add_tau2',
+                                                                    value=False,
+                                                                    color='', size=30,
+                                                                    labelPosition="bottom",
+                                                                    style={'display': 'inline-block',
+                                                                        'margin': 'auto',
+                                                                        'padding-left': '10px',
+                                                                        'padding-right': '10px'}),
+                                                html.P('Add tau2',
+                                                        style={'display': 'inline-block', 'margin': 'auto',
+                                                                'font-size': '12px',
+                                                                'padding-right':
+                                                               '0px'}),
                                                infoForest
                                                 ],  style={'padding': '5px 5px 5px 5px',
                                                             'display': 'inline-flex', 'margin-top': '-2px' })
