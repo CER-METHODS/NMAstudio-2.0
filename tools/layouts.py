@@ -325,13 +325,13 @@ def home_layout():
                                   style={'justify-self':'center',
                                          'align-self': 'center', 
                                          'white-space': 'pre',
-                                         'font-size': 'medium', 'color': 'chocolate'}, id = 'link_title' ),
+                                         'font-size': 'large', 'color': 'chocolate'}, id = 'link_title' ),
                              dcc.Link(href = 'https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535/full', 
                                       target="_blank",
                                   style={'justify-self':'center',
                                          'align-self': 'center',
                                          'color':'#0FA0CE', 
-                                         'font-size': 'medium',
+                                         'font-size': 'large',
                                          'padding': 'unset'
                                          }, id= 'show_protocol_link')]),
                         dbc.Row(id= 'warning_message'),
@@ -342,10 +342,11 @@ def home_layout():
                                             style={'display': 'grid', 
                                                    'justify-items': 'center', 
                                                    'place-self': 'center',
-                                                   'width':'230px'},
+                                                   'font-size': 'large',
+                                                   'width':'250px'},
                                             id='result_selected'
                                                  ),
-                                html.Span('or', style={'justify-self':'center','align-self': 'center'}),
+                                html.Span('or', style={'justify-self':'center','align-self': 'center','font-size': 'large'}),
                                 html.Button(
                                         "Setup Analysis",
                                         "test_upload",
@@ -364,7 +365,7 @@ def home_layout():
                                                 'margin-bottom':'2px'}),
                                 saveload_modal,
 
-                                ], style={"display": 'grid', 'width':'1000px', 'justify-self':'center','grid-template-columns': '0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr'}),
+                                ], style={"display": 'grid', 'width':'1050px', 'justify-self':'center','grid-template-columns': '0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr'}),
 
                         html.Br(), html.Br(),
                         html.Span('Click the Setup Analysis button to upload your own dataset, otherwise the embedded example is shown below.', 
@@ -379,8 +380,9 @@ def home_layout():
                          children=[
 
                             html.Div(  # NMA Graph
-                                [html.Div([dbc.Row([html.Div(Dropdown_graphlayout,
-                                                             style={'display': 'inline-block', 'font-size': '11px'}),
+                                [html.Div([html.Div(Dropdown_graphlayout,
+                                                             style={'font-size': '11px'}),
+                                                dbc.Row([
                                                     html.Div(modal, style={'display': 'inline-block', 'font-size': '11px'}),
                                                     html.Div(modal_edges, style={'display': 'inline-block', 'font-size': '11px'}),
                                                 #     html.Div(modal_data, style={'display': 'inline-block', 'font-size': '11px'}),
@@ -389,7 +391,7 @@ def home_layout():
                                                     html.Div(modal_league_table, id="modal_league_div", style={'display': 'inline-block', 'font-size': '11px'}),
                                                     html.Div(modal_network, style={'display': 'inline-block', 'font-size': '11px'}),
                                                     html.A(html.Img(src="/assets/icons/NETD.png", style={'width': '50px'}),
-                                                                    id="btn-get-png", style={'display': 'inline-block'}),
+                                                                    id="btn-get-png", style={'display': 'inline-block', 'padding': '3px'}),
                                                     dbc.Tooltip("save graph", style={'color': 'black',
                                                                                      'font-size': 9,
                                                                                      'margin-left': '10px',
@@ -426,7 +428,7 @@ def home_layout():
                                                                        'letter-spacing': '0.3rem'},
                                                                 placement='top',
                                                                 target='network-zoomout'),
-                                                    dbc.Col([html.H4("Font size:",style={'font-size':'13px', 
+                                                    dbc.Col([html.H4("Font size:",style={'font-size':'15px', 
                                                                                                 #     'margin-left':'60px',
                                                                                                     'font-family': 'system-ui','width': '90px'}),
                                                            dcc.Input(id="label_size_input",
@@ -438,8 +440,8 @@ def home_layout():
                                                                        'color':'gray','margin-top': '-6px',
                                                                        'width': '70px'}, 
                                                                        placeholder="e.g. 30px",),
-                                                                       ], ),
-                                                    dbc.Col([html.H4("Search an Intervention:",style={'font-size':'13px', 
+                                                                       ], style={'padding-bottom':'7px'}),
+                                                    dbc.Col([html.H4("Search an Intervention:",style={'font-size':'15px', 
                                                                                                         #      'margin-left':'150px',
                                                                                                              'font-family': 'system-ui',
                                                                                                              'width': '90px'
@@ -453,11 +455,12 @@ def home_layout():
                                                                        'font-size':'10.5px',
                                                                        'color':'gray','margin-top': '-6px',
                                                                        'width': '70px'}, 
-                                                                       placeholder="e.g. PBO",)]),
+                                                                       placeholder="e.g. PBO",)], style={'padding-bottom':'7px'}),
                                                     html.Div([
                                                         html.A(html.Img(src="/assets/icons/list.png",
                                                                            style={"width": "30px",
                                                                                   "float":"right",
+                                                                                  'padding-bottom':'8px',
                                                                                   'margin-top': '-2px'}),id='img_icon'),
                                                         # dbc.Toast([html.P("This is the content of the toast", className="mb-0")],
                                                         #           id="simple-toast",header="This is the header",
@@ -466,7 +469,10 @@ def home_layout():
                                                         #           is_open=True,style={"position": "fixed", "top": 66, "right": 10, "width": 350},),
                                                         
                                                         ],id="info_icon"),
-                                                       html.Div(modal_info, style={'display': 'inline-block', 'font-size': '11px'}),
+                                                       html.Div(modal_info, 
+                                                                style={'display': 'inline-block',
+                                                                       'padding-bottom':'7px', 
+                                                                       'font-size': '11px'}),
                                                        infoGraph
                                     ], style={'align-items': 'end'}),
                                            ], style={'margin-left': '-20px'}),
@@ -577,7 +583,7 @@ def home_layout():
                                                             'margin-bottom': '2px',
                                                             'display': 'inline-block',
                                                             'color': 'black',
-                                                            'font-size': '10px'})], style={'display': 'flex', 
+                                                            'font-size': '13px'})], style={'display': 'flex', 
                                                                                            'align-items': 'center',
                                                                                            'justify-content': 'space-around'
                                                                                            }),
@@ -891,7 +897,8 @@ def upload_data():
                         ],style={'display': 'inline-block', 'justify-self': 'center'}),
         # dbc.Col([html.Br(),html.Ul(id="file-list2", style={'margin-left': '15px', 'color':'white','opacity':'60%'})],
         #         style={'display': 'inline-block'}),
-        dbc.Col(html.Div(html.Span('* The dataset should be uploaded as the csv format',className='upload_instuspan',
+        dbc.Col(html.Div(html.Span("*The dataset should be uploaded as the csv format. Missing values should be encoded as '.', 'NA' or empty in the uploaded dataset",
+                                   className='upload_instuspan',
                             )), className='upload_instrucol')
                 ], style={'display':'none'},className= 'upload_row', id = 'upload_original_data'),
         dbc.Row( html.Img(src="/assets/icons/arrow.png",

@@ -1994,6 +1994,7 @@ li a {
 .upload_instuspan{
     display: block;
     width: 400px;
+    font-size: large;
 }
 
 #modal_transitivity{
@@ -2147,6 +2148,7 @@ li a {
     width: 150px;
     justify-content: start;
     justify-self: start;
+    font-size: 13px;
 }
 
 .sktdropdown-out{

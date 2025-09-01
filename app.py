@@ -22,7 +22,7 @@ from tools.layouts import *
 from tools.skt_layout import *
 from tools.functions_modal_SUBMIT_data import __modal_SUBMIT_button_new, __data_modal, __data_trans
 from tools.functions_NMA_runs import __modal_submit_checks_DATACHECKS,__modal_submit_checks_NMA_new,__modal_submit_checks_PAIRWISE_new, __modal_submit_checks_LT_new, __modal_submit_checks_FUNNEL_new
-from tools.functions_handle_nma_processing import __handle_nma_processing__
+# from tools.functions_handle_nma_processing import __handle_nma_processing__
 from tools.functions_ranking_plots import __ranking_plot
 from tools.functions_funnel_plot import __Tap_funnelplot, __Tap_funnelplot_normal
 from tools.functions_nmaforest_plot import __TapNodeData_fig, __TapNodeData_fig_bidim
@@ -98,7 +98,7 @@ def get_new_layout():
                      dcc.Store(id='consts_STORAGE',  data={'today': TODAY, 'session_ID': SESSION_ID},
                                storage_type='memory',
                                ),
-                    dcc.Store(id='nma-task-store', storage_type='memory')
+                    # dcc.Store(id='nma-task-store', storage_type='memory')
                      ])
 server = app.server
 app.layout = get_new_layout()
@@ -114,7 +114,7 @@ HOMEPAGE = Homepage()
 RealHomepage = realHomepage()
 SKTPAGE = Sktpage()
 
-# SKT = Sktpage()
+SKT = Sktpage()
 
 
 
@@ -1457,46 +1457,46 @@ def modal_submit_checks_DATACHECKS(modal_data_checks_is_open, num_outcomes,TEMP_
 
 
 
-# @app.callback([Output('R-alert-nma', 'is_open'),
-#                Output('Rconsole-error-nma', 'children'),
-#                Output("para-anls-data", "children"),
-#                Output('para-anls-data', 'data'),
-#                Output("TEMP_forest_data_STORAGE", "data"),
-#             #    Output("TEMP_user_elements_STORAGE", "data")
-#                ],
-#                Input("modal_data_checks", "is_open"),
-#                [State('number-outcomes', "value"),
-#                State("TEMP_net_data_STORAGE", "data"),
-#                State("TEMP_forest_data_STORAGE", "data")]
-#               )
-# def modal_submit_checks_NMA_new(modal_data_checks_is_open,num_outcome, TEMP_net_data_STORAGE,
-#                             TEMP_forest_data_STORAGE):
-#     return __modal_submit_checks_NMA_new(modal_data_checks_is_open, num_outcome,TEMP_net_data_STORAGE,
-#                             TEMP_forest_data_STORAGE)
+@app.callback([Output('R-alert-nma', 'is_open'),
+               Output('Rconsole-error-nma', 'children'),
+               Output("para-anls-data", "children"),
+               Output('para-anls-data', 'data'),
+               Output("TEMP_forest_data_STORAGE", "data"),
+            #    Output("TEMP_user_elements_STORAGE", "data")
+               ],
+               Input("modal_data_checks", "is_open"),
+               [State('number-outcomes', "value"),
+               State("TEMP_net_data_STORAGE", "data"),
+               State("TEMP_forest_data_STORAGE", "data")]
+              )
+def modal_submit_checks_NMA_new(modal_data_checks_is_open,num_outcome, TEMP_net_data_STORAGE,
+                            TEMP_forest_data_STORAGE):
+    return __modal_submit_checks_NMA_new(modal_data_checks_is_open, num_outcome,TEMP_net_data_STORAGE,
+                            TEMP_forest_data_STORAGE)
 
 
 
 
-@app.callback(
-    [Output('R-alert-nma', 'is_open'),
-     Output('Rconsole-error-nma', 'children'),
-     Output('para-anls-data', 'children'),
-     Output('para-anls-data', 'data'),
-     Output('nma-task-store', 'data'),
-     Output("TEMP_forest_data_STORAGE", "data"),
-     Output('nma-task-poller', 'disabled')],
-    [Input("modal_data_checks", "is_open"),
-     Input('nma-task-poller', 'n_intervals')],
-    [State('number-outcomes', "value"),
-     State("TEMP_net_data_STORAGE", "data"),
-     State("TEMP_forest_data_STORAGE", "data"),
-     State('nma-task-store', 'data')],
-    prevent_initial_call=True
-)
-def handle_nma_processing(modal_open, n_intervals, num_outcome, net_data_storage, 
-                         forest_data_storage, task_store_data):
-    return __handle_nma_processing__(modal_open, n_intervals, num_outcome, net_data_storage, 
-                         forest_data_storage, task_store_data)
+# @app.callback(
+#     [Output('R-alert-nma', 'is_open'),
+#      Output('Rconsole-error-nma', 'children'),
+#      Output('para-anls-data', 'children'),
+#      Output('para-anls-data', 'data'),
+#      Output('nma-task-store', 'data'),
+#      Output("TEMP_forest_data_STORAGE", "data"),
+#      Output('nma-task-poller', 'disabled')],
+#     [Input("modal_data_checks", "is_open"),
+#      Input('nma-task-poller', 'n_intervals')],
+#     [State('number-outcomes', "value"),
+#      State("TEMP_net_data_STORAGE", "data"),
+#      State("TEMP_forest_data_STORAGE", "data"),
+#      State('nma-task-store', 'data')],
+#     prevent_initial_call=True
+# )
+# def handle_nma_processing(modal_open, n_intervals, num_outcome, net_data_storage, 
+#                          forest_data_storage, task_store_data):
+#     return __handle_nma_processing__(modal_open, n_intervals, num_outcome, net_data_storage, 
+#                          forest_data_storage, task_store_data)
 
 
 

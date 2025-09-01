@@ -156,7 +156,7 @@ def __modal_submit_checks_LT_new(pw_data_ts, num_outcome, modal_data_checks_is_o
 
             
             LEAGUETABLE_both = generate_league_table_both(data, outcome_idx1, outcome_idx2) if outcome_idx1 != outcome_idx2 else pd.DataFrame()
-            # LEAGUETABLE_both.to_csv('leaguw_test.csv')
+            # LEAGUETABLE_both.to_csv('db/league_test.csv')
             LEAGUETABLE_data[-1] = LEAGUETABLE_both.to_json( orient='split')
             # merged_ranking_data = pd.read_json(ranking_data[0], orient='split')
             # for i, json_path in enumerate(ranking_data[1:], start=2):

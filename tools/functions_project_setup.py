@@ -512,7 +512,7 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
                                             'justify-self':'center',
                                             'border': 'unset',
                                             'padding': '4px',
-                                            'width': '90px',
+                                            # 'width': '90px',
                                             'margin': '10px'}),
                 dbc.Button("Next", n_clicks=0, id={'type': 'outcomebutton', 'index': f'{i}'},disabled=True,
                                     style={'color': 'white',

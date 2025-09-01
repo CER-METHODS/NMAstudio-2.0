@@ -243,7 +243,7 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                                       'margin-bottom': '2px',
                                                                       'display': 'inline-block',
                                                                       'color': 'black',
-                                                                      'font-size': '10px','margin-left':'-7px'})], className='slect-out-row'),
+                                                                      'font-size': '13px','margin-left':'-7px'})], className='slect-out-row'),
                                                                       style={'display': 'inline'})],className='tab_row_all'),
                                              dcc.Loading(
                                                  html.Div([

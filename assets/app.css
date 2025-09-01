@@ -560,7 +560,7 @@ select { word-wrap: normal }
     letter-spacing: 0.3rem !important;
     /*padding: 0px 25px 25px 25px;*/
     /*margin-bottom: 0px !important;*/
-    font-size: 1em;
+    font-size: 1.2em;
 
     line-height: 1.5;
     /*border-radius: .25rem;*/
@@ -994,7 +994,7 @@ a.btn.disabled, fieldset:disabled a.btn {pointer-events: none}
 }
 .btn-group-sm > .btn, .btn-sm {
     padding: .25rem .5rem;
-    font-size: 1rem;
+    font-size: 1.2rem;
     line-height: 1.5;
     border-radius: .2rem
 }
@@ -1157,7 +1157,8 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     text-align: inherit;
     white-space: nowrap;
     background-color: transparent;
-    border: 0
+    border: 0;
+    font-size: small;
 }
 .dropdown-item:focus, .dropdown-item:hover {
     color: #fff;

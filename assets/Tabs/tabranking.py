@@ -88,7 +88,7 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
                                                                       'margin-bottom': '2px',
                                                                       'display': 'inline-block',
                                                                       'color': 'black',
-                                                                      'font-size': '10px','margin-left':'-7px'})
+                                                                      'font-size': '13px','margin-left':'-7px'})
                                                                       ]),
                                                                       style={'margin-bottom': '0px', 'justify-content': 'end', 'display': 'flex'}),
 
