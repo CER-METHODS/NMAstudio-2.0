@@ -159,7 +159,7 @@ def __Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data):
                                      showline=True, linewidth=1, linecolor='black',
                                      zeroline=False,
                                      ),
-                          annotations=[dict(x=0, ax=0, y=-0.12, ay=-0.1, xref='x', axref='x', yref='paper',
+                          annotations=[dict(x=diamond, ax=0, y=-0.12, ay=-0.1, xref='x', axref='x', yref='paper',
                                         showarrow=False,
                                         text= 'Log' f'{effect_size} ' ' centered at comparison-specific pooled effect' if effect_size in ['OR','RR'] else f'{effect_size}' ' centered at comparison-specific pooled effect'
                                             )],

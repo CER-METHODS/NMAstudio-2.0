@@ -1,7 +1,7 @@
 import dash_core_components as dcc, dash_html_components as html, dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.Tabs.saveload_modal_button import saveload_modal
-from assets.Infos.funnelInfo import infoFunnel
+from assets.Infos.funnelInfo import infoFunnel, infoFunnel2
 
 
 
@@ -53,7 +53,7 @@ tab_funnel2 = html.Div([dbc.Row([dbc.Col(html.P("Click on an edge to generate th
                                                 'verticalAlign':"top",
                                                 'font-size': '18px',
                                                 'margin-bottom': '-10px'})),
-                                infoFunnel]),
+                                infoFunnel2]),
                        dcc.Loading(
                            dcc.Graph(
                                id='funnel-fig-normal',
@@ -93,18 +93,18 @@ tab_funnel = dcc.Tabs(id='', value = 'tab_funel', vertical=False, persistence=Tr
                       children=[dcc.Tab(label='Comparison-adjusted plot', id='tab_funel', value='tab_funel', className='control-tab',
                                  style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
-                                        'font-size': '12px', 'color': 'black', 'padding': '0'},
+                                        'font-size': 'medium', 'color': 'black', 'padding': '0'},
                                  selected_style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                                  'align-items': 'center','background-color': '#f5c198',
-                                                 'font-size': '12px', 'padding': '0'},
+                                                 'font-size': 'medium', 'padding': '0'},
                                 children=[tab_funnel1]),
                                 dcc.Tab(label='Standard plot', id='tab_funel_2', value='funel_2', className='control-tab',
                                  style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
-                                        'font-size': '12px', 'color': 'black', 'padding': '0'},
+                                        'font-size': 'medium', 'color': 'black', 'padding': '0'},
                                  selected_style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                                  'align-items': 'center','background-color': '#f5c198',
-                                                 'font-size': '12px', 'padding': '0'},
+                                                 'font-size': 'medium', 'padding': '0'},
                                 children=[tab_funnel2])
                                 ]
                       )

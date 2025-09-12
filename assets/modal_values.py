@@ -8,6 +8,7 @@ from assets.COLORS import *
 import dash_cytoscape as cyto
 from assets.cytoscape_styleesheeet import get_stylesheet
 from assets.Tabs.tabtransitivity import tab_trstvty
+from dash_extensions import Download
 
 from assets.storage import USER_ELEMENTS
 
@@ -222,6 +223,11 @@ modal_checks = dbc.Modal(is_open=False, children=[
                                                                  id='para-check-data')],
                                               type="default"),
                                   html.Br(),
+                                  html.Div([html.Button("Download statistical settings for analysis", 
+                                                            id="statsettings", 
+                                                            style={'display': 'inline-block','padding': '1px'}),
+                                                Download(id="download-statistic")]),
+                                  html.Br(), 
                                   html.P("Network meta-analysis:", style={"color": "black"}),
                                   dcc.Loading(id="loading-data-analysis",
                                               children=[html.Div(children=[html.P(" ...",style={"color":"black"})],

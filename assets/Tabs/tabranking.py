@@ -8,10 +8,10 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
                          dcc.Tab(label='P-scores Heatmap', id='tab-rank1', value='Tab-rank1', className='control-tab',
                                  style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
-                                        'font-size': '12px', 'color': 'grey', 'padding': '0'},
+                                        'font-size': 'medium', 'color': 'grey', 'padding': '0'},
                                  selected_style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
                                                  'align-items': 'center','background-color': '#f5c198',
-                                                 'font-size': '12px', 'padding': '0'},
+                                                 'font-size': 'medium', 'padding': '0'},
                                  children=[
                                      
                                      dcc.Loading(
@@ -57,10 +57,10 @@ tab_ranking= dcc.Tabs(id='subtabs-rank1', value='subtab-rank1', vertical=False, 
                          dcc.Tab(label='P-scores Scatter plot', id='tab-rank2', value='Tab-rank2', className='control-tab',
                                  style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
-                                        'font-size': '12px', 'color': 'grey', 'padding': '0'},
+                                        'font-size': 'medium', 'color': 'grey', 'padding': '0'},
                                  selected_style={'height': '40%', 'display': 'flex', 'justify-content': 'center',
                                                  'align-items': 'center','background-color': '#f5c198',
-                                                 'font-size': '12px', 'padding': '0'},
+                                                 'font-size': 'medium', 'padding': '0'},
                                  children=[
                                      infoRank,
                                      dbc.Col(dbc.Row(

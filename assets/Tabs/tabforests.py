@@ -9,10 +9,10 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                          dcc.Tab(label='One outcome', id='tab1', value='tab1', className='control-tab',
                                  style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                         'align-items': 'center',
-                                        'font-size': '12px', 'color': 'black', 'padding': '0'},
+                                        'font-size': 'medium', 'color': 'black', 'padding': '0'},
                                  selected_style={'height': '30%', 'display': 'flex', 'justify-content': 'center',
                                                  'align-items': 'center','background-color': '#f5c198',
-                                                 'font-size': '12px', 'padding': '0'},
+                                                 'font-size': 'medium', 'padding': '0'},
                                  children=[html.Div([dbc.Row([
                                     #  dbc.Col([
                                     #      html.A(
@@ -199,9 +199,9 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
 
                                  dcc.Tab(label='Two outcomes', id='black', value='Tab3',  className='control-tab',
                                          style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center',
-                                                'font-size':'12px', 'color':'grey','padding': '0'},
+                                                'font-size':'medium', 'color':'grey','padding': '0'},
                                          selected_style={'height':'30%', 'display': 'flex', 'justify-content':'center', 'align-items':'center','background-color': '#f5c198',
-                                                         'font-size':'12px','padding': '0'},
+                                                         'font-size':'medium','padding': '0'},
                                          children=[
                                              dbc.Row([dbc.Col(html.P([html.Div(id='tapNodeData-info-bidim', className="box__title",
                                                               style={'font-size':'18px', 'margin-top':'0.8%', 'display': 'inline','padding': '2px 2px 2px 2px'}),

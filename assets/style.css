@@ -1313,7 +1313,7 @@ img:hover {
     position: absolute;
     white-space-collapsing: discard;
     margin-top: -5.7%;
-    margin-left: 48%;
+    /* margin-left: 48%; */
     line-height: inherit;
     padding:  10px 4px 0px 4px;
     /*text-align: center;*/

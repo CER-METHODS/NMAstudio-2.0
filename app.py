@@ -1800,7 +1800,11 @@ def func(n_clicks):
 def func(n_clicks):
      return send_file("Documentation/variables_explain.pdf")
 
-
+@app.callback(Output("download-statistic", "data"),
+              Input("statsettings", "n_clicks"),
+              prevent_initial_call=True)
+def func(n_clicks):
+     return send_file("Documentation/statistical_settings.pdf")
 #################### save project/generate token/laod project ###################
 
 #modal Save/Load Project
@@ -1949,6 +1953,20 @@ def toggle_modal_scatter(n1, n2, is_open):
         Input("close-body-funnel", "n_clicks"),
     ],
     [State("modal-body-funnel", "is_open")],
+)
+def toggle_modal_funnel(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("modal-body-funnel2", "is_open"),
+    [
+        Input("open-body-funnel2", "n_clicks"),
+        Input("close-body-funnel2", "n_clicks"),
+    ],
+    [State("modal-body-funnel2", "is_open")],
 )
 def toggle_modal_funnel(n1, n2, is_open):
     if n1 or n2:
