@@ -267,15 +267,15 @@ def real_homelayout():
 
                                                 html.Br(),html.Br(),
 
-                                                html.Div([dcc.Markdown("Embedded and demonstration datasets taken from:",
-                                                        className="markdown_style", style={'margin-right':'0px', 'display':'inline-block',"color": "black"}) ,
-                                                html.Button("Download demonstration data", id="demodata", style={'display': 'inline-block',
-                                                                                                'padding': '1px'}),
-                                                                Download(id="download-demodata")]),
+                                                # html.Div([dcc.Markdown("Embedded and demonstration datasets taken from:",
+                                                #         className="markdown_style", style={'margin-right':'0px', 'display':'inline-block',"color": "black"}) ,
+                                                # html.Button("Download demonstration data", id="demodata", style={'display': 'inline-block',
+                                                #                                                 'padding': '1px'}),
+                                                #                 Download(id="download-demodata")]),
 
-                                                dbc.NavLink("Sbidian E, Chaimani A, Garcia-Doval I, Doney L, Dressler C, Hua C, et al. Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis. \n Cochrane Database Syst Rev. 2021 Apr 19;4:CD011535.",
-                                                        href='https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535.pub4/full',
-                                                        className="markdown_style", external_link=True,style={"font-size":"14px", "color": "#3498db", "margin-right":"10%"}),
+                                                # dbc.NavLink("Sbidian E, Chaimani A, Garcia-Doval I, Doney L, Dressler C, Hua C, et al. Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis. \n Cochrane Database Syst Rev. 2021 Apr 19;4:CD011535.",
+                                                #         href='https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535.pub4/full',
+                                                #         className="markdown_style", external_link=True,style={"font-size":"14px", "color": "#3498db", "margin-right":"10%"}),
                                                 html.Br(),html.Br(),
 
                                                 ], style={ 'width': '80%', 'padding-left': '3%'}),],
