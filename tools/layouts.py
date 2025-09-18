@@ -163,6 +163,16 @@ def real_homelayout():
                                            'grid-template-columns': '1fr 1fr 1fr'
                                            }),
                                     html.Br(), html.Br(),
+                                    dbc.NavLink('Click to watch the tutorial video', 
+                                                href='https://youtu.be/CGj729iqBOQ',
+                                                target="_blank", 
+                                                external_link=True,
+                                                className="tutorial-link",
+                                                style={'color': 'orange',
+                                                        'text-decoration': 'unset',
+                                                        'font-size': 'x-large',
+                                                        'display': 'block',
+                                                        'margin-right': '20px' }),
                                     html.Span('More tutorials coming soon...',style={'justify-self':'center','align-self': 'center'}),    
                                     html.Br(), html.Br(),html.Br(),
 
