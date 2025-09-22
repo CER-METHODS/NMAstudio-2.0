@@ -292,7 +292,7 @@ def real_homelayout():
                                               style={'height':'fit-content', 'background-color':'antiquewhite', 'justify-content': 'center'}),
                                     
                                 #     html.Br(), html.Br(),html.Br(),
-                                    html.Footer([html.P('Copyright © 2020. All rights reserved.', 
+                                    html.Footer([html.P('Copyright © 2024. All rights reserved.', 
                                          style={'color':'white', 'margin-left':'45px', 'margin-top': '2%'}),
                                          dcc.Markdown('This project has received funding from the EU H2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 101031840 & the French National Research Agency under the project ANR-22-CE36-0013-01',
                                          className="markdown_style",style={"color": "white", 
