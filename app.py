@@ -34,7 +34,7 @@ from tools.functions_build_league_data_table import  __update_output_new,__updat
 from tools.functions_generate_stylesheet import __generate_stylesheet
 from tools.functions_export import __generate_xlsx_netsplit, __generate_xlsx_league, __generate_csv_consistency
 from tools.functions_show_forest_plot import __show_forest_plot
-from tools.functions_skt_boxplot import __show_boxplot
+from tools.functions_skt_boxplot import __show_boxplot, __show_scatter
 from tools.functions_skt_others import __generate_skt_stylesheet, __generate_skt_stylesheet2
 from dash import ctx, no_update
 # --------------------------------------------------------------------------------------------------------------------#
@@ -2218,34 +2218,67 @@ def display_forestplot(cell, _):
 
 
 @app.callback(Output('boxplot_skt', 'figure'),
+              Input('box_kt_scatter', 'value'),
               Input('ddskt-trans', 'value'),)
-def update_boxplot(value):
+def update_boxplot(scatter, value):
+    if scatter:
+        return __show_scatter(value)
     return __show_boxplot(value)
-
-
-@app.callback([Output('cytoscape_skt', 'stylesheet'),
-               Output('trigger_info', 'children')],
-              [Input('cytoscape_skt', 'tapNode'),
-               Input('cytoscape_skt', 'selectedNodeData'),
-               Input('cytoscape_skt', 'elements'),
-               Input('cytoscape_skt', 'selectedEdgeData')
-               ]
-              )
-def generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata ):
-    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata)
-
-
 
 
 @app.callback(Output('cytoscape_skt2', 'stylesheet'),
               [Input('cytoscape_skt2', 'tapNode'),
                Input('cytoscape_skt2', 'selectedNodeData'),
                Input('cytoscape_skt2', 'elements'),
-               Input('cytoscape_skt2', 'selectedEdgeData')
+               Input('cytoscape_skt2', 'selectedEdgeData'),
+               Input('kt_nclr', 'children'),
+               Input('kt_eclr', 'children'),
+               Input('node_color_input_kt', 'value'),
+               Input('edge_color_input_kt', 'value'),
+               Input('kt_nds', 'children'),
+               Input('kt_egs', 'children'),
                ]
               )
-def generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata ):
-    return __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata)
+def generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs):
+    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs)
+
+
+@app.callback(Output('cytoscape_skt2', 'layout'),
+              [Input('kt-graph-layout-dropdown', 'children'),],
+              prevent_initial_call=False)
+def update_cytoscape_layout(layout):
+    ctx = dash.callback_context
+    if layout:
+       return {'name': layout.lower(),'fit':True }
+    
+    return {'name': 'circle','fit':True }
+
+
+# @app.callback([Output('cytoscape_skt', 'stylesheet'),
+#             #    Output('trigger_info', 'children')
+#                ],
+#               [Input('cytoscape_skt', 'tapNode'),
+#                Input('cytoscape_skt', 'selectedNodeData'),
+#                Input('cytoscape_skt', 'elements'),
+#                Input('cytoscape_skt', 'selectedEdgeData')
+#                ]
+#               )
+# def generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata ):
+#     return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata)
+
+
+
+# @app.callback(Output('cytoscape_skt2', 'stylesheet'),
+#               [Input('cytoscape_skt2', 'tapNode'),
+#                Input('cytoscape_skt2', 'selectedNodeData'),
+#                Input('cytoscape_skt2', 'elements'),
+#                Input('cytoscape_skt2', 'selectedEdgeData')
+#                ]
+#               )
+# def generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata ):
+#     return __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata)
 
 
 
@@ -2528,6 +2561,110 @@ def display_sktinfo(cell, _):
         if ('colId' in cell and (cell['colId'] == "RR"or cell['colId'] == "RR_out2") and cell['value']is not None):
             return True
     return no_update
+
+
+
+
+###############################################################################
+################### Bootstrap Dropdowns callbacks for KT ######################
+###############################################################################
+
+@app.callback([Output('kt_nds', 'children')],
+              [Input('kt_nds_default', 'n_clicks_timestamp'), Input('kt_nds_default', 'children'),
+               Input('kt_nds_tot_rnd', 'n_clicks_timestamp'), Input('kt_nds_tot_rnd', 'children')],
+              prevent_initial_call=True)
+def which_dd_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+    values = [default_v, tot_rnd_v]
+    dd_nds = [default_t or 0, tot_rnd_t or 0]
+    which = dd_nds.index(max(dd_nds))
+    return [values[which]]
+
+
+
+@app.callback([Output('kt_egs', 'children')],
+              [Input('kt_egs_default', 'n_clicks_timestamp'), Input('kt_egs_default', 'children'),
+               Input('kt_egs_tot_rnd', 'n_clicks_timestamp'), Input('kt_egs_tot_rnd', 'children')],
+              prevent_initial_call=True)
+def which_dd_egs(default_t, default_v, nstud_t, nstud_v):
+    values = [default_v, nstud_v]
+    dd_egs = [default_t or 0, nstud_t or 0]
+    which = dd_egs.index(max(dd_egs))
+    return [values[which]]
+
+
+@app.callback([Output('kt_nclr', 'children'), Output('close_modal_kt_nclr_input', 'n_clicks'),
+               Output("open_modal_kt_nclr_input", "n_clicks")],
+              [Input('kt_nclr_default', 'n_clicks_timestamp'), Input('kt_nclr_default', 'children'),
+               Input('kt_nclr_rob', 'n_clicks_timestamp'), Input('kt_nclr_rob', 'children'),
+               Input('kt_nclr_class', 'n_clicks_timestamp'), Input('kt_nclr_class', 'children'),
+               Input('close_modal_kt_nclr_input', 'n_clicks'),
+               ],
+              prevent_initial_call=True)
+def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+    values = [default_v, rob_v, class_v]
+    dd_nclr = [default_t or 0, rob_t or 0, class_t or 0]
+    which = dd_nclr.index(max(dd_nclr))
+    return values[which] if not closing_modal else None, None, None
+
+
+@app.callback([Output('kt_eclr', 'children'), Output('close_modal_kt_eclr_input', 'n_clicks'),
+               Output("open_modal_kt_eclr_input", "n_clicks")],
+              [Input('kt_edge_default', 'n_clicks_timestamp'), Input('kt_edge_default', 'children'),
+               Input('kt_edge_label', 'n_clicks_timestamp'), Input('kt_edge_label', 'children'),
+               Input('close_modal_kt_eclr_input', 'n_clicks'),
+               ],
+              prevent_initial_call=True)
+def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
+    values = [default_v, eclr_v]
+    dd_eclr = [default_t or 0, eclr_t or 0]
+    which = dd_eclr.index(max(dd_eclr))
+    return values[which] if not closing_modal else None, None, None
+
+
+flatten = lambda t: [item for sublist in t for item in sublist]
+
+@app.callback([Output('kt-graph-layout-dropdown', 'children')],
+              flatten([[Input(f'kt_ngl_{item.lower()}', 'n_clicks_timestamp'),
+                        Input(f'kt_ngl_{item.lower()}', 'children')]
+                       for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+                                    'Dagre', 'Klay']
+                       ]), prevent_initial_call=True)
+def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+                 grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+                 cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+    values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+    times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+    dd_ngl =  [t or 0 for t in times]
+    which  =  dd_ngl.index(max(dd_ngl))
+    return [values[which]]
+
+
+#################################################################
+############### Bootstrap MODALS callbacks for KT ###############
+#################################################################
+
+# ----- node color modal -----#
+@app.callback(Output("modal_kt", "is_open"),
+              [Input("open_modal_kt_nclr_input", "n_clicks"),
+               Input("close_modal_kt_nclr_input", "n_clicks")],
+              )
+def toggle_modal(open_t, close):
+    if open_t: return True
+    if close: return False
+    return False
+
+# ----- edge color modal -----#
+@app.callback(Output("modal_edge_kt", "is_open"),
+              [Input("open_modal_kt_eclr_input", "n_clicks"),
+               Input("close_modal_kt_eclr_input", "n_clicks")],
+              )
+def toggle_modal_edge(open_t, close):
+    if open_t: return True
+    if close: return False
+    return False
+
+######################################################################
+
 
 
 

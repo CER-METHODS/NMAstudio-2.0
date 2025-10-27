@@ -8,6 +8,7 @@ from tools.functions_skt_others import get_skt_elements, skt_stylesheet
 from tools.functions_chatbot import render_chatbot
 from tools.kt_table_standard import treat_compare_grid, modal_compare_grid
 from tools.kt_table_advance import grid
+from assets.dropdowns_values import *
 
 def Sktpage():
     return html.Div([Navbar(),switch_table(),html.Div([skt_nonexpert()], id='skt_sub_content')], id='skt_page_content')
@@ -131,7 +132,9 @@ def skt_nonexpert():
                                                                                                                     'padding': '4px'}),
                                                                               ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'25%','margin-left': '1%'}),
                                 
-                                                            model_transitivity,             
+                                                            model_transitivity, 
+                                                            html.Div(modal_kt, style={'display': 'inline-block', 'font-size': '11px'}),
+                                                            html.Div(modal_edges_kt, style={'display': 'inline-block', 'font-size': '11px'}),            
                                                                               ], className='row_skt'),
 
                                                       dbc.Row([
@@ -147,7 +150,9 @@ def skt_nonexpert():
                                                                                                             "width": "16px",
                                                                                                             # "float":"right",
                                                                                                             },
-                                                                                                            )),],id="query-diagram",)]),
+                                                                                                            )),],id="query-diagram",),
+                                                                            html.Div(KT_Dropdown_graphlayout, style={'font-size': '11px','justify-self': 'end', 'margin-right':'20px'})],
+                                                                            style={'display': 'grid', 'grid-template-columns':'1fr 1fr 3fr'}),
                                                                             dbc.Row([html.Span('Ask Dr.Bot',className='skt_span1', 
                                                                                               style={'color': '#B85042', 'font-weight': 'bold'}),
                                                                                               html.Img(src="/assets/icons/chatbot.png",
@@ -157,7 +162,8 @@ def skt_nonexpert():
                                                                                                         'align-items': 'center'}),
                                                                             #  html.Span('Please tick to select the reference treatment', className='note_tick')
                                                                                 ], style={'padding-top': 0, 'display':'grid', 'grid-template-columns': '1fr 1fr'}),
-                                                                        dbc.Row([dbc.Col(cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
+                                                                        dbc.Row([
+                                                                            dbc.Col(cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
                                                                                     minZoom=0.6,  maxZoom=1.5,  panningEnabled=True,   
                                                                                     elements=get_skt_elements(),
                                                                                     style={ 
@@ -169,7 +175,7 @@ def skt_nonexpert():
                                                                                             # 'max-width': 'calc(52vw)',
                                                                                         },
                                                                             layout={'name':'circle','animate': False, 'fit':True },
-                                                                            stylesheet=skt_stylesheet()), 
+                                                                            stylesheet=get_stylesheet()), 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'}),
                                                                             dbc.Col(render_chatbot(), 
@@ -376,7 +382,9 @@ def skt_layout():
 OPTIONS = [{'label': '{}'.format(col), 'value': col} for col in ['age', 'male']]
 model_transitivity = dbc.Modal(
                         [dbc.ModalHeader("Transitivity Check Boxplots"),
-                         dbc.ModalBody(html.Div([html.Div([dbc.Row([html.P("Choose effect modifier:", className="graph__title2",
+                         dbc.ModalBody(html.Div([html.Div([
+                             dbc.Row([
+                                  html.P("Choose effect modifier:", className="graph__title2",
                                          style={'display': 'inline-block',
                                                 'verticalAlign':"top",
                                                 'font-size': '12px',
@@ -386,7 +394,24 @@ model_transitivity = dbc.Modal(
                                                className="tapEdgeData-fig-class",
                                                style={'width': '150px', 'height': '30px',
                                                       'display': 'inline-block', # 'background-color': '#40515e'
-                                                      })
+                                                      }),
+                                  html.Div([html.P("Box plot", id='cinemaswitchlabel1_modal',
+                                                       style={'display': 'inline-block',
+                                                              'font-size': '15px',
+                                                              'padding-left': '10px'}),
+                                                daq.ToggleSwitch(id='box_kt_scatter',
+                                                                 color='', size=30,
+                                                                 labelPosition="bottom",
+                                                                 style={'display': 'inline-block',
+                                                                        'margin': 'auto',
+                                                                        'padding-left': '10px',
+                                                                        'padding-right': '10px'}),
+                                                html.P('Scatter plot', id='cinemaswitchlabel2_modal',
+                                                       style={'display': 'inline-block', 'margin': 'auto',
+                                                              'font-size': '15px',
+                                                              'padding-right': '0px'})
+                                                ], style={'float': 'right', 'padding': '5px 5px 5px 5px',
+                                                          'display': 'inline-block', 'margin-top': '0px'}),
                                   ])], style={'margin-top':'4px'}),
                                   html.Div([dcc.Graph(id='boxplot_skt',
                                                       style={'height': '98%',
