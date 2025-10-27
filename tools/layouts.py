@@ -17,7 +17,7 @@ from assets.Infos.graphInfo import infoGraph
 from assets.Infos.dataInfo import infoExpand
 from assets.Infos.leagueInfo import infoLeague2, infoLeague1, infoRoB
 
-
+OSLO_LOGO = "/assets/logos/oslo_logo.png"
 UP_LOGO = "/assets/logos/universite.jpeg"
 CRESS_LOGO = "/assets/logos/cress_logo2.jpeg"
 inserm_logo="/assets/logos/inserm_logo.png"
@@ -302,7 +302,8 @@ def real_homelayout():
                                         #  dcc.Markdown('Project team members: \nAnna Chaimani  Silvia Metelli  Tianqi Yu',
                                         #  className="markdown_style",style={"color": "white", "font-weight": "330", "font-size":"14px", 'white-space': 'pre'}),
 
-                                     dbc.Col([
+                                     dbc.Col([  
+                                                html.Img(src=OSLO_LOGO, height="57px"),
                                                 html.Img(src=UP_LOGO, height="57px"),
                                                 html.Img(src=CRESS_LOGO, height="57px"), 
                                                 html.Img(src=inserm_logo, height="57px"),
@@ -310,7 +311,7 @@ def real_homelayout():
                                                         'padding-bottom':'0.3%','border-top':'solid',
                                                         'display': 'flex','margin-left':'10px',
                                                         'justify-content': 'space-between',
-                                                        'width':'500px','margin-left': '43px'},
+                                                        'width':'700px','margin-left': '43px'},
                                             width="auto"),
                                          ], className='__footer'),
 ], style={'display':'grid'})

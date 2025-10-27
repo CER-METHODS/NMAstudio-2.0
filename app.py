@@ -2651,9 +2651,13 @@ if __name__ == '__main__':
     # app.title = 'NMAstudio' #TODO: title works fine locally, does not on Heroku
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run_server(debug=False, ssl_context=context)
-    app.run_server(host=host, debug=False) #change port or remove if needed
+    host = os.environ.get("HOST", "0.0.0.0"),
+    app.run_server(host= host, debug=False,port=8080,
+		  # ssl_context=(
+        			#'/home/cloud-user/ssl/fullchain.pem',
+       				#'/home/cloud-user/ssl/privkey.pem')
+		   ) #change port or remove if needed
     # app.run_server(host="macas.lan", port=8080, debug=True) #change port or remove if needed
-
 
 
 
