@@ -19,7 +19,7 @@ from dash_extensions.snippets import send_file
 from tools.utils import *
 from tools.PATHS import SESSION_PICKLE, get_session_pickle_path, TODAY, SESSION_TYPE, get_new_session_id
 from tools.layouts import *
-from tools.skt_layout import *
+from tools.layouts_KT import *
 from tools.functions_modal_SUBMIT_data import __modal_SUBMIT_button_new, __data_modal, __data_trans
 from tools.functions_NMA_runs import __modal_submit_checks_DATACHECKS,__modal_submit_checks_NMA_new,__modal_submit_checks_PAIRWISE_new, __modal_submit_checks_LT_new, __modal_submit_checks_FUNNEL_new
 # from tools.functions_handle_nma_processing import __handle_nma_processing__
@@ -2492,7 +2492,7 @@ def image_color_change(style_routine, style_count,style_side,style_visit,style_c
 
 #     return rawdat.to_dict("records")
 
-from tools.skt_table import df_origin
+from tools.kt_table_standard import df_origin
 
 @app.callback(Output("grid_treat_compare", "rowData"),
               [Input('cytoscape_skt2', 'selectedNodeData'),
