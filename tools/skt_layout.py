@@ -12,7 +12,7 @@ import dash_daq as daq
 from tools.functions_skt_forestplot import __skt_options_forstplot, __skt_mix_forstplot
 import os
 from tools.skt_table import treat_compare_grid, modal_compare_grid
-from dash_yada import YadaAIO
+# from dash_yada import YadaAIO
 
 data = pd.read_csv('db/skt/final_all.csv')
 pw_data = pd.read_csv('db/skt/forest_data_prws.csv')
@@ -948,7 +948,7 @@ CONT = '/assets/icons/contrain.png'
 VISIT = '/assets/icons/visit.png'
 COST = '/assets/icons/cost.png'
 RANK = '/assets/ranking.png'
-# from tools.functions_chatbot import render_chatbot
+from tools.functions_chatbot import render_chatbot
 
 
 model_skt_compare_simple = dbc.Modal(
@@ -1061,11 +1061,11 @@ model_skt_compare_simple = dbc.Modal(
                                             
 
 
-from tools.yada import yada_stand
+# from tools.yada import yada_stand
 
 def skt_nonexpert():
     return html.Div([
-            yada_stand,
+            # yada_stand,
             html.Div(id='skt_all',children=[
                 # dcc.Markdown('Scalable Knowledge Translation Tool',
                 #                                 className="markdown_style_main",
@@ -1184,7 +1184,7 @@ def skt_nonexpert():
                                                                             stylesheet=skt_stylesheet()), 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'}),
-                                                                            # dbc.Col(render_chatbot(), style={'width':'50%','justify-items': 'center',"height": "500px"})
+                                                                            dbc.Col(render_chatbot(), style={'width':'50%','justify-items': 'center',"height": "500px"})
                                                                             # dbc.Col([
                                                                             #     # html.Span('Interventions practical issues',className='skt_span1', 
                                                                             #     #               style={'color': '#B85042', 'font-weight': 'bold'}),
