@@ -282,12 +282,14 @@ def skt_layout():
                                                                     ],className='tab1_col'),
                                                     dbc.Col([
                                                                 dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
+                                                                         html.Div(KT2_Dropdown_graphlayout, 
+                                                                                  style={'font-size': '11px','justify-self': 'end', 'margin-left':'60px'})
                                                                         ], style={'padding-top': 0}),
                                                                 dbc.Row([dbc.Col(cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                             minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
                                                                             elements=get_skt_elements(),
                                                                             style={ 
-                                                                                'height': '40vh', 
+                                                                                'height': '50vh', 
                                                                                 'width': '100%', 
                                                                                 'margin-top': '-2%',
                                                                                 'z-index': '999',
@@ -295,7 +297,7 @@ def skt_layout():
                                                                                     # 'max-width': 'calc(52vw)',
                                                                                 },
                                                                     layout={'name':'circle','animate': False, 'fit':True },
-                                                                    stylesheet=skt_stylesheet()), 
+                                                                    stylesheet=get_stylesheet()), 
                                                                     style={'border-right': '3px solid #B85042',
                                                                             'width': '50%'}),
                                                                     dbc.Col(html.Span(id='trigger_info'),
@@ -329,7 +331,9 @@ def skt_layout():
                                                                                                         'padding': '4px'}),
                                                                     ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'15%','margin-left': '1%'}),
                     
-                                                model_transitivity,                                  
+                                                model_transitivity,
+                                                html.Div(modal_kt2, style={'display': 'inline-block', 'font-size': '11px'}),
+                                                html.Div(modal_edges_kt2, style={'display': 'inline-block', 'font-size': '11px'}),                                  
                                                 dbc.Col(
                                                         [dbc.Row(html.Span('Options (For the forest plots in the table)', className='option_select'), style={'display':'grid', 'padding-top':'unset'}),
                                                             dbc.Col([dbc.Toast([

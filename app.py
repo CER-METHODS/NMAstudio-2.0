@@ -2256,6 +2256,66 @@ def update_cytoscape_layout(layout):
     return {'name': 'circle','fit':True }
 
 
+
+
+@app.callback(Output('cytoscape_skt', 'stylesheet'),
+              [Input('cytoscape_skt', 'tapNode'),
+               Input('cytoscape_skt', 'selectedNodeData'),
+               Input('cytoscape_skt', 'elements'),
+               Input('cytoscape_skt', 'selectedEdgeData'),
+               Input('kt2_nclr', 'children'),
+               Input('kt2_eclr', 'children'),
+               Input('node_color_input_kt2', 'value'),
+               Input('edge_color_input_kt2', 'value'),
+               Input('kt2_nds', 'children'),
+               Input('kt2_egs', 'children'),
+               ]
+              )
+def generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs):
+    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs)
+
+
+@app.callback(Output('cytoscape_skt', 'layout'),
+              [Input('kt2-graph-layout-dropdown', 'children'),],
+              prevent_initial_call=False)
+def update_cytoscape_layout(layout):
+    ctx = dash.callback_context
+    if layout:
+       return {'name': layout.lower(),'fit':True }
+    
+    return {'name': 'circle','fit':True }
+
+
+@app.callback(Output('trigger_info', 'children'),
+              Input('cytoscape_skt', 'selectedNodeData')
+            #    Input('cytoscape_skt', 'selectedEdgeData')
+              )
+def generate_text_info(slct_nodesdata):
+    text = dbc.Toast([
+        html.Span('Click a node to get the information of the corresponding treatment')],
+        style={'justify-items': 'center', 
+               'aligin-items': 'center',
+               'text-align':'center','font-weight': 'bold'}
+        )
+    if slct_nodesdata:
+        selected_nodes_id = [d['id'] for d in slct_nodesdata]
+        treat_select = selected_nodes_id[0]
+        treat_info = html.Span(treat_select, 
+                               style={'display': 'grid', 
+                                      'text-align': 'center',
+                                      'font-weight': 'bold'})
+        treat_describ = html.Span("ETA (Efalizumab) was a medication for moderate to severe plaque psoriasis, withdrawn in 2009 due to risks like progressive multifocal leukoencephalopathy (PML). It was contraindicated for patients with weakened immune systems or active infections and was administered via weekly injections. ETA is no longer prescribed due to these severe risks.",
+                                  style={'display': 'grid', 'margin':'2%'}
+                                  )
+        text = dbc.Toast([treat_info, treat_describ])
+        
+
+    return text
+
+
+
 # @app.callback([Output('cytoscape_skt', 'stylesheet'),
 #             #    Output('trigger_info', 'children')
 #                ],
@@ -2569,56 +2629,150 @@ def display_sktinfo(cell, _):
 ################### Bootstrap Dropdowns callbacks for KT ######################
 ###############################################################################
 
-@app.callback([Output('kt_nds', 'children')],
-              [Input('kt_nds_default', 'n_clicks_timestamp'), Input('kt_nds_default', 'children'),
-               Input('kt_nds_tot_rnd', 'n_clicks_timestamp'), Input('kt_nds_tot_rnd', 'children')],
-              prevent_initial_call=True)
-def which_dd_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
-    values = [default_v, tot_rnd_v]
-    dd_nds = [default_t or 0, tot_rnd_t or 0]
-    which = dd_nds.index(max(dd_nds))
-    return [values[which]]
+# @app.callback([Output('kt_nds', 'children')],
+#               [Input('kt_nds_default', 'n_clicks_timestamp'), Input('kt_nds_default', 'children'),
+#                Input('kt_nds_tot_rnd', 'n_clicks_timestamp'), Input('kt_nds_tot_rnd', 'children')],
+#               prevent_initial_call=True)
+# def which_dd_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+#     values = [default_v, tot_rnd_v]
+#     dd_nds = [default_t or 0, tot_rnd_t or 0]
+#     which = dd_nds.index(max(dd_nds))
+#     return [values[which]]
 
 
 
-@app.callback([Output('kt_egs', 'children')],
-              [Input('kt_egs_default', 'n_clicks_timestamp'), Input('kt_egs_default', 'children'),
-               Input('kt_egs_tot_rnd', 'n_clicks_timestamp'), Input('kt_egs_tot_rnd', 'children')],
-              prevent_initial_call=True)
-def which_dd_egs(default_t, default_v, nstud_t, nstud_v):
-    values = [default_v, nstud_v]
-    dd_egs = [default_t or 0, nstud_t or 0]
-    which = dd_egs.index(max(dd_egs))
-    return [values[which]]
+# @app.callback([Output('kt_egs', 'children')],
+#               [Input('kt_egs_default', 'n_clicks_timestamp'), Input('kt_egs_default', 'children'),
+#                Input('kt_egs_tot_rnd', 'n_clicks_timestamp'), Input('kt_egs_tot_rnd', 'children')],
+#               prevent_initial_call=True)
+# def which_dd_egs(default_t, default_v, nstud_t, nstud_v):
+#     values = [default_v, nstud_v]
+#     dd_egs = [default_t or 0, nstud_t or 0]
+#     which = dd_egs.index(max(dd_egs))
+#     return [values[which]]
 
 
-@app.callback([Output('kt_nclr', 'children'), Output('close_modal_kt_nclr_input', 'n_clicks'),
-               Output("open_modal_kt_nclr_input", "n_clicks")],
-              [Input('kt_nclr_default', 'n_clicks_timestamp'), Input('kt_nclr_default', 'children'),
-               Input('kt_nclr_rob', 'n_clicks_timestamp'), Input('kt_nclr_rob', 'children'),
-               Input('kt_nclr_class', 'n_clicks_timestamp'), Input('kt_nclr_class', 'children'),
-               Input('close_modal_kt_nclr_input', 'n_clicks'),
-               ],
-              prevent_initial_call=True)
-def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
-    values = [default_v, rob_v, class_v]
-    dd_nclr = [default_t or 0, rob_t or 0, class_t or 0]
-    which = dd_nclr.index(max(dd_nclr))
-    return values[which] if not closing_modal else None, None, None
+# @app.callback([Output('kt_nclr', 'children'), Output('close_modal_kt_nclr_input', 'n_clicks'),
+#                Output("open_modal_kt_nclr_input", "n_clicks")],
+#               [Input('kt_nclr_default', 'n_clicks_timestamp'), Input('kt_nclr_default', 'children'),
+#                Input('kt_nclr_rob', 'n_clicks_timestamp'), Input('kt_nclr_rob', 'children'),
+#                Input('kt_nclr_class', 'n_clicks_timestamp'), Input('kt_nclr_class', 'children'),
+#                Input('close_modal_kt_nclr_input', 'n_clicks'),
+#                ],
+#               prevent_initial_call=True)
+# def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+#     values = [default_v, rob_v, class_v]
+#     dd_nclr = [default_t or 0, rob_t or 0, class_t or 0]
+#     which = dd_nclr.index(max(dd_nclr))
+#     return values[which] if not closing_modal else None, None, None
 
 
-@app.callback([Output('kt_eclr', 'children'), Output('close_modal_kt_eclr_input', 'n_clicks'),
-               Output("open_modal_kt_eclr_input", "n_clicks")],
-              [Input('kt_edge_default', 'n_clicks_timestamp'), Input('kt_edge_default', 'children'),
-               Input('kt_edge_label', 'n_clicks_timestamp'), Input('kt_edge_label', 'children'),
-               Input('close_modal_kt_eclr_input', 'n_clicks'),
-               ],
-              prevent_initial_call=True)
-def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
-    values = [default_v, eclr_v]
-    dd_eclr = [default_t or 0, eclr_t or 0]
-    which = dd_eclr.index(max(dd_eclr))
-    return values[which] if not closing_modal else None, None, None
+# @app.callback([Output('kt_eclr', 'children'), Output('close_modal_kt_eclr_input', 'n_clicks'),
+#                Output("open_modal_kt_eclr_input", "n_clicks")],
+#               [Input('kt_edge_default', 'n_clicks_timestamp'), Input('kt_edge_default', 'children'),
+#                Input('kt_edge_label', 'n_clicks_timestamp'), Input('kt_edge_label', 'children'),
+#                Input('close_modal_kt_eclr_input', 'n_clicks'),
+#                ],
+#               prevent_initial_call=True)
+# def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
+#     values = [default_v, eclr_v]
+#     dd_eclr = [default_t or 0, eclr_t or 0]
+#     which = dd_eclr.index(max(dd_eclr))
+#     return values[which] if not closing_modal else None, None, None
+
+
+# flatten = lambda t: [item for sublist in t for item in sublist]
+
+# @app.callback([Output('kt-graph-layout-dropdown', 'children')],
+#               flatten([[Input(f'kt_ngl_{item.lower()}', 'n_clicks_timestamp'),
+#                         Input(f'kt_ngl_{item.lower()}', 'children')]
+#                        for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+#                                     'Dagre', 'Klay']
+#                        ]), prevent_initial_call=True)
+# def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+#                  grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+#                  cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+#     values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+#     times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+#     dd_ngl =  [t or 0 for t in times]
+#     which  =  dd_ngl.index(max(dd_ngl))
+#     return [values[which]]
+
+
+# --- Helper to pick the latest clicked button ---
+def pick_latest(values, timestamps):
+    timestamps = [t or 0 for t in timestamps]
+    return values[timestamps.index(max(timestamps))]
+
+
+# ---------------------- MAIN CALLBACKS ----------------------
+
+# 1. kt_nds and kt2_nds
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        Output(f"{prefix}_nds", "children"),
+        [Input(f"{prefix}_nds_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_nds_default", "children"),
+         Input(f"{prefix}_nds_tot_rnd", "n_clicks_timestamp"),
+         Input(f"{prefix}_nds_tot_rnd", "children")],
+        prevent_initial_call=True
+    )
+    def update_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+        return pick_latest([default_v, tot_rnd_v], [default_t, tot_rnd_t])
+
+
+# 2. kt_egs and kt2_egs
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        Output(f"{prefix}_egs", "children"),
+        [Input(f"{prefix}_egs_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_egs_default", "children"),
+         Input(f"{prefix}_egs_tot_rnd", "n_clicks_timestamp"),
+         Input(f"{prefix}_egs_tot_rnd", "children")],
+        prevent_initial_call=True
+    )
+    def update_egs(default_t, default_v, tot_rnd_t, tot_rnd_v):
+        return pick_latest([default_v, tot_rnd_v], [default_t, tot_rnd_t])
+
+
+# 3. kt_nclr and kt2_nclr
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        [Output(f"{prefix}_nclr", "children"),
+         Output(f"close_modal_{prefix}_nclr_input", "n_clicks"),
+         Output(f"open_modal_{prefix}_nclr_input", "n_clicks")],
+        [Input(f"{prefix}_nclr_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_default", "children"),
+         Input(f"{prefix}_nclr_rob", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_rob", "children"),
+         Input(f"{prefix}_nclr_class", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_class", "children"),
+         Input(f"close_modal_{prefix}_nclr_input", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def update_nclr(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+        if closing_modal:
+            return None, None, None
+        return pick_latest([default_v, rob_v, class_v], [default_t, rob_t, class_t]), None, None
+
+
+# 4. kt_eclr and kt2_eclr
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        [Output(f"{prefix}_eclr", "children"),
+         Output(f"close_modal_{prefix}_eclr_input", "n_clicks"),
+         Output(f"open_modal_{prefix}_eclr_input", "n_clicks")],
+        [Input(f"{prefix}_edge_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_edge_default", "children"),
+         Input(f"{prefix}_edge_label", "n_clicks_timestamp"),
+         Input(f"{prefix}_edge_label", "children"),
+         Input(f"close_modal_{prefix}_eclr_input", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def update_eclr(default_t, default_v, label_t, label_v, closing_modal):
+        if closing_modal:
+            return None, None, None
+        return pick_latest([default_v, label_v], [default_t, label_t]), None, None
 
 
 flatten = lambda t: [item for sublist in t for item in sublist]
@@ -2639,32 +2793,49 @@ def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
     return [values[which]]
 
 
+@app.callback([Output('kt2-graph-layout-dropdown', 'children')],
+              flatten([[Input(f'kt2_ngl_{item.lower()}', 'n_clicks_timestamp'),
+                        Input(f'kt2_ngl_{item.lower()}', 'children')]
+                       for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+                                    'Dagre', 'Klay']
+                       ]), prevent_initial_call=True)
+def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+                 grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+                 cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+    values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+    times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+    dd_ngl =  [t or 0 for t in times]
+    which  =  dd_ngl.index(max(dd_ngl))
+    return [values[which]]
+
+
 #################################################################
 ############### Bootstrap MODALS callbacks for KT ###############
 #################################################################
 
 # ----- node color modal -----#
-@app.callback(Output("modal_kt", "is_open"),
-              [Input("open_modal_kt_nclr_input", "n_clicks"),
-               Input("close_modal_kt_nclr_input", "n_clicks")],
-              )
-def toggle_modal(open_t, close):
-    if open_t: return True
-    if close: return False
-    return False
+for prefix in ["kt", "kt2"]:
+    @app.callback(Output(f"modal_{prefix}", "is_open"),
+                [Input(f"open_modal_{prefix}_nclr_input", "n_clicks"),
+                Input(f"close_modal_{prefix}_nclr_input", "n_clicks")],
+                )
+    def toggle_modal(open_t, close):
+        if open_t: return True
+        if close: return False
+        return False
 
 # ----- edge color modal -----#
-@app.callback(Output("modal_edge_kt", "is_open"),
-              [Input("open_modal_kt_eclr_input", "n_clicks"),
-               Input("close_modal_kt_eclr_input", "n_clicks")],
-              )
-def toggle_modal_edge(open_t, close):
-    if open_t: return True
-    if close: return False
-    return False
+for prefix in ["kt", "kt2"]:
+    @app.callback(Output(f"modal_edge_{prefix}", "is_open"),
+                [Input(f"open_modal_{prefix}_eclr_input", "n_clicks"),
+                Input(f"close_modal_{prefix}_eclr_input", "n_clicks")],
+                )
+    def toggle_modal_edge(open_t, close):
+        if open_t: return True
+        if close: return False
+        return False
 
 ######################################################################
-
 
 
 
