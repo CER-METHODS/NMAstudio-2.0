@@ -2623,7 +2623,18 @@ def display_sktinfo(cell, _):
     return no_update
 
 
+@app.callback(
+    Output("skt_modal_fullname_simple", "is_open"), 
+    Input("fullname_button", "n_clicks"),
+    Input("close_fullname_simple", "n_clicks"),
+)
 
+def display_forestplot(cell, _):
+    if ctx.triggered_id == "close_fullname_simple":
+        return False
+    if ctx.triggered_id == "fullname_button":
+        return True
+    return no_update
 
 ###############################################################################
 ################### Bootstrap Dropdowns callbacks for KT ######################

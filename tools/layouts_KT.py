@@ -6,7 +6,7 @@ import dash_daq as daq
 import dash_cytoscape as cyto
 from tools.functions_skt_others import get_skt_elements, skt_stylesheet
 from tools.functions_chatbot import render_chatbot
-from tools.kt_table_standard import treat_compare_grid, modal_compare_grid
+from tools.kt_table_standard import treat_compare_grid, modal_compare_grid, modal_fullname_grid
 from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
 
@@ -132,7 +132,8 @@ def skt_nonexpert():
                                                                                                                     'padding': '4px'}),
                                                                               ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'25%','margin-left': '1%'}),
                                 
-                                                            model_transitivity, 
+                                                            model_transitivity,
+                                                            model_fullname, 
                                                             html.Div(modal_kt, style={'display': 'inline-block', 'font-size': '11px'}),
                                                             html.Div(modal_edges_kt, style={'display': 'inline-block', 'font-size': '11px'}),            
                                                                               ], className='row_skt'),
@@ -163,11 +164,11 @@ def skt_nonexpert():
                                                                             #  html.Span('Please tick to select the reference treatment', className='note_tick')
                                                                                 ], style={'padding-top': 0, 'display':'grid', 'grid-template-columns': '1fr 1fr'}),
                                                                         dbc.Row([
-                                                                            dbc.Col(cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
+                                                                            dbc.Col([cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
                                                                                     minZoom=0.6,  maxZoom=1.5,  panningEnabled=True,   
                                                                                     elements=get_skt_elements(),
                                                                                     style={ 
-                                                                                        'height': '100%', 
+                                                                                        'height': '94%', 
                                                                                         'width': '100%', 
                                                                                         'margin-top': '-2%',
                                                                                         'z-index': '999',
@@ -175,9 +176,17 @@ def skt_nonexpert():
                                                                                             # 'max-width': 'calc(52vw)',
                                                                                         },
                                                                             layout={'name':'circle','animate': False, 'fit':True },
-                                                                            stylesheet=get_stylesheet()), 
+                                                                            stylesheet=get_stylesheet()),
+                                                                            html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
+                                                                                                            style={'color': 'rgb(118 135 123)',
+                                                                                                                   'background-color':'#dedecf',
+                                                                                                                    'display': 'inline-block',
+                                                                                                                    'justify-self':'center',
+                                                                                                                    'border': 'unset',
+                                                                                                                    'margin-left':'2%',
+                                                                                                                    'padding': '4px'}),], 
                                                                             style={'border-right': '3px solid #B85042',
-                                                                                    'width': '50%'}),
+                                                                                    'width': '50%'},),
                                                                             dbc.Col(render_chatbot(), 
                                                                                     style={'width':'50%','justify-items': 'center',"height": "500px"})])
                                                                                     ], className='tab3_col2')], className='row_skt'),
@@ -285,7 +294,7 @@ def skt_layout():
                                                                          html.Div(KT2_Dropdown_graphlayout, 
                                                                                   style={'font-size': '11px','justify-self': 'end', 'margin-left':'60px'})
                                                                         ], style={'padding-top': 0}),
-                                                                dbc.Row([dbc.Col(cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
+                                                                dbc.Row([dbc.Col([cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                             minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
                                                                             elements=get_skt_elements(),
                                                                             style={ 
@@ -297,7 +306,16 @@ def skt_layout():
                                                                                     # 'max-width': 'calc(52vw)',
                                                                                 },
                                                                     layout={'name':'circle','animate': False, 'fit':True },
-                                                                    stylesheet=get_stylesheet()), 
+                                                                    stylesheet=get_stylesheet()),
+                                                                    html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
+                                                                                                            style={'color': 'rgb(118 135 123)',
+                                                                                                                   'background-color':'#dedecf',
+                                                                                                                    'display': 'inline-block',
+                                                                                                                    'justify-self':'center',
+                                                                                                                    'border': 'unset',
+                                                                                                                    'margin-left':'2%',
+                                                                                                                    'padding': '4px'}),
+                                                                    ], 
                                                                     style={'border-right': '3px solid #B85042',
                                                                             'width': '50%'}),
                                                                     dbc.Col(html.Span(id='trigger_info'),
@@ -332,6 +350,7 @@ def skt_layout():
                                                                     ], className='skt_studyinfo',headerClassName='headtab1', bodyClassName='bodytab2'), style={'width':'15%','margin-left': '1%'}),
                     
                                                 model_transitivity,
+                                                model_fullname, 
                                                 html.Div(modal_kt2, style={'display': 'inline-block', 'font-size': '11px'}),
                                                 html.Div(modal_edges_kt2, style={'display': 'inline-block', 'font-size': '11px'}),                                  
                                                 dbc.Col(
@@ -443,6 +462,37 @@ model_transitivity = dbc.Modal(
                               })])),
                          dbc.ModalFooter(dbc.Button( "Close", id="close_trans", className="ms-auto", n_clicks=0)),
                     ],id="modal_transitivity", size='lg',is_open=False, scrollable=True,contentClassName="trans_content")
+
+
+model_fullname = dbc.Modal(
+    [
+        dbc.ModalHeader([html.P("Full names of all interventions")],className="skt_info_head_simple", id='modal_fullname_head'),
+        
+        dbc.ModalBody(
+            [
+                dbc.Row([modal_fullname_grid],
+                        style={'width':'95%', 'justify-self':'center',
+                               'justify-content':'center'}),
+            ],
+            className="skt_info_body_simple",
+        ),
+        
+        # Modal footer with close button
+        dbc.ModalFooter(
+            dbc.Button(
+                "Close", 
+                id="close_fullname_simple", 
+                className="ms-auto", 
+                n_clicks=0
+            ),
+            className="skt_info_close_simple",
+        ),
+    ],
+    id="skt_modal_fullname_simple",  
+    is_open=False,
+    scrollable=True,
+    contentClassName="skt_modal_fullname",
+)
 
 
 model_skt_compare_simple = dbc.Modal(

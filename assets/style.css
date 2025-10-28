@@ -805,6 +805,10 @@ h6 {margin-top: 0;}
     width: min-content
 }
 
+.skt_modal_fullname{
+    width: 56%
+}
+
 #skt_modal_compare_simple{
     justify-content: center;
     display: grid;
