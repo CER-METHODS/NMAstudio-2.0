@@ -11,7 +11,32 @@ from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
 
 def Sktpage():
-    return html.Div([Navbar(),switch_table(),html.Div([skt_nonexpert()], id='skt_sub_content')], id='skt_page_content')
+    return html.Div([
+                     Navbar(),switch_table(),
+                     html.Button(
+                                [
+                                    html.Img(src="/assets/icons/question-talk.png", className="icon-faq"),
+                                    html.Span("Frequently Asked Questions", className="text-faq"),
+                                ],
+                                className="button-faq", id='faq_button'
+                            ),
+                        dbc.Toast(
+                                    [
+                                        dbc.Row(
+                                            [
+                                                html.P("Frequently Asked Questions"),
+                                                html.Img(src="/assets/icons/cancel.png", id ='close_faq')
+                                                ], className='faq-header'),
+                                        html.P("This is the content of the toast")],
+                                    id="faq_toast",
+                                    # header="Frequently Asked Questions",
+                                    is_open=False,
+                                    dismissable=True,
+                                    # top: 66 positions the toast below the navbar
+                                    className='toast-faq'
+                                ),
+                     html.Div([skt_nonexpert()], id='skt_sub_content')
+                     ], id='skt_page_content')
 
 
 def switch_table():
@@ -218,8 +243,30 @@ def skt_nonexpert():
                                                 dcc.Markdown('Toshi Furukawa, Isabelle Boutron, Emily Karahalios, Tianjing li, Michael Mccaul, Adriani Nikolakopoulou, Haliton Oliveira, Thodoris Papakonstantiou, Georgia Salanti, Guido Schwarzer, Ian Saldanha, Nicky Welton, Sally Yaacoub',
                                                                 className="markdown_style", style={"color": "black", 'font-size': 'large'}),
                                                 html.Br(),html.Br(),html.Br(),],style={ 'width': '95%', 'padding-left': '5%'}) 
-                                                        ], style={'display':'block'}), 
-                                                                              ], id="skt_nonexpert_page",style={'display':'block'})
+                                                        ], style={'display':'block'}),
+                                                # html.Button(
+                                                #         [
+                                                #             html.Img(src="/assets/icons/question-talk.png", className="icon-faq"),
+                                                #             html.Span("Frequently Asked Questions", className="text-faq"),
+                                                #         ],
+                                                #         className="button-faq", id='faq_button'
+                                                #     ),
+                                                # dbc.Toast(
+                                                #             [
+                                                #              dbc.Row(
+                                                #                     [
+                                                #                         html.P("Frequently Asked Questions"),
+                                                #                         html.Img(src="/assets/icons/cancel.png", id ='close_faq')
+                                                #                      ], className='faq-header'),
+                                                #              html.P("This is the content of the toast")],
+                                                #             id="faq_toast",
+                                                #             # header="Frequently Asked Questions",
+                                                #             is_open=False,
+                                                #             dismissable=True,
+                                                #             # top: 66 positions the toast below the navbar
+                                                #             className='toast-faq'
+                                                #         ),
+                                                    ], id="skt_nonexpert_page",style={'display':'block'})
 
 options_effects = [
        {'label': 'Add prediction interval to forestplots', 'value': 'PI'},

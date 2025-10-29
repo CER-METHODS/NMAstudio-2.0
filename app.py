@@ -2951,6 +2951,19 @@ def run_chatbot(n_clicks, n_submit, user_input, chat_history):
     chat_history += f"{model_output}<split>"
     return chat_history, None
 
+################################FAQ#######################################
+
+@app.callback(
+    Output("faq_toast", "is_open"),
+    Input("faq_button", "n_clicks"),
+    Input("close_faq", "n_clicks")
+)
+def open_toast(cell, _):
+    if ctx.triggered_id == "close_faq":
+        return False
+    if ctx.triggered_id == "faq_button":
+        return True
+    return no_update
 
 
 
