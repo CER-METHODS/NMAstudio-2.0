@@ -654,7 +654,13 @@ h6 {margin-top: 0;}
 .ag-header-cell-label .ag-header-cell-text {
     white-space: pre-wrap !important;
     text-align: center;
+    justify-content: center;
  }
+
+ .ag-header-cell:not(.ag-header-cell-auto-height) .ag-header-cell-comp-wrapper{
+    justify-content: center;
+
+  }
 
 
  .ag-header-cell-label{
@@ -674,6 +680,7 @@ h6 {margin-top: 0;}
 .ag-header { 
     position: relative !important;
     align-self: center;
+    justify-content: center;
 }
 
 .ag-floating-top {
@@ -2440,4 +2447,69 @@ margin: 10px
     right: 0;
     position: absolute;
     margin-right: 5px;
+    filter: invert(1);
   }
+
+  #faq_head{
+    color: white;
+    font-size: large;
+  }
+
+  .faq_ques{
+    margin: 2px;
+    border: none !important;
+    font-family: "Segoe UI", Arial, sans-serif !important; /* or whatever your app uses */
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    font-size: medium;
+    display: grid;
+    
+  }
+
+  .faq_ques:hover {
+    background-color: transparent !important;
+    color: rgb(2 173 156) !important;
+    border: none !important
+}
+
+
+.faq_ques:focus,
+.faq_ques:active,
+.faq_ques:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+
+.faq_ans{
+    margin: 0% 2% 2% 2%;
+    padding: 1%;
+    border: 0.7px solid #02ad9c; 
+    color: gray;
+
+  }
+
+.popover-grid{
+    padding: 8px;
+    color: white;
+    background-color: rgb(184 80 67);
+    width: 270px;
+}
+
+.popover-grid::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgb(184 80 67) transparent transparent transparent;
+  }
+  
+.info-icon:hover{
+    color:rgb(2, 2, 1);
+    font-weight: bold;
+}

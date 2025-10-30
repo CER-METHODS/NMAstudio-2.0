@@ -2965,7 +2965,16 @@ def open_toast(cell, _):
         return True
     return no_update
 
-
+for ans in range(1, 3):
+    @app.callback(
+        Output(f"faq_ans{ans}", "is_open"),
+        [Input(f"faq_ques{ans}", "n_clicks")],
+        [State(f"faq_ans{ans}", "is_open")],
+    )
+    def toggle_collapse(n, is_open):
+        if n:
+            return not is_open
+        return is_open
 
 
 

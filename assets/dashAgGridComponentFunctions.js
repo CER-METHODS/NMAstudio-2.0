@@ -376,6 +376,41 @@ dagcomponentfuncs.StudyLink = function (props) {
 
 
 
+dagcomponentfuncs.HeaderWithIcon = function (props) {
+    const [hover, setHover] = React.useState(false);
+    // make an ID based on the header name (safe for HTML)
+    const iconId = "info-icon-" + props.displayName.replace(/\s+/g, "-");
+    return React.createElement(
+        "div",
+        {
+            style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px"
+            }
+        },
+        [
+            React.createElement("span", { key: "label" }, props.displayName),
+            React.createElement(
+                "span",
+                {
+                    id: iconId,  // must match Popover target
+                    onMouseEnter: () => setHover(true),
+                    onMouseLeave: () => setHover(false),
+                    style: {
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        color: hover ? "rgb(228, 28, 2)" : "rgb(184, 80, 67)",
+                        fontWeight: hover ? "bold" : "normal",
+                        marginLeft: "4px"
+                    },
+                },
+                "ⓘ"   // info icon
+            )
+        ]
+    );
+};
 
 
 

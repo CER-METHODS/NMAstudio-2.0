@@ -10,6 +10,34 @@ from tools.kt_table_standard import treat_compare_grid, modal_compare_grid, moda
 from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
 
+
+FAQ_total = html.Div([
+                      dbc.Button(
+                                "How can I use this tool for my own project?",
+                                id="faq_ques1",
+                                className="faq_ques",
+                                n_clicks=0,
+                                ),
+                      dbc.Collapse(
+                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
+                                id="faq_ans1",
+                                is_open=False,
+                                className="faq_ans",
+                            ),
+                      dbc.Button(
+                                "How can I ......",
+                                id="faq_ques2",
+                                className="faq_ques",
+                                n_clicks=0,
+                                ),
+                      dbc.Collapse(
+                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
+                                id="faq_ans2",
+                                is_open=False,
+                                className="faq_ans",
+                            ),
+                        ])
+
 def Sktpage():
     return html.Div([
                      Navbar(),switch_table(),
@@ -24,10 +52,10 @@ def Sktpage():
                                     [
                                         dbc.Row(
                                             [
-                                                html.P("Frequently Asked Questions"),
+                                                html.P("Frequently Asked Questions", id = 'faq_head'),
                                                 html.Img(src="/assets/icons/cancel.png", id ='close_faq')
                                                 ], className='faq-header'),
-                                        html.P("This is the content of the toast")],
+                                        FAQ_total],
                                     id="faq_toast",
                                     # header="Frequently Asked Questions",
                                     is_open=False,
@@ -219,6 +247,22 @@ def skt_nonexpert():
                                                       dbc.Row(
                                                         [dbc.Col(
                                                             [
+                                                                 dbc.Popover(
+                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison",
+                                                                        target="info-icon-RR",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-RR",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                                 dbc.Popover(
+                                                                        "Click switch button to switch treament and comparator.",
+                                                                        target="info-icon-Switch",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-switch",
+                                                                        className= 'popover-grid'
+                                                                    ),
                                                                 model_skt_compare_simple,
                                                                 dbc.Row(treat_compare_grid, 
                                                                         style={'width':'95%', 'justify-self':'center'}),

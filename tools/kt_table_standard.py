@@ -121,6 +121,7 @@ ColumnDefs_treat_compare = [
      "field": "switch",
      "editable": False,
      "resizable": False,
+     "headerComponent": "HeaderWithIcon", 
      "cellRenderer": "DMC_Button",
      "cellRendererParams": {
             # "variant": "text",
@@ -152,7 +153,10 @@ ColumnDefs_treat_compare = [
         "resizable": False,
         'suppressStickyLabel': True,
         'children': [
-            {'field': 'RR', 'headerName': 'RR',"suppressHeaderMenuButton": True},
+            {'field': 'RR', 
+             'headerName': 'RR',
+             "headerComponent": "HeaderWithIcon", 
+             "suppressHeaderMenuButton": True},
             # {'field': 'ab_out1', 'headerName': 'Absoute',
             #  'cellStyle': {'line-height': 'normal'}
             #  },
