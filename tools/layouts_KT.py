@@ -117,16 +117,16 @@ def skt_nonexpert():
     return html.Div([
             html.Div(id='skt_all',children=[
                                             html.Br(id='yoda_stand_start'),html.Br(),
-                                            dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
-                                                className="markdown_style_main",
-                                                style={
-                                                    "font-size": '25px',
-                                                    'text-align': 'start',
-                                                    'font-family': 'math',
-                                                    "font-weight": 'bold',
-                                                    'color':'rgb(184 80 66)',
-                                                    'width': '90%'
-                                                       }),
+                                            # dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
+                                            #     className="markdown_style_main",
+                                            #     style={
+                                            #         "font-size": '25px',
+                                            #         'text-align': 'start',
+                                            #         'font-family': 'math',
+                                            #         "font-weight": 'bold',
+                                            #         'color':'rgb(184 80 66)',
+                                            #         'width': '90%'
+                                            #            }),
                                             html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'), 
                                                                html.Div([ html.P("editable, put your project title here",
                                                                                  id='title-instruction'),
@@ -248,7 +248,7 @@ def skt_nonexpert():
                                                         [dbc.Col(
                                                             [
                                                                  dbc.Popover(
-                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison",
+                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
                                                                         target="info-icon-RR",  # this must match the icon's ID
                                                                         trigger="click",
                                                                         placement="top",
@@ -256,11 +256,35 @@ def skt_nonexpert():
                                                                         className= 'popover-grid'
                                                                     ),
                                                                  dbc.Popover(
+                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
+                                                                        target="info-icon-RR_out2",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-RR2",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                                 dbc.Popover(
                                                                         "Click switch button to switch treament and comparator.",
-                                                                        target="info-icon-Switch",  # this must match the icon's ID
+                                                                        target="info-icon-switch",  # this must match the icon's ID
                                                                         trigger="click",
                                                                         placement="top",
                                                                         id="popover-switch",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                                 dbc.Popover(
+                                                                        "Hover your mouse over a cell to view detailed information for each field.",
+                                                                        target="info-icon-Certainty_out1",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-certainty1",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                                 dbc.Popover(
+                                                                        "Hover your mouse over a cell to view detailed information for each field.",
+                                                                        target="info-icon-Certainty_out2",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-certainty2",
                                                                         className= 'popover-grid'
                                                                     ),
                                                                 model_skt_compare_simple,
@@ -323,16 +347,16 @@ def skt_layout():
             html.Div(id='skt_all',
                      children=[
                                 html.Br(),html.Br(),
-                                dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
-                                    className="markdown_style_main",
-                                    style={
-                                        "font-size": '25px',
-                                        'text-align': 'start',
-                                        'font-family': 'math',
-                                        "font-weight": 'bold',
-                                        'color':'rgb(184 80 66)',
-                                        'width': '90%'
-                                            }),
+                                # dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
+                                #     className="markdown_style_main",
+                                #     style={
+                                #         "font-size": '25px',
+                                #         'text-align': 'start',
+                                #         'font-family': 'math',
+                                #         "font-weight": 'bold',
+                                #         'color':'rgb(184 80 66)',
+                                #         'width': '90%'
+                                #             }),
                                 dbc.Row([html.P(f"Select outcome",className="", style={'display': 'flex', 
                                                                                                 "text-align": 'right',
                                                                                                 'align-items': 'center',
