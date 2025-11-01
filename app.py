@@ -2985,29 +2985,24 @@ app.clientside_callback(
         console.log("Initializing grid:", gridId);
         
         dash_ag_grid.getApiAsync(gridId).then((gridApi) => {
-            console.log("✅ Grid API ready");
             
             // Store the API globally for debugging
             window.gridApi = gridApi;
             
             // Listen for detail row expansion
             gridApi.addEventListener('rowGroupOpened', (event) => {
-                console.log("📦 RowGroupOpened:", event);
                 
                 if (event.node && event.expanded && event.node.detailNode) {
-                    console.log("🎯 Detail grid expanded");
                     
                     // Use Dash.setData to trigger Python callback
                     if (window.dash_clientside && window.dash_clientside.set_props) {
-                        console.log("🎯 Hello test");
-                        window.dash_clientside.set_props('detail-status', {
-                        data: "NewData"
-                                //'open': true,
-                                //'masterData': event.node.data
-                        });
+                        window.dash_clientside.set_props(
+                            "detail-status", {
+                                data: "test"
+                            }
+                        );
                     }
                 } else if (event.node && !event.expanded) {
-                    console.log("📦 Detail grid collapsed");
                     if (window.dash_clientside && window.dash_clientside.set_props) {
                         window.dash_clientside.set_props('detail-status', {
                             'open': false,
