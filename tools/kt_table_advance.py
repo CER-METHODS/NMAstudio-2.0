@@ -189,7 +189,8 @@ masterColumnDefs = [
         "headerName": "Reference Treatment",
         "filter": True,
         "field": "Reference",
-        'headerTooltip': 'Click a treatment to open a nested table',
+        "headerComponent": "HeaderWithIcon",
+        # 'headerTooltip': 'Click a treatment to open a nested table',
         "cellRenderer": "agGroupCellRenderer",
         'cellStyle': {'border-left': 'solid 0.8px',
                       'border-right': 'solid 0.8px'}
@@ -208,6 +209,7 @@ masterColumnDefs = [
       
      {"headerName": "Range of the risk\n(in dataset)", 
      "field": "risk_range",
+     "headerComponent": "HeaderWithIcon",
      "editable": True,
      'cellStyle': {
         'border-right': 'solid 0.8px'}
@@ -216,6 +218,7 @@ masterColumnDefs = [
     {"headerName": "Risk per 1000", 
      "field": "risk",
      "editable": True,
+     "headerComponent": "HeaderWithIcon",
      'cellStyle': {
         'color': 'grey','border-right': 'solid 0.8px'}
      },
@@ -223,20 +226,23 @@ masterColumnDefs = [
      {"headerName": "The rationality of selecting the risk", 
      "field": "rationality",
      "editable": True,
+     "headerComponent": "HeaderWithIcon",
      'cellStyle': {
         'color': 'grey','border-right': 'solid 0.8px'}
      },
     
      {"headerName": "Scale lower\n(forestplots)", 
      "field": "Scale_lower",
-     'headerTooltip': 'This is for the forest plots in the nested table',
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'This is for the forest plots in the nested table',
      "editable": True,
      'cellStyle': {
         'color': 'grey','border-right': 'solid 0.8px'}
      },
     {"headerName": "Scale upper\n(forestplots)", 
      "field": "Scale_upper",
-     'headerTooltip': 'This is for the forest plots in the nested table',
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'This is for the forest plots in the nested table',
      "editable": True,
      'cellStyle': {
         'color': 'grey','border-right': 'solid 0.8px'}}
@@ -249,7 +255,8 @@ detailColumnDefs = [
      "sortable": False,
      "filter": True,
      "width": 130,
-     'headerTooltip': 'Click a cell to see the details of the corresponding comparison',
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'Click a cell to see the details of the corresponding comparison',
     #  "tooltipField": 'Treatment',
     #  "tooltipComponentParams": { "color": '#d8f0d3'},
     #  "tooltipComponent": "CustomTooltiptreat",
@@ -296,7 +303,8 @@ detailColumnDefs = [
 
        {"field": "ab_difference", 
      "headerName": "Absolute Difference",
-     'headerTooltip': 'Specify a value for the reference treatment in \'Risk per 1000\'',
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'Specify a value for the reference treatment in \'Risk per 1000\'',
      "width": 180,
      "resizable": True,
      'cellStyle': {'border-left': 'solid 0.8px',
@@ -314,6 +322,7 @@ detailColumnDefs = [
         "field": "Graph",
         "cellRenderer": "DCC_GraphClickData",
         "headerName": "Forest plot",
+        "headerComponent": "HeaderWithIcon",
         "width": 300,
         "resizable": True,
         'cellStyle': {'border-left': 'solid 0.8px',
@@ -322,7 +331,8 @@ detailColumnDefs = [
     },
     {"field": "direct",
      "headerName": "Direct effect\n(95%CI)",
-     'headerTooltip': 'Click a cell with values to open the pairwise forest plot',
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'Click a cell with values to open the pairwise forest plot',
       "width": 170,
       "resizable": True,
       'cellStyle': {'color': '#707B7C', "text-align":'center', 'display': 'grid',
@@ -342,6 +352,7 @@ detailColumnDefs = [
       },
     {"field": "Certainty", 
      "headerName": "Certainty",
+     "headerComponent": "HeaderWithIcon",
     #  'headerTooltip': 'Hover the mouse on each cell to see the details',
     "filter": True,
      "width": 110,
@@ -356,7 +367,8 @@ detailColumnDefs = [
         {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},       
     ]}},
     {"field": "Comments", "width": 120,
-     'headerTooltip': 'Editable for adding comments', 
+     "headerComponent": "HeaderWithIcon",
+    #  'headerTooltip': 'Editable for adding comments', 
      "resizable": True,
      'editable': True,
      'cellStyle': {'border-left': 'solid 0.5px',"text-align":'center', 'display': 'grid','border-right': 'solid 0.8px'}},
@@ -386,7 +398,6 @@ grid = dag.AgGrid(
     detailCellRendererParams={
                 "detailGridOptions": {
                 "columnDefs": detailColumnDefs,
-                # "sideBar": sideBar,
                 "rowHeight": 80,
                 "rowDragManaged": True,
                 "rowDragMultiRow": True,
@@ -424,7 +435,6 @@ grid = dag.AgGrid(
                        "rowDragManaged": True,
                        "rowDragMultiRow": True,
                        "rowDragEntireRow": True,
-                    #    "detailRowHeight": 70+83*19,
                        "detailRowAutoHeight": True,
                        }, 
     getRowId='params.data.Reference',

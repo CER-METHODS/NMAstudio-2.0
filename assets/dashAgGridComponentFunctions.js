@@ -379,7 +379,8 @@ dagcomponentfuncs.StudyLink = function (props) {
 dagcomponentfuncs.HeaderWithIcon = function (props) {
     const [hover, setHover] = React.useState(false);
     // make an ID based on the header name (safe for HTML)
-    const iconId = "info-icon-" + props.column.colId.replace(/\s+/g, "-");
+    const iconId = "info-icon-" + props.column.colId;
+    
     return React.createElement(
         "div",
         {
@@ -411,7 +412,6 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
         ]
     );
 };
-
 
 
 

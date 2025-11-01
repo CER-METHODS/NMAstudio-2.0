@@ -489,7 +489,113 @@ def skt_layout():
                                                                 ], className='row_skt'),
                                             
                                             dbc.Row([
-                                                    dbc.Col([grid, model_skt_stand1, model_skt_stand2],className='skt_col2', id = 'grid_type'),
+                                                    dbc.Col([
+                                                             dcc.Store(id="detail-status",data={}),
+                                                             html.Div(id="grid-init-done", style={"display": "none"}),
+                                                             grid, 
+                                                             model_skt_stand1, 
+                                                             model_skt_stand2,
+                                                             html.Div(id="popover-container"),
+                                                             dbc.Popover(
+                                                                        "Clicking a cell will open a nested table, where the corresponding treatment will be a reference treatment.",
+                                                                        target="info-icon-Reference",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-ref",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "This is the range of risk per 1000 in your original dataset. This can be a reference when you enter the number in 'Risk per 1000' column.",
+                                                                        target="info-icon-risk_range",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-range",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             
+                                                             dbc.Popover(
+                                                                        "You can enter a risk for the reference treatment, then the corresponding nested table will include effects in absolute scale.",
+                                                                        target="info-icon-risk",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-risk",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Please explain why you specified this particular risk for the reference treatment.",
+                                                                        target="info-icon-rationality",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-rationality",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Here you can specify the lower limit of the x-axis range for the forest plot in the nested table.",
+                                                                        target="info-icon-Scale_lower",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Scale_lower",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Here you can specify the upper limit of the x-axis range for the forest plot in the nested table.",
+                                                                        target="info-icon-Scale_upper",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Scale_upper",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Click a cell to see the details of the corresponding comparison.",
+                                                                        target="info-icon-Treatment",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Treatment",
+                                                                        className= 'popover-grid',
+                                                                        is_open=False
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Specify a value for the reference treatment in \'Risk per 1000\'.",
+                                                                        target="info-icon-ab_difference",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-ab_difference",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "By default, the forest plots include mixed effect, direct effect and indirect effect. There are several options in the 'Options' box for you to customize the forestplots.",
+                                                                        target="info-icon-Graph",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Graph",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Click a cell with values to open the pairwise forest plot",
+                                                                        target="info-icon-direct",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-direct",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "Hover the mouse on each cell to see the details in each field",
+                                                                        target="info-icon-Certainty",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Certainty",
+                                                                        className= 'popover-grid'
+                                                                    ),
+                                                             dbc.Popover(
+                                                                        "The whole column is editable for adding comments",
+                                                                        target="info-icon-Comments",  # this must match the icon's ID
+                                                                        trigger="click",
+                                                                        placement="top",
+                                                                        id="popover-advance-Comments",
+                                                                        className= 'popover-grid'
+                                                                    ),
+
+                                                             ],className='skt_col2', id = 'grid_type'),
                                                                     ],className='skt_rowtable'),
                                             html.Br(), html.Br(),
                                             dbc.Row()

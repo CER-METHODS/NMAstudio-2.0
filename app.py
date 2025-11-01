@@ -2346,7 +2346,7 @@ def generate_text_info(slct_nodesdata):
 
 @app.callback(
     Output("skt_modal_copareinfo", "is_open"), 
-    Input("quickstart-grid", "cellClicked"),
+    Input("quickstart-grid", "row"),
     Input("close_compare", "n_clicks"),
 )
 
@@ -2976,6 +2976,80 @@ for ans in range(1, 3):
             return not is_open
         return is_open
 
+
+
+# Single clientside callback that handles everything
+app.clientside_callback(
+    """
+    function(gridId) {
+        console.log("Initializing grid:", gridId);
+        
+        dash_ag_grid.getApiAsync(gridId).then((gridApi) => {
+            console.log("✅ Grid API ready");
+            
+            // Store the API globally for debugging
+            window.gridApi = gridApi;
+            
+            // Listen for detail row expansion
+            gridApi.addEventListener('rowGroupOpened', (event) => {
+                console.log("📦 RowGroupOpened:", event);
+                
+                if (event.node && event.expanded && event.node.detailNode) {
+                    console.log("🎯 Detail grid expanded");
+                    
+                    // Use Dash.setData to trigger Python callback
+                    if (window.dash_clientside && window.dash_clientside.set_props) {
+                        console.log("🎯 Hello test");
+                        window.dash_clientside.set_props('detail-status', {
+                        data: "NewData"
+                                //'open': true,
+                                //'masterData': event.node.data
+                        });
+                    }
+                } else if (event.node && !event.expanded) {
+                    console.log("📦 Detail grid collapsed");
+                    if (window.dash_clientside && window.dash_clientside.set_props) {
+                        window.dash_clientside.set_props('detail-status', {
+                            'open': false,
+                            'detailGridId': null
+                        });
+                    }
+                }
+            });
+            
+        }).catch((error) => {
+            console.error("❌ Error:", error);
+        });
+        
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('quickstart-grid', 'selectedRows'),  # Use any output property of the grid
+    Input('quickstart-grid', 'id')
+)
+
+
+
+import time
+
+@app.callback(
+    Output("popover-container", "children"),
+    Input("detail-status", "data"),
+    prevent_initial_call=True
+)
+def show_popover(data):
+    if data:
+        popover_id = f"popover-advance-Treatment-{int(time.time()*1000)}"
+        # Still uses the same target, so may not work if multiple icons exist
+        return dbc.Popover(
+            dbc.PopoverBody("Click a cell to see details of the Treatment column."),
+            target="info-icon-Treatment",
+            trigger="click",
+            placement="top",
+            className="popover-grid",
+            id=popover_id
+        )
+    return None
 
 
 ####################################################################
