@@ -9,6 +9,7 @@ from tools.functions_chatbot import render_chatbot
 from tools.kt_table_standard import treat_compare_grid, modal_compare_grid, modal_fullname_grid
 from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
+from tools.functions_ranking_plots import __ranking_plot_skt
 
 
 FAQ_total = html.Div([
@@ -187,6 +188,7 @@ def skt_nonexpert():
                                 
                                                             model_transitivity,
                                                             model_fullname, 
+                                                            model_ranking, 
                                                             html.Div(modal_kt, style={'display': 'inline-block', 'font-size': '11px'}),
                                                             html.Div(modal_edges_kt, style={'display': 'inline-block', 'font-size': '11px'}),            
                                                                               ], className='row_skt'),
@@ -232,12 +234,20 @@ def skt_nonexpert():
                                                                             stylesheet=get_stylesheet()),
                                                                             html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
-                                                                                                                   'background-color':'#dedecf',
+                                                                                                                'background-color':'#dedecf',
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
                                                                                                                     'margin-left':'2%',
-                                                                                                                    'padding': '4px'}),], 
+                                                                                                                    'padding': '4px'}),
+                                                                            html.Button('Click to see the ranking info', id='ranking_button',className='sub-button',
+                                                                                                            style={'color': 'rgb(118 135 123)',
+                                                                                                                'background-color':'#dedecf',
+                                                                                                                    'display': 'inline-block',
+                                                                                                                    'justify-self':'center',
+                                                                                                                    'border': 'unset',
+                                                                                                                    'margin-left':'25%',
+                                                                                                                    'padding': '4px'})], 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'},),
                                                                             dbc.Col(render_chatbot(), 
@@ -407,7 +417,29 @@ def skt_layout():
                                                     dbc.Col([
                                                                 dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
                                                                          html.Div(KT2_Dropdown_graphlayout, 
-                                                                                  style={'font-size': '11px','justify-self': 'end', 'margin-left':'60px'})
+                                                                                  style={'font-size': '11px','justify-self': 'end', 'margin-left':'60px'}),
+                                                                        html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
+                                                                                                            style={
+                                                                                                                    'background-color':'#00ab9c',
+                                                                                                                    'color':'white', 
+                                                                                                                    'height':'30px',
+                                                                                                                    'display': 'inline-block',
+                                                                                                                    'justify-self':'center',
+                                                                                                                    'border': 'unset',
+                                                                                                                    'margin-left':'11%',
+                                                                                                                    'padding': '4px'}),
+                                                                        html.Div([html.Button("Check statistical info", 
+                                                                                                id="statsettings", 
+                                                                                                style={
+                                                                                                    'background-color':'#00ab9c',
+                                                                                                    'color':'white', 
+                                                                                                    'height':'30px',
+                                                                                                    'display': 'inline-block',
+                                                                                                    'justify-self':'center',
+                                                                                                    'border': 'unset',
+                                                                                                    'margin-left':'2%',
+                                                                                                    'padding': '4px'}),
+                                                                                  Download(id="download-statistic")]),
                                                                         ], style={'padding-top': 0}),
                                                                 dbc.Row([dbc.Col([cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                             minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
@@ -421,15 +453,7 @@ def skt_layout():
                                                                                     # 'max-width': 'calc(52vw)',
                                                                                 },
                                                                     layout={'name':'circle','animate': False, 'fit':True },
-                                                                    stylesheet=get_stylesheet()),
-                                                                    html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
-                                                                                                            style={'color': 'rgb(118 135 123)',
-                                                                                                                   'background-color':'#dedecf',
-                                                                                                                    'display': 'inline-block',
-                                                                                                                    'justify-self':'center',
-                                                                                                                    'border': 'unset',
-                                                                                                                    'margin-left':'2%',
-                                                                                                                    'padding': '4px'}),
+                                                                    stylesheet=get_stylesheet())
                                                                     ], 
                                                                     style={'border-right': '3px solid #B85042',
                                                                             'width': '50%'}),
@@ -664,6 +688,52 @@ model_fullname = dbc.Modal(
     contentClassName="skt_modal_fullname",
 )
 
+
+model_ranking = dbc.Modal(
+                        [dbc.ModalHeader("P-score heatmap for ranking"),
+                         dbc.ModalBody(
+                                  html.Div([dcc.Loading(
+                                         dcc.Graph(
+                                             id='tab-rank1',
+                                             figure = __ranking_plot_skt(),
+                                             style={'height': '99%',
+                                                    'max-height': 'calc(51vh)',
+                                                    'width': '100%',
+                                                    'margin-top': '5%',
+                                                    # 'max-width': 'calc(52vw)'
+                                                    },
+                                             config={'editable': True,
+                                                #     'showEditInChartStudio': True,
+                                                #     'plotlyServerURL': "https://chart-studio.plotly.com",
+                                                     'edits': dict(annotationPosition=True,
+                                                                   annotationTail=True,
+                                                                   annotationText=True, axisTitleText=True,
+                                                                   colorbarPosition=True,
+                                                                   colorbarTitleText=False,
+                                                                   titleText=False,
+                                                                   legendPosition=True, legendText=True,
+                                                                   shapePosition=True),
+                                                     'modeBarButtonsToRemove': [
+                                                         'toggleSpikelines',
+                                                         'resetScale2d',
+                                                         "pan2d",
+                                                         "select2d",
+                                                         "lasso2d",
+                                                         "autoScale2d",
+                                                         "hoverCompareCartesian"],
+                                                     'toImageButtonOptions': {
+                                                         'format': 'png',
+                                                         # one of png, svg,
+                                                         'filename': 'custom_image',
+                                                         'scale': 5
+                                                         # Multiply title/legend/axis/canvas sizes by this factor
+                                                     },
+                                                     'displaylogo': False}), style={'display':'grid', 'justify-content':'center'})
+                    ], style={'margin-top':'-30px', 
+                              'height':'500px',
+                              })),
+                         dbc.ModalFooter(dbc.Button( "Close", id="close_rank", className="ms-auto", n_clicks=0)),
+                    ],id="modal_ranking", size='lg',is_open=False, scrollable=True,contentClassName="trans_content")
 
 model_skt_compare_simple = dbc.Modal(
     [

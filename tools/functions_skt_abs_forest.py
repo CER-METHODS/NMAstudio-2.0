@@ -229,12 +229,12 @@ def __Change_Abs(value_effect, value_change,lower,rowData):
             # print(detail_data['CI_lower'].loc[i])
             risk_low =int(risk_low)
             ablow = risk_low-value_risk
-            abs_low = f"{ablow} more per 1000" if ablow  > 0 else f"{abs(ablow)} less per 1000"
+            abs_low = f"{ablow} more" if ablow  > 0 else f"{abs(ablow)} less"
 
             risk_up = value_risk*detail_data['CI_upper'].loc[i]
             risk_up =int(risk_up)
             abup = risk_up-value_risk
-            abs_up = f"{abup} more per 1000" if abup  > 0 else f"{abs(abup)} less per 1000"
+            abs_up = f"{abup} more" if abup  > 0 else f"{abs(abup)} less"
 
             dfc.loc[row_idx, 'Treatments'][i]['ab_difference'] = f"{abs_value}\n({abs_low} to {abs_up})"
             # print(dfc.loc[row_idx, 'Treatments'][i]['ab_difference'])

@@ -2636,6 +2636,23 @@ def display_forestplot(cell, _):
         return True
     return no_update
 
+
+@app.callback(
+    Output("modal_ranking", "is_open"), 
+    Input("ranking_button", "n_clicks"),
+    Input("close_rank", "n_clicks"),
+)
+
+def display_forestplot(cell, _):
+    if ctx.triggered_id == "close_rank":
+        return False
+    if ctx.triggered_id == "ranking_button":
+        return True
+    return no_update
+
+
+
+
 ###############################################################################
 ################### Bootstrap Dropdowns callbacks for KT ######################
 ###############################################################################

@@ -55,18 +55,19 @@ def __skt_options_forstplot(value_effect,df, lower, scale_lower, scale_upper, re
         # print(range_scale) if j == 0  else 0
         fig = go.Figure(go.Scatter( y = [],x = []))
         
-        tick0 = 10**range_scale[0] + 0.1
-        tick_end = 10**range_scale[1] - 1    
+        # tick0 = 10**range_scale[0] + 0.1
+        # tick_end = 10**range_scale[1] - 1    
         
-        tick_values1 = np.linspace(tick0, 1, num=5).round(2)
-        tick_values2 = np.linspace(1, tick_end, num=5).astype(int)
-        tick_values = np.concatenate((tick_values1, tick_values2[1:]))
+        # tick_values1 = np.linspace(tick0, 1, num=5).round(2)
+        # tick_values2 = np.linspace(1, tick_end, num=5).astype(int)
+        # tick_values = np.concatenate((tick_values1, tick_values2[1:]))
         # Insert 1 at the beginning of the array
         # tick_values = np.insert(tick_values, 0, 1)
         # dtick=(tick_end - tick0) / 9
-
         fig.update_layout(
         xaxis=dict(range=range_scale,
+                   tickmode='auto',
+                   tickformat='.1f'
                     # tickvals=tick_values
                         ),
         dragmode=False,

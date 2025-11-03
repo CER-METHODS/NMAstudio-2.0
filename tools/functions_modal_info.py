@@ -119,10 +119,10 @@ def display_modal_text(cell,value,rowdata):
         span_diff = f"{ab_diff} more per 1000" if ab_diff > 0 else f"{abs(ab_diff)} less per 1000"
         
         ab_diff_low = int(rr_low*value)-value
-        span_diff_low = f"{ab_diff_low} more per 1000" if ab_diff_low > 0 else f"{abs(ab_diff_low)} less per 1000"
+        span_diff_low = f"{ab_diff_low} more" if ab_diff_low > 0 else f"{abs(ab_diff_low)} less"
 
         ab_diff_up = int(rr_up*value)-value
-        span_diff_up = f"{ab_diff_up} more per 1000" if ab_diff_up > 0 else f"{abs(ab_diff_up)} less per 1000"
+        span_diff_up = f"{ab_diff_up} more" if ab_diff_up > 0 else f"{abs(ab_diff_up)} less"
     
     else:
         return ''
