@@ -2978,51 +2978,34 @@ for ans in range(1, 3):
 
 
 
-# Single clientside callback that handles everything
+
+# Unified clientside callback to manage AG Grid events
 app.clientside_callback(
     """
     function(gridId) {
-        console.log("Initializing grid:", gridId);
-        
         dash_ag_grid.getApiAsync(gridId).then((gridApi) => {
-            
-            // Store the API globally for debugging
+            // Make the API available globally for debugging
             window.gridApi = gridApi;
-            
-            // Listen for detail row expansion
+
+            // Handle row group expansion
             gridApi.addEventListener('rowGroupOpened', (event) => {
-                
                 if (event.node && event.expanded && event.node.detailNode) {
-                    
-                    // Use Dash.setData to trigger Python callback
-                    if (window.dash_clientside && window.dash_clientside.set_props) {
-                        window.dash_clientside.set_props(
-                            "detail-status", {
-                                data: "test"
-                            }
-                        );
-                    }
-                } else if (event.node && !event.expanded) {
-                    if (window.dash_clientside && window.dash_clientside.set_props) {
-                        window.dash_clientside.set_props('detail-status', {
-                            'open': false,
-                            'detailGridId': null
-                        });
+                    // Trigger Dash clientside data update
+                    if (window.dash_clientside?.set_props) {
+                        window.dash_clientside.set_props("detail-status", { data: "test" });
                     }
                 }
             });
-            
         }).catch((error) => {
-            console.error("❌ Error:", error);
+            console.error("Error initializing grid API:", error);
         });
-        
+
         return window.dash_clientside.no_update;
     }
     """,
-    Output('quickstart-grid', 'selectedRows'),  # Use any output property of the grid
-    Input('quickstart-grid', 'id')
+    Output("quickstart-grid", "selectedRows"),
+    Input("quickstart-grid", "id")
 )
-
 
 
 import time
@@ -3034,16 +3017,59 @@ import time
 )
 def show_popover(data):
     if data:
-        popover_id = f"popover-advance-Treatment-{int(time.time()*1000)}"
-        # Still uses the same target, so may not work if multiple icons exist
-        return dbc.Popover(
-            dbc.PopoverBody("Click a cell to see details of the Treatment column."),
+        children = [
+            dbc.Popover(
+            "Click a cell to see details of the Treatment column.",
             target="info-icon-Treatment",
             trigger="click",
             placement="top",
             className="popover-grid",
-            id=popover_id
-        )
+            id=f"popover-advance-Treatment-{int(time.time()*1000)}"
+        ),
+            dbc.Popover(
+                        "Specify a value for the reference treatment in \'Risk per 1000\'.",
+                        target="info-icon-ab_difference",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id=f"popover-advance-ab_difference-{int(time.time()*1000)}",
+                        className= 'popover-grid'
+                    ),
+            dbc.Popover(
+                    "By default, the forest plots include mixed effect, direct effect and indirect effect. There are several options in the 'Options' box for you to customize the forestplots.",
+                    target="info-icon-Graph",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Graph-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "Click a cell with values to open the pairwise forest plot",
+                    target="info-icon-direct",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-direct-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "Hover the mouse on each cell to see the details in each field",
+                    target="info-icon-Certainty",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Certainty-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "The whole column is editable for adding comments",
+                    target="info-icon-Comments",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Comments-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                )
+
+        ]
+        # Still uses the same target, so may not work if multiple icons exist
+        return children
     return None
 
 
