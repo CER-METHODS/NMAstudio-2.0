@@ -304,7 +304,7 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                                   'margin-left': '0px', 'font-size': '12px'}),
                  dcc.Dropdown(id={'type': 'dataselectors_1', 'index': f'dropdown-{var_name}'},
                               options=options_var, searchable=True, placeholder="...", className="box",
-                              clearable=False, style={'width': '80px',  # 'height': '30px',
+                              clearable=True, style={'width': '80px',  # 'height': '30px',
                                                       "height": '30px',
                                                       'vertical-align': 'middle',
                                                       "font-family": "sans-serif",

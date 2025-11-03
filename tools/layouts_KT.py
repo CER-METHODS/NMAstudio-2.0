@@ -374,7 +374,7 @@ def skt_layout():
                                                                                                 'color':'rgb(184, 80, 66)',
                                                                                                 'margin-left': '10px', 'font-size': 'large'}),
                                 dcc.Dropdown(id='sktdropdown-out', options=[{'label': 'PASI90', 'value': 0}, {'label': 'SAE', 'value': 1}],
-                                    clearable=True, placeholder="",
+                                    clearable=False, placeholder="",value = 0,
                                     className="sktdropdown-out")], id='outselect_row'),
                                 html.Br(),
                                 html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'),
