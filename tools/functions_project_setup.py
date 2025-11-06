@@ -84,8 +84,7 @@ def __update_options(search_value_format, search_value_outcome1, search_value_ou
                                                        "font-family": "sans-serif",
                                                        'margin-bottom': '2px',
                                                        'display': 'inline-block',
-                                                       'color': 'black',
-                                                       'font-size': '10px'} )]
+                                                       'color': 'black'} )]
           ),  style={'margin-left': '55px', 'margin-right': '5px'}) for name, val in zip(name_outcomes, search_values)]
         )],
      ),
@@ -104,8 +103,7 @@ def __update_options(search_value_format, search_value_outcome1, search_value_ou
                                                       "font-family": "sans-serif",
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
-                                                      'color': 'black',
-                                                      'font-size': '10px'})]
+                                                      'color': 'black'})]
             ), style={'margin-left': '55px', 'margin-right': '5px'}) for name, val in zip(name_outcomes, search_values)]
             )],
         ),
@@ -127,7 +125,7 @@ def __update_options(search_value_format, search_value_outcome1, search_value_ou
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
                                                       'color': 'black',
-                                                      'font-size': '10px','margin-left':'-7px'})]),
+                                                      'margin-left':'-7px'})]),
                 style={'margin-bottom': '0px'})
                 for var_name, name in zip(var_names, col_var)],
                 style={'display': 'inline-block'})
@@ -217,8 +215,7 @@ def __second_options(search_value_format, search_value_outcome1, search_value_ou
                                                        "font-family": "sans-serif",
                                                        'margin-bottom': '2px',
                                                        'display': 'inline-block',
-                                                       'color': 'black',
-                                                       'font-size': '10px'} )]
+                                                       'color': 'black'} )]
           ),  style={'margin-left': '55px', 'margin-right': '5px'}) for name, val in zip(name_outcomes, search_values)]
         )], style={'justify-content': 'center', 'display': 'grid'}
      ),
@@ -237,8 +234,7 @@ def __second_options(search_value_format, search_value_outcome1, search_value_ou
                                                       "font-family": "sans-serif",
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
-                                                      'color': 'black',
-                                                      'font-size': '10px'})]
+                                                      'color': 'black'})]
             ), style={'margin-left': '55px', 'margin-right': '5px'}) for name, val in zip(name_outcomes, search_values)]
             )], style={'justify-content': 'center', 'display': 'grid'}
         ),
@@ -258,10 +254,10 @@ def __second_options(search_value_format, search_value_outcome1, search_value_ou
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
                                                       'color': 'black',
-                                                      'font-size': '10px','margin-left':'-7px'})]),
+                                                      'margin-left':'-7px'})]),
                 style={'margin-bottom': '0px'})
                 for var_name, name in zip(var_names, col_var)],
-                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '400px', 'justify-content': 'center'})
+                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '500px', 'justify-items': 'center'})
                 for var_names, col_var in zip(vars_names, col_vars)],
                 style={'justify-content': 'center', 'display': 'grid'}
         )
@@ -301,7 +297,7 @@ def __selectbox1_options(search_value_format, contents, filename):
             [dbc.Row([html.P("Select overall variables", className="selcect_title")], style={'justify-content': 'center', 'display': 'grid'})] +
             [dbc.Row([dbc.Col(dbc.Row(
                 [html.P(f"{name}:", className="selectbox", style={'display': 'inline-block', "text-align": 'right',
-                                                                  'margin-left': '0px', 'font-size': '12px'}),
+                                                                  'margin-left': '0px'}),
                  dcc.Dropdown(id={'type': 'dataselectors_1', 'index': f'dropdown-{var_name}'},
                               options=options_var, searchable=True, placeholder="...", className="box",
                               clearable=True, style={'width': '80px',  # 'height': '30px',
@@ -311,10 +307,10 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
                                                       'color': 'black',
-                                                      'font-size': '10px','margin-left':'-7px'})]),
+                                                      'margin-left':'-7px'})]),
                 style={'margin-bottom': '0px'})
                 for var_name, name in zip(var_names, col_var)],
-                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '400px', 'justify-content': 'center'})
+                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '500px', 'justify-items': 'center'})
                 for var_names, col_var in zip(vars_names, col_vars)],
                 style={'justify-content': 'center', 'display': 'grid'}
         )
@@ -382,10 +378,10 @@ def __primaryout_selection(number_outcomes,click):
                                     options=options_outcomes, className="",
                                     style={'display': 'grid', 
                                             'grid-template-columns': '1fr 1fr 1fr', 
-                                            'width': '400px', 'justify-content': 'center'}),
+                                            'width': '450px', 'justify-content': 'center', 'font-size' : 'x-large'}),
                     dcc.Checklist(id={'type': 'noprimary', 'index': "0"},
                                     options=[{'label':'Skip', 'value':'no'}], className="",
-                                    style={'display': 'grid','color': 'green', 'font-weight':'bold'})
+                                    style={'display': 'grid','color': 'green', 'font-weight':'bold','font-size' : 'x-large'})
                     ],
                                             style={'justify-content': 'center'}
                                             ))],
@@ -443,8 +439,9 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
     selectors_ef = [html.Div([html.Div(
         [dbc.Row([html.P(f"Select effect size for outcome {i+1}", className="selcect_title",)],style={'justify-content': 'center', 'display': 'grid'})] +
          [dbc.Row([dbc.Col(dbc.Row(
-                  [html.P(className="selectbox", style={'display': 'inline-block', "text-align": 'right',
-                                                                   'margin-left': '5px', 'font-size': '12px', 'color':'black'}),
+                  [
+                #   html.P(className="selectbox", style={'display': 'inline-block', "text-align": 'right',
+                #                                                    'margin-left': '5px', 'font-size': '12px', 'color':'black'}),
                   dcc.RadioItems(id={'type': 'effectselectors', 'index': f'{i}'},
                                options=options_effect_size_cont if outcometype[i]=='continuous' else options_effect_size_bin,
                             #    inline=True, 
@@ -457,15 +454,16 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
                             #                            'color': 'black',
                             #                            'font-size': '10px'}
                                                          )]
-          ),  style={'margin-left': '55px', 'margin-right': '5px'})]
+          ))]
         )], style={'justify-content': 'center', 'display': 'grid'}
      ),
      html.Div(
             [dbc.Row([html.P(f"Outcome direction for outcome {i+1}",  className="selcect_title")], style={'justify-content': 'center', 'display': 'grid'})] +
             [dbc.Row([dbc.Col(dbc.Row(
-                [html.P(className="selectbox", style={'display': 'inline-block', "text-align": 'right',
-                                                                 'margin-left': '-1.5px', 'font-size': '12px',
-                                                                 'color': 'black'}),
+                [
+                #  html.P(className="selectbox", style={'display': 'inline-block', "text-align": 'right',
+                #                                                  'margin-left': '-1.5px', 'font-size': '12px',
+                #                                                  'color': 'black'}),
                  dcc.RadioItems(id={'type': 'directionselectors', 'index': f'{i}'},
                               options=options_outcome_direction,
                             #   inline=True, 
@@ -478,7 +476,7 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
                                 #                       'color': 'black',
                                 #                       'font-size': '10px'}
                                                       )]
-            ), style={'margin-left': '55px', 'margin-right': '5px'})]
+            ))]
             )], style={'justify-content': 'center', 'display': 'grid'}
         ),
         html.Br(),
@@ -487,7 +485,7 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
             [dbc.Row([html.P(f"Select variables for outcome {i+1}", className="selcect_title")], style={'justify-content': 'center', 'display': 'grid'})] +
             [dbc.Row([dbc.Col(dbc.Row(
                 [html.P(f"{name}:",className="selectbox", style={'display': 'inline-block', "text-align": 'right',
-                                                                  'margin-left': '0px', 'font-size': '12px'}),
+                                                                  'margin-left': '0px'}),
                  dcc.Dropdown(id={'type': 'variableselectors', 'index': f'{i}'},
                               options=options_var, searchable=True, placeholder="...", className="box",
                               clearable=False, style={'width': '80px',  # 'height': '30px',
@@ -497,9 +495,9 @@ def __variable_selection(number_outcomes,outcometype, data_format, contents, fil
                                                       'margin-bottom': '2px',
                                                       'display': 'inline-block',
                                                       'color': 'black',
-                                                      'font-size': '10px','margin-left':'-7px'})]),
+                                                      'margin-left':'-7px'})]),
                 style={'margin-bottom': '0px'}) for name in col_vars[i]],
-                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '400px', 'justify-content': 'center'})],
+                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '550px', 'justify-items': 'center'})],
                 style={'justify-content': 'center', 'display': 'grid'}
         )
         ]),
@@ -555,10 +553,11 @@ def __effect_modifier_options(contents, filename):
                                     options=options_var, className="",
                                     style={'display': 'grid', 
                                             'grid-template-columns': '1fr 1fr 1fr', 
-                                            'width': '400px', 'justify-content': 'center'}),
+                                            'font-size': 'x-large',
+                                            'width': '620px', 'justify-content': 'center'}),
                     dcc.Checklist(id='no_effect_modifier',
                                     options=[{'label':'Skip', 'value':'no'}], className="",
-                                    style={'display': 'grid','color': 'green', 'font-weight':'bold'})
+                                    style={'display': 'grid','color': 'green', 'font-weight':'bold', 'font-size': 'x-large'})
                     ],
                                             style={'justify-content': 'center'}
                                             ))],

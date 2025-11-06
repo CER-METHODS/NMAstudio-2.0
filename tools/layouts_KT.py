@@ -614,7 +614,7 @@ model_transitivity = dbc.Modal(
                                                       }),
                                   html.Div([html.P("Box plot", id='cinemaswitchlabel1_modal',
                                                        style={'display': 'inline-block',
-                                                              'font-size': '15px',
+                                                              'font-size': 'large',
                                                               'padding-left': '10px'}),
                                                 daq.ToggleSwitch(id='box_kt_scatter',
                                                                  color='', size=30,
@@ -625,7 +625,7 @@ model_transitivity = dbc.Modal(
                                                                         'padding-right': '10px'}),
                                                 html.P('Scatter plot', id='cinemaswitchlabel2_modal',
                                                        style={'display': 'inline-block', 'margin': 'auto',
-                                                              'font-size': '15px',
+                                                              'font-size': 'large',
                                                               'padding-right': '0px'})
                                                 ], style={'float': 'right', 'padding': '5px 5px 5px 5px',
                                                           'display': 'inline-block', 'margin-top': '0px'}),

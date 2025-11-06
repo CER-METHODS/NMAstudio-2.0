@@ -290,7 +290,7 @@ def __ranking_heatmap(treatments, pscores, outcomes, z_text):
                                       reversescale=True,
                                       annotation_text=z_text, colorscale= 'Viridis',
                                       hoverongaps=False)
-    for annotation in fig.layout.annotations: annotation.font.size = 9
+    for annotation in fig.layout.annotations: annotation.font.size = 12
     fig.update_layout(paper_bgcolor='rgba(0,0,0,0)',  # transparent bg
                       plot_bgcolor='rgba(0,0,0,0)',
                       modebar= dict(orientation = 'h', bgcolor = 'rgba(0,0,0,0.5)'),
@@ -364,7 +364,7 @@ def __ranking_scatter(df, net_data, outcome_direction_1, outcome_direction_2, ou
                                       zeroline=False, zerolinecolor='black', zerolinewidth=1,
                                       range=[0, 1]
                                       ))
-        fig2.update_traces(textposition='top center', textfont_size=10,
+        fig2.update_traces(textposition='top center', textfont_size=12,
                            marker=dict(line=dict(width=1, color='black'))
                            )
         fig2.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')

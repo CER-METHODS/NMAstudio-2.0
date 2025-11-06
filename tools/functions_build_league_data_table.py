@@ -523,11 +523,11 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
 
     cmap = [CINEMA_g, CINEMA_y, CINEMA_r] if not toggle_cinema else [CINEMA_r, CINEMA_y, CINEMA_lb, CINEMA_g]
     legend_height = '4px'
-    legend = [html.Div(style={'display': 'inline-block', 'width': '100px'},
+    legend = [html.Div(style={'display': 'inline-block', 'width': '100px', 'font-size': 'large'},
                        children=[html.Div(),
                                  html.Small('Risk of bias: ' if not toggle_cinema else 'CINeMA rating: ',
                                             style={'color': 'black'})])]
-    legend += [html.Div(style={'display': 'inline-block', 'width': '60px'},
+    legend += [html.Div(style={'display': 'inline-block', 'width': '60px', 'font-size': 'large'},
                         children=[html.Div(style={'backgroundColor': cmap[n],
                                                   'height': legend_height}), html.Small(
                             ('Very Low' if toggle_cinema else 'Low') if n == 0 else 'High' if n == N_BINS - 1 else None,
@@ -599,7 +599,7 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
                                             'color': 'black',
                                             'border': '1px solid #5d6d95',
                                             'font-family': 'sans-serif',
-                                            'fontSize': 11,
+                                            'fontSize': 14,
                                             'minWidth': '55px',
                                             'textAlign': 'center',
                                             'whiteSpace': 'pre-line',  # 'inherit', nowrap
@@ -627,8 +627,9 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
                                     'overflowX': 'scroll',
                                     'overflowY': 'scroll',
                                     'height': '99%',
-                                    'minWidth': '100%',
+                                    # 'minWidth': '100%',
                                     'max-height': 'calc(85vh)',
+                                    'max-width': 1500,
                                     'width': '99%',
                                     'margin-top': '10px',
                                     'padding': '5px 5px 5px 5px'
@@ -809,11 +810,11 @@ def __update_output_bothout( store_node,store_edge,toggle_cinema,
 
     cmap = [CINEMA_g, CINEMA_y, CINEMA_r] if not toggle_cinema else [CINEMA_r, CINEMA_y, CINEMA_lb, CINEMA_g]
     legend_height = '4px'
-    legend = [html.Div(style={'display': 'inline-block', 'width': '100px'},
+    legend = [html.Div(style={'display': 'inline-block', 'width': '100px', 'font-size': 'large'},
                        children=[html.Div(),
                                  html.Small('Risk of bias: ' if not toggle_cinema else 'CINeMA rating: ',
                                             style={'color': 'black'})])]
-    legend += [html.Div(style={'display': 'inline-block', 'width': '60px'},
+    legend += [html.Div(style={'display': 'inline-block', 'width': '60px', 'font-size': 'large'},
                         children=[html.Div(style={'backgroundColor': cmap[n],
                                                   'height': legend_height}), html.Small(
                             ('Very Low' if toggle_cinema else 'Low') if n == 0 else 'High' if n == N_BINS - 1 else None,

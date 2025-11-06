@@ -3,7 +3,7 @@ from assets.modal_values import *
 
 
 Dropdown_nodesize = dbc.DropdownMenu(
-    label="Node size", direction="right", size="sm",
+    label="Node size", direction="right", size="md",
     children=[dbc.DropdownMenuItem("Default", id='dd_nds_default'),
               dbc.DropdownMenuItem("Tot randomized", id='dd_nds_tot_rnd'),
               html.Div(id='dd_nds', style={'display': 'none'}),
@@ -12,28 +12,28 @@ Dropdown_nodesize = dbc.DropdownMenu(
 
 
 Dropdown_nodecolor = dbc.DropdownMenu(
-    label="Node colour", direction="right",size="sm",
+    label="Node colour", direction="right",size="md",
     children=[dbc.DropdownMenuItem("Default", id='dd_nclr_default'),
               dbc.DropdownMenuItem("Risk of Bias", id='dd_nclr_rob'),
               dbc.DropdownMenuItem("By class", id='dd_nclr_class'),
               dbc.DropdownMenuItem("Custom selection", id='open_modal_dd_nclr_input'), # Calls up Modal
               html.Div(id='dd_nclr', style={'display': 'none'}),
-              ], style={'display': 'inline-block',}
+              ]
 )
 
 
 Dropdown_edgecolor = dbc.DropdownMenu(
-    label="Edge colour", direction="right", size="sm",
+    label="Edge colour", direction="right", size="md",
     children=[dbc.DropdownMenuItem("Default", id='dd_edge_default'),
               dbc.DropdownMenuItem("Custom selection", id='open_modal_dd_eclr_input'), # Calls up Modal
               dbc.DropdownMenuItem("Add label", id='dd_edge_label'),
               html.Div(id='dd_eclr', style={'display': 'none'}),
-              ], style={'display': 'inline-block',}
+              ]
 )
 
 
 Dropdown_graphlayout_inner = dbc.DropdownMenu(
-    label="Graph Layout",size="sm",
+    label="Graph Layout",size="md",
     children=[
         dbc.DropdownMenuItem(item, id=f'dd_ngl_{item.lower()}')
         for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
@@ -44,7 +44,7 @@ Dropdown_graphlayout_inner = dbc.DropdownMenu(
 )
 
 Dropdown_edgesize = dbc.DropdownMenu(
-    label="Edge size", direction="right",size="sm",
+    label="Edge size", direction="right",size="md",
     children=[
         dbc.DropdownMenuItem("Number of studies", id='dd_egs_tot_rnd'),
         dbc.DropdownMenuItem("No size", id='dd_egs_default'),
@@ -53,7 +53,7 @@ Dropdown_edgesize = dbc.DropdownMenu(
 )
 
 Dropdown_export = dbc.DropdownMenu(
-    label="Export options", direction="right",size="sm",
+    label="Export options", direction="right",size="md",
     children=[
         dbc.DropdownMenuItem("as svg", id='svg-option'),
         dbc.DropdownMenuItem("as png", id='png-option'),

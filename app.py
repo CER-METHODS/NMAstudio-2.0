@@ -1717,9 +1717,9 @@ def generate_xlsx_league(n_clicks, leaguedata):
                Output("cinemaswitchlabel2", "style")],
               [Input("rob_vs_cinema", "value")])
 def color_leaguetable_toggle(toggle_value):
-    style1 = {'color': '#808484' if toggle_value else '#5a87c4', 'font-size': '12px',
+    style1 = {'color': '#808484' if toggle_value else '#5a87c4', 'font-size': 'medium',
               'display': 'inline-block', 'margin': 'auto', 'padding-left': '10px'}
-    style2 = {'color': '#5a87c4' if toggle_value else '#808484', 'font-size': '12px',
+    style2 = {'color': '#5a87c4' if toggle_value else '#808484', 'font-size': 'medium',
               'display': 'inline-block', 'margin': 'auto', 'padding-right': '0px', }
     return style1, style2
 

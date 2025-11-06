@@ -11,13 +11,13 @@ UP_LOGO = "/assets/logos/logo_universite_paris.jpg"
 def Navbar():
     realhome_button = dbc.NavItem(dbc.NavLink('HOME', href="/home", external_link=True,
                                           style = {'color':'#white','font-family': "sans-serif ",
-                                                   'font-size': '15px'}))
+                                                   'font-size': 'large'}))
     home_button = dbc.NavItem(dbc.NavLink('Setup Analysis & Results', href="/results", external_link=True,
                                           style = {'color':'#white','font-family': "sans-serif ",
-                                                   'font-size': '15px'}))
+                                                   'font-size': 'large'}))
     skt_button = dbc.NavItem(dbc.NavLink('Knowledge Translation (under construction)', href="/skt",external_link=True,
                                          style = {'color':'lightsteelblue','font-family': "sans-serif ",
-                                                  'font-size': '15px'}, id= 'skt_button'))
+                                                  'font-size': 'large'}, id= 'skt_button'))
     # setup_button = dbc.NavItem(dbc.NavLink('Results (under construction)', href="/setup",external_link=True,
     #                                      style = {'color':'lightsteelblue','font-family': "sans-serif ",
     #                                               'font-size': '15px'}, id= ''))

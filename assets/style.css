@@ -115,7 +115,7 @@ h6 {margin-top: 0;}
     letter-spacing: 0.3rem !important;
     padding: 2px 15px 2px 15px;
     margin-bottom: 1px;
-    font-size: 1.2em;
+    font-size: large !important;
     font-weight: bold;
 }
 
@@ -324,12 +324,13 @@ h6 {margin-top: 0;}
     text-align: start;
     justify-content: space-between;
     width: 400px;
+    font-size: x-large;
 }
 
 .selcect_title{
     color: orangered;
     font-weight: bold;
-    font-size: large;
+    font-size: x-large;
 }
 
 .selcect_optional{
@@ -341,7 +342,7 @@ h6 {margin-top: 0;}
 .upload_second_select{
     display: grid;
     background-color: burlywood;
-    width: 500px;
+    width: 650px;
     justify-content: center;
 }
 
@@ -353,7 +354,7 @@ h6 {margin-top: 0;}
 }
 
 #arrow_back{
-    width: 200px;
+    width: 270px;
     margin-left: 40px;
     margin-top: 20px;
     display: flex;
@@ -365,7 +366,7 @@ h6 {margin-top: 0;}
     align-items: center;
     margin: unset;
     color: chocolate;
-    font-size: medium;
+    font-size: x-large;
     font-weight: bold;
 }
 
@@ -1272,6 +1273,7 @@ background: none;
 min-width: 60px;
 max-width:250px;
 width: auto;
+font-size: x-large;
 
 }
 
@@ -1334,14 +1336,14 @@ img:hover {
     margin-top: -5.7%;
     /* margin-left: 48%; */
     line-height: inherit;
-    padding:  10px 4px 0px 4px;
+    padding:  4px 4px 4px 4px;
     /*text-align: center;*/
     /*vertical-align: middle;*/
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-size: 10px;
+    font-size: large;
     font-type: sans-serif;
     font-weight: 900;
     justify-content: flex-end;
@@ -2006,14 +2008,15 @@ li a {
     display: grid;
     margin-left: 20px;
     text-align: start;
-    width: 450px;
+    width: 600px;
     white-space: pre-wrap;
     justify-content: center;
+    font-size: x-large;
 }
 .upload_instuspan{
     display: block;
-    width: 400px;
-    font-size: large;
+    width: 500px;
+    font-size: x-large;
 }
 
 #modal_transitivity{

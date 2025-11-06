@@ -1158,7 +1158,7 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     white-space: nowrap;
     background-color: transparent;
     border: 0;
-    font-size: small;
+    font-size: medium;
 }
 .dropdown-item:focus, .dropdown-item:hover {
     color: #fff;
@@ -1249,6 +1249,7 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
     -ms-flex-pack:justify;
     justify-content:space-between;
     padding:1rem;
+    font-size: x-large;
     /* border-bottom:1px solid black; */
     border-top-left-radius:.3rem;
     border-top-right-radius:.3rem}
@@ -1276,6 +1277,7 @@ background-color: #738789;}
 
 .dash-table-container{
 height: 100% !important;
+max-width: 1500px;
 }
 
 
