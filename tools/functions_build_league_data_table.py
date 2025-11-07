@@ -343,8 +343,14 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
     net_data = pd.read_json(net_data[0], orient='split').round(3)
     raw_data = pd.read_json(raw_data[0], orient='split').round(3)
 
-    years = net_data.year #if (not reset_btn_triggered) else YEARS_DEFAULT
-    slider_min, slider_max = years.min(), years.max()
+    
+    if 'year' in net_data.columns:
+        years = net_data['year']
+        slider_min, slider_max = years.min(), years.max()
+    else:
+        years = None
+        slider_min = slider_max = None
+
     slider_marks = set_slider_marks(slider_min, slider_max, years)
     _out_slider = [slider_min, slider_max, slider_marks]
 
@@ -577,7 +583,10 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
 
 
     data_cols = [{"name": c, "id": c} for c in net_data.columns]
-    data_output = net_data[net_data.year <= slider_value].to_dict('records')
+    if 'year' in net_data.columns:
+        data_output = net_data[net_data.year <= slider_value].to_dict('records')
+    else:
+        data_output = net_data.to_dict('records')
     league_table = build_league_table(leaguetable, leaguetable_cols, league_table_styles, tooltip_values)
     league_table_modal = build_league_table(leaguetable, leaguetable_cols, league_table_styles, tooltip_values, modal=True)
     _output = [data_output, data_cols] * 2 + [league_table, league_table_modal] + [legend] * 2 + [toggle_cinema, toggle_cinema_modal]

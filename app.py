@@ -394,14 +394,14 @@ def update_options(search_value_format, contents, filename):
               )
 def modal_ENABLE_UPLOAD_button(format,dataselectors):
     if format == 'long':
-        idx = 2
-    else: idx = 3
+        idx = {2, 3}
+    else: idx = {3,4}
     
     show_style = {'display': 'grid', 'justify-content': 'center'}
-    hide_style = {'display': 'none', 'justify-content': 'center'}
+    hide_style = {'display': 'none', 'justify-content':  'center'}
 
-    filtered_values = [val for i,val in enumerate(dataselectors) if i != idx]
-    
+    filtered_values = [val for i,val in enumerate(dataselectors) if i not in idx]
+
     if len(filtered_values):
         if all(filtered_values):
             return show_style, show_style
@@ -741,17 +741,22 @@ def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn)
     except:
         net_datajs = pd.read_json(net_data[0], orient='split', encoding = 'utf-8')
     
-    outcome = out_fun 
+    outcome = out_fun
     if outcome:
         outcome = int(outcome)
         net_data = pd.read_json(net_data[0], orient='split')
-        net_datajs2 = net_data[net_data.year <= slider_year] if not reset_btn_triggered else net_data[net_data.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs2,i = outcome )
-
+        df_target = net_data.copy()
     else:
-        net_datajs = net_datajs[net_datajs.year <= slider_year] if not reset_btn_triggered else net_datajs[net_datajs.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs, i = 0)
+        df_target = net_datajs.copy()
+        outcome = 0
 
+    if 'year' in df_target.columns:
+        if not reset_btn_triggered:
+            df_target = df_target[df_target['year'] <= slider_year]
+        else:
+            df_target = df_target[df_target['year'] <= years_dft_max]
+
+    elements = get_network_new(df=df_target, i=outcome)
 
     return elements, elements
 

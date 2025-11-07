@@ -281,12 +281,12 @@ def __selectbox1_options(search_value_format, contents, filename):
     if search_value_format is None: return None, {'display':'none', 'justify-content': 'center'}, {'display':'none', 'justify-content': 'center'}
     col_vars = [[]] 
     if search_value_format == 'long':
-        col_vars[0] = ['study ID', 'treat', 'rob (optional)', 'year']
+        col_vars[0] = ['study ID', 'treat', 'rob (optional)', 'year (optional)']
     elif search_value_format == 'contrast':
-        col_vars[0] = ['studlab', 'treat 1', 'treat 2', 'rob (optional)', 'year']
+        col_vars[0] = ['studlab', 'treat 1', 'treat 2', 'rob (optional)', 'year (optional)']
         
     elif search_value_format == 'iv':
-        col_vars[0] = ['studlab', 'treat 1', 'treat 2', 'rob (optional)', 'year']
+        col_vars[0] = ['studlab', 'treat 1', 'treat 2', 'rob (optional)', 'year (optional)']
         
     
     vars_names = [[f'{search_value_format}.{c}' for c in col_vars[0]]]
@@ -310,7 +310,7 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                       'margin-left':'-7px'})]),
                 style={'margin-bottom': '0px'})
                 for var_name, name in zip(var_names, col_var)],
-                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '500px', 'justify-items': 'center'})
+                style={'display': 'grid', 'grid-template-columns': '1fr 1fr', 'width': '550px', 'justify-items': 'center'})
                 for var_names, col_var in zip(vars_names, col_vars)],
                 style={'justify-content': 'center', 'display': 'grid'}
         )
