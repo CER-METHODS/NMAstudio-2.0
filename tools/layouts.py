@@ -907,7 +907,7 @@ def upload_data():
         html.Br(),
         dbc.Button(
             dbc.NavLink(
-                "Check explanations for each step",
+                "See here explanations for each step",
                 href="assets/tutorial.pdf",  # path to your PDF
                 target="_blank",            # open in new tab
                 external_link=True),
