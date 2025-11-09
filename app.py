@@ -125,7 +125,7 @@ SKT = Sktpage()
 def display_page(pathname):
     if pathname == '/home':  return RealHomepage
     elif pathname == '/results':  return HOMEPAGE
-    elif pathname == '/skt': return SKTPAGE,
+    # elif pathname == '/skt': return SKTPAGE,
     # elif pathname == '/doc': return doc_layout
     # elif pathname == '/news': return news_layout
 
@@ -202,13 +202,13 @@ def display_grid(value, children):
 @app.callback([Output('result_page', 'style'),
               Output('upload_page', 'style'),],
               [Input('test_upload', 'n_clicks_timestamp'),
-               Input('back_plot', 'n_clicks_timestamp'),
+            #    Input('back_plot', 'n_clicks_timestamp'),
                Input('submit_modal_data','n_clicks_timestamp')
                ]
                )
-def result_page(click, click_back,click_trans):
-    if ctx.triggered_id == "back_plot":
-        return {'display':'grid'}, {'display':'none'}
+def result_page(click, click_trans):
+    # if ctx.triggered_id == "back_plot":
+    #     return {'display':'grid'}, {'display':'none'}
 
     if ctx.triggered_id == "test_upload":
         return {'display':'none'}, {'display':'grid'}
@@ -2590,6 +2590,8 @@ def image_color_change(style_routine, style_count,style_side,style_visit,style_c
 
 #     return rawdat.to_dict("records")
 
+#########unitil here#############
+
 from tools.kt_table_standard import df_origin
 
 @app.callback(Output("grid_treat_compare", "rowData"),
@@ -2609,7 +2611,7 @@ def filter_data(node_data, edge_data):
 
     return rowdata.to_dict("records")
 
-#########unitil here#############
+
 
 @app.callback(
     Output("skt_modal_compare_simple", "is_open"), 
@@ -2930,48 +2932,48 @@ def toggle_layout(print, regular, options):
 
 #####################chatbot#######################################################
 
-from tools.functions_chatbot import *
+# from tools.functions_chatbot import *
 
-@app.callback(
-    Output(component_id="display-conversation", component_property="children"), 
-    Input(component_id="store-conversation", component_property="data")
-)
-def update_display(chat_history):
-    return [
-        render_textbox(x, box="human") if i % 2 == 0 else render_textbox(x, box="AI")
-        for i, x in enumerate(chat_history.split("<split>")[:-1])
-    ]
+# @app.callback(
+#     Output(component_id="display-conversation", component_property="children"), 
+#     Input(component_id="store-conversation", component_property="data")
+# )
+# def update_display(chat_history):
+#     return [
+#         render_textbox(x, box="human") if i % 2 == 0 else render_textbox(x, box="AI")
+#         for i, x in enumerate(chat_history.split("<split>")[:-1])
+#     ]
 
-@app.callback(
-    Output(component_id="user-input", component_property="value"),
-    Input(component_id="submit", component_property="n_clicks"), 
-    Input(component_id="user-input", component_property="n_submit"),
-)
-def clear_input(n_clicks, n_submit):
-    return ""
+# @app.callback(
+#     Output(component_id="user-input", component_property="value"),
+#     Input(component_id="submit", component_property="n_clicks"), 
+#     Input(component_id="user-input", component_property="n_submit"),
+# )
+# def clear_input(n_clicks, n_submit):
+#     return ""
 
-@app.callback(
-    Output(component_id="store-conversation", component_property="data"), 
-    Output(component_id="loading-component", component_property="children"),
-    Input(component_id="submit", component_property="n_clicks"), 
-    Input(component_id="user-input", component_property="n_submit"),
-    State(component_id="user-input", component_property="value"), 
-    State(component_id="store-conversation", component_property="data"),
-)
-def run_chatbot(n_clicks, n_submit, user_input, chat_history):
-    if n_clicks == 0 and n_submit is None:
-        return "", None
+# @app.callback(
+#     Output(component_id="store-conversation", component_property="data"), 
+#     Output(component_id="loading-component", component_property="children"),
+#     Input(component_id="submit", component_property="n_clicks"), 
+#     Input(component_id="user-input", component_property="n_submit"),
+#     State(component_id="user-input", component_property="value"), 
+#     State(component_id="store-conversation", component_property="data"),
+# )
+# def run_chatbot(n_clicks, n_submit, user_input, chat_history):
+#     if n_clicks == 0 and n_submit is None:
+#         return "", None
 
-    if user_input is None or user_input == "":
-        return chat_history, None
+#     if user_input is None or user_input == "":
+#         return chat_history, None
     
-    chat_history += f"Human: {user_input}<split>ChatBot: "
-    # result_ai = conversation.predict(input=user_input)
-    # model_output = result_ai.strip()
-    result_ai = chain.invoke({"text": f"base on {chat_history},{user_input}. Please generate less than 100 words (20-50 wloud be good) and be concise and clear. avoiding the use of bullet points, asterisks (*), or any special formatting."})
-    model_output = result_ai.content
-    chat_history += f"{model_output}<split>"
-    return chat_history, None
+#     chat_history += f"Human: {user_input}<split>ChatBot: "
+#     # result_ai = conversation.predict(input=user_input)
+#     # model_output = result_ai.strip()
+#     result_ai = chain.invoke({"text": f"base on {chat_history},{user_input}. Please generate less than 100 words (20-50 wloud be good) and be concise and clear. avoiding the use of bullet points, asterisks (*), or any special formatting."})
+#     model_output = result_ai.content
+#     chat_history += f"{model_output}<split>"
+#     return chat_history, None
 
 ################################FAQ#######################################
 
@@ -3101,8 +3103,8 @@ def show_popover(data):
 ####################################################################
 ####################################################################
 
-# host = os.environ.get("HOST", "0.0.0.0")
-# port = int(os.environ.get("PORT", 8080))
+host = os.environ.get("HOST", "0.0.0.0")
+port = int(os.environ.get("PORT", 8080))
 
 if __name__ == '__main__':
     # app._favicon = ("assets/favicon.ico")
@@ -3110,7 +3112,7 @@ if __name__ == '__main__':
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run_server(debug=False, ssl_context=context)
     # host = os.environ.get("HOST", "0.0.0.0"),
-    app.run_server(debug=True,port=8080,
+    app.run_server(debug=True,port=8080, host = host
 		  # ssl_context=(
         			#'/home/cloud-user/ssl/fullchain.pem',
        				#'/home/cloud-user/ssl/privkey.pem')

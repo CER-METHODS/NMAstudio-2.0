@@ -902,8 +902,8 @@ def home_layout():
 
 def upload_data():
     return html.Div(id='upload_page',style={'display':'grid'},children=[
-        dbc.Row( [html.Img(src="/assets/icons/back_arrow.png",n_clicks=0,
-                style={'width': '40px'}, id='back_plot'), html.P('Back to the results', id='back_result')], id='arrow_back'),
+        # dbc.Row( [html.Img(src="/assets/icons/back_arrow.png",n_clicks=0,
+        #         style={'width': '40px'}, id='back_plot'), html.P('Back to the results', id='back_result')], id='arrow_back'),
         html.Br(),
         dbc.Button(
             dbc.NavLink(
