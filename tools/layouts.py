@@ -986,7 +986,7 @@ def upload_data():
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step1'),
         html.Br(),
         html.Div(dbc.Row([dbc.Col(file_upload_controls2),
-                          dbc.Col(html.Div([html.Span('*You can click the link the see the differences between the formats:',className='upload_instuspan',
+                          dbc.Col(html.Div([html.Span('*You can click the link to see the differences between the formats:',className='upload_instuspan',
                             ), dbc.NavLink('Link', active=True,
                                             external_link=True,
                                             target="_blank",
@@ -1035,7 +1035,7 @@ def upload_data():
                                                 'height': '100px',
                                                 'align-items': 'center'
                                                }),
-                dbc.Col(html.Div(html.Span('*NMAstudio now support any number of outcomes.',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*NMAstudio now supports any number of outcomes.',className='upload_instuspan',
                             )), className='upload_instrucol')], style={'display': 'none'},
                                          id="number-outcomes-input", className= 'upload_row'),
 

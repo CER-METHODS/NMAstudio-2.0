@@ -557,7 +557,7 @@ def is_data_file_uploaded(protocol_value, click, format, variables, no_modifier)
         messages.append('The protocol link is not provided.')
 
     if no_modifier:
-        messages.append('The potential modifiers are not provided. The boxplots cannot be generated for transitivity check.')
+        messages.append('The potential modifiers are not provided. Boxplots cannot be generated for transitivity check.')
 
     if messages:
         return html.Span(f"Warning!\n" + "\n".join(messages), style=style)
@@ -812,7 +812,7 @@ def TapEdgeData(edge):
         studies_str = f"{n_studies}" + (' studies' if n_studies > 1 else ' study')
         return f"{edge[0]['source'].upper()} vs {edge[0]['target'].upper()}: {studies_str}"
     else:
-        return "Click on an edge to get information."
+        return "Click an edge to get information."
 
 
 ### ----- display forest plot on node click ------ ###

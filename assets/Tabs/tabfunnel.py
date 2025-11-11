@@ -6,7 +6,7 @@ from assets.Infos.funnelInfo import infoFunnel, infoFunnel2
 
 
 
-tab_funnel1 = html.Div([dbc.Row([dbc.Col(html.P("Click on a node to generate the plot", #Click treatment sequentially to get desired ordering",
+tab_funnel1 = html.Div([dbc.Row([dbc.Col(html.P("Click a node to generate the plot", #Click treatment sequentially to get desired ordering",
                                          className="graph__title2",
                                          style={'display': 'inline-block',
                                                 'verticalAlign':"top",
