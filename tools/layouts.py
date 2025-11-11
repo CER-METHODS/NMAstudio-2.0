@@ -378,7 +378,7 @@ def home_layout():
 
                                 ], style={"display": 'grid', 'width':'1050px', 'justify-self':'center','grid-template-columns': '0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr'}),
                         html.Br(),
-                        html.Div([html.Button("Download statistical settings for analysis", 
+                        html.Div([html.Button("Download settings of statistical analysis", 
                                                             id="statsettings", 
                                                             style={'display': 'inline-block','padding': '1px'}),
                                                 Download(id="download-statistic")]),
@@ -952,7 +952,7 @@ def upload_data():
                                                 'height': '100px',
                                                 'align-items': 'center'
                                                }),
-                dbc.Col(html.Div(html.Span('*NMAStudio resuires users to provide protocol links before runing analysis.',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*NMAstudio requires users to provide protocol links before running analysis.',className='upload_instuspan',
                             )), className='upload_instrucol')], 
                                          id="protocol-link-input", className= 'upload_row'),
         html.Br(),
@@ -977,7 +977,7 @@ def upload_data():
                         ],style={'display': 'inline-block', 'justify-self': 'center'}),
         # dbc.Col([html.Br(),html.Ul(id="file-list2", style={'margin-left': '15px', 'color':'white','opacity':'60%'})],
         #         style={'display': 'inline-block'}),
-        dbc.Col(html.Div(html.Span("*The dataset should be uploaded as the csv format. Missing values should be encoded as '.', 'NA' or empty in the uploaded dataset",
+        dbc.Col(html.Div(html.Span("*The dataset should be uploaded as the csv format. Missing values should be encoded as '.', 'NA' or empty cells in the uploaded dataset",
                                    className='upload_instuspan',
                             )), className='upload_instrucol')
                 ], style={'display':'none'},className= 'upload_row', id = 'upload_original_data'),
@@ -1035,7 +1035,7 @@ def upload_data():
                                                 'height': '100px',
                                                 'align-items': 'center'
                                                }),
-                dbc.Col(html.Div(html.Span('*NMAStudio now support any number of outcomes.',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*NMAstudio now support any number of outcomes.',className='upload_instuspan',
                             )), className='upload_instrucol')], style={'display': 'none'},
                                          id="number-outcomes-input", className= 'upload_row'),
 
@@ -1072,7 +1072,7 @@ def upload_data():
         html.Br(),
         
         html.Div(dbc.Row([dbc.Col(id='variable_selection'),
-                          dbc.Col(html.Div(html.Span('* In this box, each variable should refer to a unique coulum in your dataset. For example, if you have two outcomes and the number of participants are the same in each study for two outcomes. The number of participants refer to column "N" in your dataset. Do not select "N" for both outcome 1 and 2. In this case, you need to create another column "N2" for outcome 2. ',className='upload_instuspan',
+                          dbc.Col(html.Div(html.Span('* In this box, each variable should refer to a unique column in your dataset. For example, if you have two outcomes and the number of participants are the same in each study for two outcomes. The number of participants refer to column "N" in your dataset. Do not select "N" for both outcome 1 and 2. In this case, you need to create another column "N2" for outcome 2. ',className='upload_instuspan',
                             )), className='upload_instrucol') 
                           ],  className= 'upload_row')
         , style={'display':'none', 'justify-content': 'center'}, id='select_variables'),

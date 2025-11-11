@@ -12,7 +12,7 @@ saveload_modal = html.Div(
                                     label='Save Project',
                                     children=html.Div(className='control-tab', children=[
 
-                 dbc.ModalBody("Please upload your data first. You can generate your own username and click on the button Generate Token Your Project to get a sharable token for your NMA analysis.\n "
+                 dbc.ModalBody("Please upload your data first. You can generate your own username and click on the button Generate Token Your Project to get a shareable token for your NMA analysis.\n "
                                "\n Please note the analysis will be publicly accessible to anyone you have shared the link with."
                                          ),
                  html.Br(),
