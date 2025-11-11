@@ -1002,7 +1002,7 @@ def upload_data():
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step_2'),
         html.Br(),
         html.Div([dbc.Row([dbc.Col(id="select-box-1"),
-                  dbc.Col(html.Div(html.Span('*studlab: study ID or study name \n*rob: risk of bias should be encoded in your data file as either {1,2,3}, {l,m,h} or {L,M,H}, the arms in the same study should have the same rob value. \n*year: year of publication',className='upload_instuspan',
+                  dbc.Col(html.Div(html.Span('*Study ID: study ID or study name \n*rob: risk of bias should be encoded in your data file as either {1,2,3}, {l,m,h} or {L,M,H}, the arms in the same study should have the same rob value. \n*year: year of publication',className='upload_instuspan',
                             )), className='upload_instrucol')        
                            ], className= 'upload_row')],
                  style={'display': 'none', 'justify-content': 'center'}, id='select-overall'), 
