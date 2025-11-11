@@ -977,7 +977,7 @@ def upload_data():
                         ],style={'display': 'inline-block', 'justify-self': 'center'}),
         # dbc.Col([html.Br(),html.Ul(id="file-list2", style={'margin-left': '15px', 'color':'white','opacity':'60%'})],
         #         style={'display': 'inline-block'}),
-        dbc.Col(html.Div(html.Span("*The dataset should be uploaded as the csv format. Missing values should be encoded as '.', 'NA' or empty cells in the uploaded dataset",
+        dbc.Col(html.Div(html.Span("*The dataset should be uploaded as the csv format. Missing values should be encoded as '.', 'NA' or empty cells in the uploaded dataset.",
                                    className='upload_instuspan',
                             )), className='upload_instrucol')
                 ], style={'display':'none'},className= 'upload_row', id = 'upload_original_data'),
@@ -1060,7 +1060,7 @@ def upload_data():
         html.Br(),
 
         html.Div(dbc.Row([dbc.Col(id='outcomes_type'),
-                dbc.Col(html.Div(html.Span('*Select binary or continuous and enter the corresponding name for each outcome',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*Select binary or continuous and enter the corresponding name for each outcome.',className='upload_instuspan',
                             )), className='upload_instrucol')   
                           ], className= 'upload_row')
         , style={'display':'none', 'justify-content': 'center'}, id='select-out-type'),
@@ -1082,7 +1082,7 @@ def upload_data():
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step3'),
         html.Br(),
         html.Div(dbc.Row([dbc.Col(id='select_effect_modifier'),
-                          dbc.Col(html.Div(html.Span('*Select potential effect modifiers you want to check. If you do not want to check, please tick "skip".\n*When you upload long format dataset, the arms in the same study should have the same effect modifier value',className='upload_instuspan',
+                          dbc.Col(html.Div(html.Span('*Select potential effect modifiers you want to check. If you do not want to check, please tick "skip".\n*When you upload long format dataset, the arms in the same study should have the same effect modifier value.',className='upload_instuspan',
                             )), className='upload_instrucol') 
                           ], className= 'upload_row'),
                   style={'display':'none', 'justify-content': 'center'}, id='effect_modifier_select'),
