@@ -383,10 +383,10 @@ def home_layout():
                                                             style={'display': 'inline-block','padding': '1px'}),
                                                 Download(id="download-statistic")]),
                         html.Br(), html.Br(),
-                        html.Span('Click the Setup Analysis button to upload your own dataset, otherwise the embedded example is shown below.', 
-                                  style={'justify-self':'center',
-                                         'align-self': 'center', 
-                                         'font-size': 'x-large', 'color': 'chocolate'}),
+                        # html.Span('Click the Setup Analysis button to upload your own dataset, otherwise the embedded example is shown below.', 
+                        #           style={'justify-self':'center',
+                        #                  'align-self': 'center', 
+                        #                  'font-size': 'x-large', 'color': 'chocolate'}),
                         html.Hr(style = {'size' : '50', 'borderColor':'orange','borderHeight': "10vh", "width": "100%",'border-top': '3px solid #E1E1E1'}),
                         html.Br(), html.Br(),
 
@@ -1002,7 +1002,7 @@ def upload_data():
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step_2'),
         html.Br(),
         html.Div([dbc.Row([dbc.Col(id="select-box-1"),
-                  dbc.Col(html.Div(html.Span('*Study ID: study ID or study name \n*rob: risk of bias should be encoded in your data file as either {1,2,3}, {l,m,h} or {L,M,H}, the arms in the same study should have the same rob value. \n*year: year of publication',className='upload_instuspan',
+                  dbc.Col(html.Div(html.Span('*study ID: study ID or study name \n*rob: risk of bias should be encoded in your data file as either {1,2,3}, {l,m,h} or {L,M,H}, the arms in the same study should have the same rob value. \n*year: year of publication',className='upload_instuspan',
                             )), className='upload_instrucol')        
                            ], className= 'upload_row')],
                  style={'display': 'none', 'justify-content': 'center'}, id='select-overall'), 
@@ -1047,7 +1047,7 @@ def upload_data():
 
 
         html.Div(dbc.Row([dbc.Col(id='outcomes_primary'),
-                dbc.Col(html.Div(html.Span('*Select two primary outcomes for league table. Select "skip" if there is only one outcome.',className='upload_instuspan',
+                dbc.Col(html.Div(html.Span('*Select two primary outcomes for league table. Select "Skip" if there is only one outcome.',className='upload_instuspan',
                             )), className='upload_instrucol')   
                           ], className= 'upload_row')
         , style={'display':'none', 'justify-content': 'center'}, id='select-out-primary'),
@@ -1082,7 +1082,7 @@ def upload_data():
                 style={'display':'none', 'justify-content': 'center'}, id='arrow_step3'),
         html.Br(),
         html.Div(dbc.Row([dbc.Col(id='select_effect_modifier'),
-                          dbc.Col(html.Div(html.Span('*Select potential effect modifiers you want to check. If you do not want to check, please tick "skip".\n*When you upload long format dataset, the arms in the same study should have the same effect modifier value.',className='upload_instuspan',
+                          dbc.Col(html.Div(html.Span('*Select potential effect modifiers you want to check. If you do not want to check, please tick "Skip".\n*When you upload long format dataset, the arms in the same study should have the same effect modifier value.',className='upload_instuspan',
                             )), className='upload_instrucol') 
                           ], className= 'upload_row'),
                   style={'display':'none', 'justify-content': 'center'}, id='effect_modifier_select'),
