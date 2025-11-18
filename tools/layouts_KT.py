@@ -5,7 +5,7 @@ from dash import dcc
 import dash_daq as daq
 import dash_cytoscape as cyto
 from tools.functions_skt_others import get_skt_elements, skt_stylesheet
-# from tools.functions_chatbot import render_chatbot
+from tools.functions_chatbot import render_chatbot
 from tools.kt_table_standard import treat_compare_grid, modal_compare_grid, modal_fullname_grid
 from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
@@ -250,8 +250,8 @@ def skt_nonexpert():
                                                                                                                     'padding': '4px'})], 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'},),
-                                                                            # dbc.Col(render_chatbot(), 
-                                                                            #         style={'width':'50%','justify-items': 'center',"height": "500px"})
+                                                                            dbc.Col(render_chatbot(), 
+                                                                                    style={'width':'50%','justify-items': 'center',"height": "500px"})
                                                                                     ])
                                                                                     ], className='tab3_col2')], className='row_skt'),
                                                       html.Br(),
@@ -597,7 +597,7 @@ def skt_layout():
 
 ###################################################################################################################################################################
 ####################################################################################################################################################################
-OPTIONS = [{'label': '{}'.format(col), 'value': col} for col in ['age', 'male']]
+OPTIONS = [{'label': '{}'.format(col), 'value': col} for col in ['age', 'male_percentage']]
 model_transitivity = dbc.Modal(
                         [dbc.ModalHeader("Transitivity Check Boxplots"),
                          dbc.ModalBody(html.Div([html.Div([
@@ -629,7 +629,7 @@ model_transitivity = dbc.Modal(
                                                               'font-size': 'large',
                                                               'padding-right': '0px'})
                                                 ], style={'float': 'right', 'padding': '5px 5px 5px 5px',
-                                                          'display': 'inline-block', 'margin-top': '0px'}),
+                                                          'display': 'inline-block', 'margin-top': '-8px'}),
                                   ])], style={'margin-top':'4px'}),
                                   html.Div([dcc.Graph(id='boxplot_skt',
                                                       style={'height': '98%',

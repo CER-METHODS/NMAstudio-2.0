@@ -2525,3 +2525,16 @@ margin: 10px
     color:rgb(2, 2, 1);
     font-weight: bold;
 }
+
+
+
+.treat-instruct{
+    margin-left: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    color: rgb(90, 135, 196);
+    border: 1px dashed;
+}
+.treat-instruct:hover {
+    color: rgb(142, 145, 145) !important;
+}

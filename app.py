@@ -125,7 +125,7 @@ SKT = Sktpage()
 def display_page(pathname):
     if pathname == '/home':  return RealHomepage
     elif pathname == '/results':  return HOMEPAGE
-    # elif pathname == '/skt': return SKTPAGE,
+    elif pathname == '/skt': return SKTPAGE,
     # elif pathname == '/doc': return doc_layout
     # elif pathname == '/news': return news_layout
 
@@ -2293,31 +2293,39 @@ def update_cytoscape_layout(layout):
     return {'name': 'circle','fit':True }
 
 
-@app.callback(Output('trigger_info', 'children'),
-              Input('cytoscape_skt', 'selectedNodeData')
-            #    Input('cytoscape_skt', 'selectedEdgeData')
-              )
-def generate_text_info(slct_nodesdata):
-    text = dbc.Toast([
-        html.Span('Click a node to get the information of the corresponding treatment')],
-        style={'justify-items': 'center', 
-               'aligin-items': 'center',
-               'text-align':'center','font-weight': 'bold'}
-        )
-    if slct_nodesdata:
-        selected_nodes_id = [d['id'] for d in slct_nodesdata]
-        treat_select = selected_nodes_id[0]
-        treat_info = html.Span(treat_select, 
-                               style={'display': 'grid', 
-                                      'text-align': 'center',
-                                      'font-weight': 'bold'})
-        treat_describ = html.Span("ETA (Efalizumab) was a medication for moderate to severe plaque psoriasis, withdrawn in 2009 due to risks like progressive multifocal leukoencephalopathy (PML). It was contraindicated for patients with weakened immune systems or active infections and was administered via weekly injections. ETA is no longer prescribed due to these severe risks.",
-                                  style={'display': 'grid', 'margin':'2%'}
-                                  )
-        text = dbc.Toast([treat_info, treat_describ])
+# @app.callback(Output('trigger_info', 'children'),
+#               Input('cytoscape_skt', 'selectedNodeData')
+#             #    Input('cytoscape_skt', 'selectedEdgeData')
+#               )
+# def generate_text_info(slct_nodesdata):
+#     text = dbc.Toast([
+#         html.Span('Click a node to get the information of the corresponding treatment')],
+#         style={'justify-items': 'center', 
+#                'aligin-items': 'center',
+#                'text-align':'center','font-weight': 'bold'}
+#         )
+#     if slct_nodesdata:
+#         selected_nodes_id = [d['id'] for d in slct_nodesdata]
+#         treat_select = selected_nodes_id[0]
+#         treat_info = html.Span(treat_select, 
+#                                style={'display': 'grid', 
+#                                       'text-align': 'center',
+#                                       'font-weight': 'bold'})
+#         treat_describ = html.Span("ETA (Efalizumab) was a medication for moderate to severe plaque psoriasis, withdrawn in 2009 due to risks like progressive multifocal leukoencephalopathy (PML). It was contraindicated for patients with weakened immune systems or active infections and was administered via weekly injections. ETA is no longer prescribed due to these severe risks.",
+#                                   style={'display': 'grid', 'margin':'2%'}
+#                                   )
+#         text = dbc.Toast([treat_info, treat_describ])
         
 
-    return text
+#     return text
+from tools.functions_generate_text_info import __generate_text_info__
+@app.callback(
+    Output('trigger_info', 'children'),
+    Input('cytoscape_skt', 'selectedNodeData'),
+    Input('cytoscape_skt', 'selectedEdgeData')
+)
+def generate_text_info(nodedata, edgedata):
+    return __generate_text_info__(nodedata, edgedata)
 
 
 
@@ -2351,7 +2359,7 @@ def generate_text_info(slct_nodesdata):
 
 @app.callback(
     Output("skt_modal_copareinfo", "is_open"), 
-    Input("quickstart-grid", "row"),
+    Input("quickstart-grid", "cellClicked"),
     Input("close_compare", "n_clicks"),
 )
 
@@ -2932,48 +2940,48 @@ def toggle_layout(print, regular, options):
 
 #####################chatbot#######################################################
 
-# from tools.functions_chatbot import *
+from tools.functions_chatbot import *
 
-# @app.callback(
-#     Output(component_id="display-conversation", component_property="children"), 
-#     Input(component_id="store-conversation", component_property="data")
-# )
-# def update_display(chat_history):
-#     return [
-#         render_textbox(x, box="human") if i % 2 == 0 else render_textbox(x, box="AI")
-#         for i, x in enumerate(chat_history.split("<split>")[:-1])
-#     ]
+@app.callback(
+    Output(component_id="display-conversation", component_property="children"), 
+    Input(component_id="store-conversation", component_property="data")
+)
+def update_display(chat_history):
+    return [
+        render_textbox(x, box="human") if i % 2 == 0 else render_textbox(x, box="AI")
+        for i, x in enumerate(chat_history.split("<split>")[:-1])
+    ]
 
-# @app.callback(
-#     Output(component_id="user-input", component_property="value"),
-#     Input(component_id="submit", component_property="n_clicks"), 
-#     Input(component_id="user-input", component_property="n_submit"),
-# )
-# def clear_input(n_clicks, n_submit):
-#     return ""
+@app.callback(
+    Output(component_id="user-input", component_property="value"),
+    Input(component_id="submit", component_property="n_clicks"), 
+    Input(component_id="user-input", component_property="n_submit"),
+)
+def clear_input(n_clicks, n_submit):
+    return ""
 
-# @app.callback(
-#     Output(component_id="store-conversation", component_property="data"), 
-#     Output(component_id="loading-component", component_property="children"),
-#     Input(component_id="submit", component_property="n_clicks"), 
-#     Input(component_id="user-input", component_property="n_submit"),
-#     State(component_id="user-input", component_property="value"), 
-#     State(component_id="store-conversation", component_property="data"),
-# )
-# def run_chatbot(n_clicks, n_submit, user_input, chat_history):
-#     if n_clicks == 0 and n_submit is None:
-#         return "", None
+@app.callback(
+    Output(component_id="store-conversation", component_property="data"), 
+    Output(component_id="loading-component", component_property="children"),
+    Input(component_id="submit", component_property="n_clicks"), 
+    Input(component_id="user-input", component_property="n_submit"),
+    State(component_id="user-input", component_property="value"), 
+    State(component_id="store-conversation", component_property="data"),
+)
+def run_chatbot(n_clicks, n_submit, user_input, chat_history):
+    if n_clicks == 0 and n_submit is None:
+        return "", None
 
-#     if user_input is None or user_input == "":
-#         return chat_history, None
+    if user_input is None or user_input == "":
+        return chat_history, None
     
-#     chat_history += f"Human: {user_input}<split>ChatBot: "
-#     # result_ai = conversation.predict(input=user_input)
-#     # model_output = result_ai.strip()
-#     result_ai = chain.invoke({"text": f"base on {chat_history},{user_input}. Please generate less than 100 words (20-50 wloud be good) and be concise and clear. avoiding the use of bullet points, asterisks (*), or any special formatting."})
-#     model_output = result_ai.content
-#     chat_history += f"{model_output}<split>"
-#     return chat_history, None
+    chat_history += f"Human: {user_input}<split>ChatBot: "
+    # result_ai = conversation.predict(input=user_input)
+    # model_output = result_ai.strip()
+    result_ai = chain.invoke({"text": f"base on {chat_history},{user_input}. Please generate less than 100 words (20-50 wloud be good) and be concise and clear. avoiding the use of bullet points, asterisks (*), or any special formatting."})
+    model_output = result_ai.content
+    chat_history += f"{model_output}<split>"
+    return chat_history, None
 
 ################################FAQ#######################################
 
@@ -3112,7 +3120,7 @@ if __name__ == '__main__':
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run_server(debug=False, ssl_context=context)
     # host = os.environ.get("HOST", "0.0.0.0"),
-    app.run_server(debug=False,port=8080, host = host
+    app.run_server(debug=True,port=8080, host = host
 		  # ssl_context=(
         			#'/home/cloud-user/ssl/fullchain.pem',
        				#'/home/cloud-user/ssl/privkey.pem')
