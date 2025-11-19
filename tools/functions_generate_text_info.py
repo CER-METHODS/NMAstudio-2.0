@@ -30,15 +30,11 @@ def __generate_text_info__(nodedata, edgedata):
 
     # ---- NODE INFO ----
     if nodedata:
-        selected_id = nodedata[0]['id']
+        selected_id = nodedata[0]["id"]
 
-        df_n_rct = pd.read_csv('db/skt/final_all.csv')
-        n_rct = df_n_rct.loc[
-            (df_n_rct['Treatment'] == selected_id) | (df_n_rct['Reference'] == selected_id),
-            'k'
-        ]
-        n_rct_value = n_rct.iloc[0] if not n_rct.empty else np.nan
-        num_RCT = f'Randomized controlled trials: {n_rct_value}'
+        df = pd.read_csv("db/psoriasis_wide_complete1.csv")
+        n_rct = df[(df["treat1"] == selected_id) | (df["treat2"] == selected_id)]
+        num_RCT = f"Randomized controlled trials: {len(n_rct)}"
 
         fullname_df = pd.read_csv('db/skt/fullname.csv')
         fullname = fullname_df.loc[
@@ -96,8 +92,7 @@ def __generate_text_info__(nodedata, edgedata):
 
         comp_info = html.Span(
             f"Treatment: {source}, Comparator: {target}",
-            className='skt_span_info',
-            id='treat_comp'
+            style={'display': 'grid', 'text-align': 'center', 'font-weight': 'bold'}
         )
 
         numRCT_info = html.Span(

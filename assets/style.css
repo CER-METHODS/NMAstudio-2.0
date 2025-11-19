@@ -2538,3 +2538,7 @@ margin: 10px
 .treat-instruct:hover {
     color: rgb(142, 145, 145) !important;
 }
+
+#stand-sktdropdown-out{
+    width: 120px;
+}
