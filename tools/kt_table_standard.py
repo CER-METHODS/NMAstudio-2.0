@@ -218,6 +218,7 @@ treat_compare_grid = dag.AgGrid(
     dashGridOptions = {"rowHeight": 60},
     defaultColDef={
                     'filter':False,
+                    'suppressHeaderMenuButton': True,
                     "floatingFilter": False,
                     "resizable": False,
                     "wrapText": True, 

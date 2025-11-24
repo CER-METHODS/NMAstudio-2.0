@@ -376,27 +376,42 @@ dagcomponentfuncs.StudyLink = function (props) {
 
 
 
+
+
+// Keep AG Grid column menu available: add a small menu button that calls
+// the grid-provided `showColumnMenu` function with the clicked element.
 dagcomponentfuncs.HeaderWithIcon = function (props) {
     const [hover, setHover] = React.useState(false);
-    // make an ID based on the header name (safe for HTML)
     const iconId = "info-icon-" + props.column.colId;
-    
+
+    // small menu button handler — AG Grid expects the target element to anchor the menu
+    function onMenuClick(e) {
+        if (typeof props.showColumnMenu === 'function') {
+            // use the currentTarget so AG Grid anchors correctly
+            props.showColumnMenu(e.currentTarget);
+            e.stopPropagation();
+        }
+    }
+
     return React.createElement(
         "div",
         {
             style: {
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: "4px"
+                gap: "6px",
+                paddingRight: "4px",
+                width: '100%',
+                boxSizing: 'border-box'
             }
         },
         [
-            React.createElement("span", { key: "label" }, props.displayName),
+            React.createElement("span", { key: "label", style: { flex: 1, textAlign: 'center' } }, props.displayName),
             React.createElement(
                 "span",
                 {
-                    id: iconId,  // must match Popover target
+                    key: "info",
+                    id: iconId,
                     onMouseEnter: () => setHover(true),
                     onMouseLeave: () => setHover(false),
                     style: {
@@ -407,8 +422,28 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                         marginLeft: "4px"
                     },
                 },
-                "ⓘ"   // info icon
-            )
+                "ⓘ"
+            ),
+            // Menu button: only render when the grid/column allows it. AG Grid
+            // columns can set `suppressHeaderMenuButton: true` (or the grid-level
+            // default can be set). If suppression is requested, do not render
+            // the menu button here so the header stays clean.
+            (props.suppressHeaderMenuButton ? null : React.createElement(
+                "span",
+                {
+                    key: "menu",
+                    className: "ag-header-icon ag-header-cell-menu-button",
+                    title: "Column menu",
+                    onClick: onMenuClick,
+                    style: {
+                        cursor: 'pointer',
+                        padding: '0 6px',
+                        fontSize: '14px',
+                        color: '#666'
+                    }
+                },
+                "⋮"
+            ))
         ]
     );
 };

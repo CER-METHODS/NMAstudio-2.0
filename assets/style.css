@@ -2109,6 +2109,7 @@ li a {
     font-size: small;
     font-weight: bold;
     text-align: justify;
+    z-index: 1000;
 }
 
 
@@ -2541,4 +2542,10 @@ margin: 10px
 
 #stand-sktdropdown-out{
     width: 120px;
+}
+
+/* Hide AG Grid header menu buttons for the treatment-compare grid. */
+/* Ensures the column menu is not shown in the `grid_treat_compare` grid. */
+#grid_treat_compare .ag-header-cell-menu-button {
+    display: none !important;
 }
