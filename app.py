@@ -25,7 +25,7 @@ from tools.functions_ranking_plots import __ranking_plot
 from tools.functions_funnel_plot import __Tap_funnelplot
 from tools.functions_nmaforest_plot import __TapNodeData_fig, __TapNodeData_fig_bidim
 from tools.functions_pairwise_plots import __update_forest_pairwise
-from tools.functions_boxplots import __update_boxplot, __update_scatter
+from tools.functions_boxplots import __update_boxplot
 from tools.functions_project_setup import __update_options, __second_options, __effect_modifier_options,__selectbox1_options, __outcomes_type,__variable_selection,__primaryout_selection
 from tools.functions_netsplit import __netsplit
 from tools.functions_build_league_data_table import  __update_output_new,__update_output_bothout
@@ -88,7 +88,7 @@ def get_new_layout():
                         #  'background-color':'#5c7780'
                          }),
                      dcc.Store(id='consts_STORAGE',  data={'today': TODAY, 'session_ID': SESSION_ID},
-                               storage_type='memory',
+                               storage_type='local',
                                ),
                      ])
 server = app.server
@@ -197,7 +197,7 @@ def display_grid(value, children):
                Input('submit_modal_data','n_clicks_timestamp')
                ]
                )
-def result_page(click, click_back,click_trans):
+def result_page(click, click_back, click_trans):
     if ctx.triggered_id == "back_plot":
         return {'display':'grid'}, {'display':'none'}
 
@@ -706,17 +706,19 @@ def get_image(net_download_activation, export):
 
 # ## ----- Update layout with slider ------ ###
 
+
+
+
 @app.callback([Output('cytoscape', 'elements'),
                Output('modal-cytoscape', 'elements'),],
               [
                Input('net_data_STORAGE', 'data'),
-               Input('forest_data_prws_STORAGE', 'data'),
                Input('slider-year', 'value'),
                Input('_outcome_select', 'value'),
                Input('reset_project', 'n_clicks'),
             #    Input('node_size_input', 'value'),
                ])
-def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn):
+def update_layout_year_slider(net_data, slider_year, out_fun,reset_btn):
     
     YEARS_DEFAULT = np.array([1963, 1990, 1997, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010,
                               2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
@@ -737,12 +739,11 @@ def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn)
         outcome = int(outcome)
         net_data = pd.read_json(net_data[0], orient='split')
         net_datajs2 = net_data[net_data.year <= slider_year] if not reset_btn_triggered else net_data[net_data.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs2,i = outcome )
+        elements = get_network_new(df=net_datajs2, i = outcome )
 
     else:
         net_datajs = net_datajs[net_datajs.year <= slider_year] if not reset_btn_triggered else net_datajs[net_datajs.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs, i = 0)
-
+        elements = get_network_new(df=net_datajs,i = 0)
 
     return elements, elements
 
@@ -822,15 +823,13 @@ def TapEdgeData(edge):
               [Input('cytoscape', 'selectedNodeData'),
                Input('_outcome_select', 'value'),
                Input("forest_data_STORAGE", "data"),
-               Input('forest_data_prws_STORAGE', 'data'),
                Input('tapNodeData-fig', 'style'),
-               Input('add_pi', 'value'),
-               Input('add_tau2', 'value'),
+               Input('add_pi', 'value')
                ],
               State("net_data_STORAGE", "data")
               )
-def TapNodeData_fig(data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage):
-    return __TapNodeData_fig(data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage)
+def TapNodeData_fig(data, outcome_idx, forest_data, style, pi, net_storage):
+    return __TapNodeData_fig(data, outcome_idx, forest_data,style, pi, net_storage)
 
 
 ### ----- display dibim forest plot on node click ------ ###
@@ -866,13 +865,10 @@ def  update_forest_pairwise(edge, outcome_idx, forest_data_prws, style_pair, net
 
 
 @app.callback(Output('tapEdgeData-fig', 'figure'),
-              [Input('box_vs_scatter', 'value'),
-               Input('dropdown-effectmod', 'value'),
+              [Input('dropdown-effectmod', 'value'),
                Input('cytoscape', 'selectedEdgeData'),
                Input('net_data_STORAGE','data')])
-def update_boxplot(scatter, value, edges, net_data):
-    if scatter:
-        return __update_scatter(value, edges, net_data)
+def update_boxplot(value, edges, net_data):
     return __update_boxplot(value, edges, net_data)
 
 
@@ -1096,12 +1092,11 @@ def TapNodeData_info(data):
 ############ - Funnel plot  - ###############
 @app.callback(Output('funnel-fig', 'figure'),
               [Input('cytoscape', 'selectedNodeData'),
-               Input('cytoscape', 'selectedEdgeData'),
                Input("_outcome_select", "value"),
                Input("funnel_data_STORAGE", "data")]
                )
-def Tap_funnelplot(node, edge, outcome_idx, funnel_data):
-    return __Tap_funnelplot(node, edge, outcome_idx, funnel_data)
+def Tap_funnelplot(node, outcome_idx, funnel_data):
+    return __Tap_funnelplot(node, outcome_idx, funnel_data)
 
 
 
@@ -1176,7 +1171,7 @@ def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_m
                Input('close_modal_dd_eclr_input', 'n_clicks'),
                ],
               prevent_initial_call=True)
-def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
+def which_dd_edges(default_t, default_v, eclr_t, eclr_v, closing_modal):
     values = [default_v, eclr_v]
     dd_eclr = [default_t or 0, eclr_t or 0]
     which = dd_eclr.index(max(dd_eclr))
@@ -1737,7 +1732,7 @@ def disable_cinema_toggle(filename_cinema1, filename_cinema2,file_data):
               Input("demodata", "n_clicks"),
               prevent_initial_call=True)
 def func(n_clicks):
-     return send_file("db/psoriasis_long_complete.csv")
+     return send_file("Documentation/psoriasis class data.csv")
 
 @app.callback(Output("download-tuto", "data"),
               Input("full-tuto-pdf", "n_clicks"),
@@ -1750,12 +1745,6 @@ def func(n_clicks):
               prevent_initial_call=True)
 def func(n_clicks):
      return send_file("Documentation/NMAstudio_tutorial.pdf")
-
-@app.callback(Output("download-data-explain", "data"),
-              Input("data_explain", "n_clicks"),
-              prevent_initial_call=True)
-def func(n_clicks):
-     return send_file("Documentation/variables_explain.pdf")
 
 
 #################### save project/generate token/laod project ###################
@@ -1880,23 +1869,6 @@ def toggle_modal_year(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
-
-
-#SCATTER INFO
-@app.callback(
-    Output("modal-body-scatter", "is_open"),
-    [
-        Input("open-body-scatter", "n_clicks"),
-        Input("close-body-scatter", "n_clicks"),
-    ],
-    [State("modal-body-scatter", "is_open")],
-)
-def toggle_modal_scatter(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
-
-
 
 #FUNNEL INFO
 @app.callback(
@@ -2588,7 +2560,7 @@ if __name__ == '__main__':
     # app.title = 'NMAstudio' #TODO: title works fine locally, does not on Heroku
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run_server(debug=False, ssl_context=context)
-    app.run_server(port=8080, debug=True) #change port or remove if needed
+    app.run_server(port=8080, debug=False) #change port or remove if needed
     # app.run_server(host="macas.lan", port=8080, debug=True) #change port or remove if needed
 
 
