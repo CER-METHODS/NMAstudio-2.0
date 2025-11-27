@@ -85,9 +85,26 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                                 'font-size': '12px',
                                                                 'padding-right':
                                                                '0px'}),
+                                                html.P("", 
+                                                        style={'display': 'inline-block',
+                                                                'font-size': '12px',
+                                                                'padding-left': '10px'}),
+                                                daq.ToggleSwitch(id='add_tau2',
+                                                                    value=False,
+                                                                    color='', size=30,
+                                                                    labelPosition="bottom",
+                                                                    style={'display': 'inline-block',
+                                                                        'margin': 'auto',
+                                                                        'padding-left': '10px',
+                                                                        'padding-right': '10px'}),
+                                                html.P('Add tau2',
+                                                        style={'display': 'inline-block', 'margin': 'auto',
+                                                                'font-size': '12px',
+                                                                'padding-right':
+                                                               '0px'}),
                                                infoForest
                                                 ],  style={'padding': '5px 5px 5px 5px',
-                                                            'display': 'inline-block', 'margin-top': '-2px' })
+                                                            'display': 'inline-flex', 'margin-top': '-2px' })
                                                             ],className='tab_row_all'),
                                     html.Div([
                                      html.Div(dcc.Loading(
@@ -215,8 +232,8 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                 #                       'font-size': '10px','margin-left':'-7px'}),
                                                  html.P(f"Select outcome 2",className="selectbox", style={'display': 'flex', 
                                                                                                           "text-align": 'right',
-                                                                                                          'align-items': 'center',
-                                                                                                          'margin-left': '10px', 'font-size': '12px'}),
+                                                                                                          'align-items': 'center', 'font-weight': 'bold',
+                                                                                                          'margin-left': '10px', 'font-size': '15px'}),
                                                  dcc.Dropdown(id='biforest_outcome_select2', searchable=True, placeholder="...", className="box", value=1,
                                                                clearable=False, 
                                                                style={'width': '80px',  # 'height': '30px',
@@ -227,7 +244,7 @@ tab_forests = dcc.Tabs(id='', value='tab1', vertical=False, persistence=True,
                                                                       'display': 'inline-block',
                                                                       'color': 'black',
                                                                       'font-size': '10px','margin-left':'-7px'})], className='slect-out-row'),
-                                                                      style={'display': 'inline-grid', 'width': '300px'})],className='tab_row_all'),
+                                                                      style={'display': 'inline'})],className='tab_row_all'),
                                              dcc.Loading(
                                                  html.Div([
                                                      dcc.Graph(
