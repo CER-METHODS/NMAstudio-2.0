@@ -91,7 +91,7 @@ def render_textbox(text:str, box:str = "AI"):
 ##################### chat model#################################################################
 import os
 llm = ChatGroq(temperature=0.8, 
-               model_name="llama-3.1-8b-instant",
+               model="llama-3.1-8b-instant",
                api_key = os.getenv("API_KEY"),
                max_tokens=300
                )
