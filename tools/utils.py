@@ -186,11 +186,14 @@ def id_generator(chars=string.ascii_uppercase + string.digits):
 
 ## --------------------------------MISC-------------------------------------------- ##
 def set_slider_marks(y_min, y_max, years):
-    return {int(x): {'label': str(x),
-                     'style': {'color': 'black', 'font-size':'10px',
-                               'opacity':1 if x in (y_min, y_max) else 0}}
-            for x in np.unique(years).astype('int')
-            }
+    if years is not None:
+        return {int(x): {'label': str(x),
+                        'style': {'color': 'black', 'font-size':'medium',
+                                'opacity':1 if x in (y_min, y_max) else 0}}
+                for x in np.unique(years).astype('int')
+                }
+    return None
+
 
 
 

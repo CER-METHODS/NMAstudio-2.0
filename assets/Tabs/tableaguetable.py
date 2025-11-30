@@ -69,7 +69,7 @@ tab_league = html.Div([
         dbc.Row([html.Div([
                              html.Button('Export table', id='league-export', n_clicks=0, className="btn-export",
                                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
-                                                           'fontSize': 11, 'text-align': 'left',
+                                                           'fontSize': 'medium', 'text-align': 'left',
                                                           'font-weight': '900', 'font-family': 'sans-serif',
                                                           'display': 'inline-block', 'vertical-align': 'top'}),
                              dcc.Download(id="download_leaguetable")
@@ -129,7 +129,7 @@ tab_league = html.Div([
 
         html.Div([html.P("Risk of Bias", id='cinemaswitchlabel1',
                               style={'display': 'inline-block',
-                                     'font-size': '12px',
+                                     'font-size': 'large',
                                      'padding-left': '10px'}),
                        daq.ToggleSwitch(id='rob_vs_cinema',
                                         value=False,
@@ -141,7 +141,7 @@ tab_league = html.Div([
                                                'padding-right': '10px'}),
                        html.P('CINeMA rating', id='cinemaswitchlabel2',
                               style={'display': 'inline-block', 'margin': 'auto',
-                                     'font-size': '12px',
+                                     'font-size': 'large',
                                      'padding-right': '0px'})
                        ],  style={'float': 'right', 'padding': '5px 5px 5px 5px',
                                   'display': 'inline-block', 'margin-top': '-2px' }),
@@ -178,7 +178,7 @@ tab_league_both = html.Div([
         dbc.Row([html.Div([
                              html.Button('Export table', id='league-export-both', n_clicks=0, className="btn-export",
                                                    style={'margin-left': '5px', 'padding': '4px 4px 4px 4px',
-                                                           'fontSize': 11, 'text-align': 'left',
+                                                           'fontSize': 'medium', 'text-align': 'left',
                                                           'font-weight': '900', 'font-family': 'sans-serif',
                                                           'display': 'inline-block', 'vertical-align': 'top'}),
                              dcc.Download(id="download_leaguetable_both")
@@ -208,7 +208,7 @@ tab_league_both = html.Div([
             ]),
         html.Div([html.P("Risk of Bias", id='cinemaswitchlabel1-both',
                               style={'display': 'inline-block',
-                                     'font-size': '12px',
+                                     'font-size': 'large',
                                      'padding-left': '10px'}),
                        daq.ToggleSwitch(id='rob_vs_cinema-both',
                                         value=False,
@@ -220,7 +220,7 @@ tab_league_both = html.Div([
                                                'padding-right': '10px'}),
                        html.P('CINeMA rating', id='cinemaswitchlabel2-both',
                               style={'display': 'inline-block', 'margin': 'auto',
-                                     'font-size': '12px',
+                                     'font-size': 'large',
                                      'padding-right': '0px'})
                        ],  style={'float': 'right', 'padding': '5px 5px 5px 5px',
                                   'display': 'inline-block', 'margin-top': '-2px' }),

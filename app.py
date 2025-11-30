@@ -12,17 +12,19 @@ import dash
 import time
 import itertools
 import json
+import dash_core_components as dcc
 from dash import clientside_callback
 from dash.dependencies import Input, Output, State, ALL
 from dash_extensions.snippets import send_file
 from tools.utils import *
 from tools.PATHS import SESSION_PICKLE, get_session_pickle_path, TODAY, SESSION_TYPE, get_new_session_id
 from tools.layouts import *
-from tools.skt_layout import *
+from tools.layouts_KT import *
 from tools.functions_modal_SUBMIT_data import __modal_SUBMIT_button_new, __data_modal, __data_trans
 from tools.functions_NMA_runs import __modal_submit_checks_DATACHECKS,__modal_submit_checks_NMA_new,__modal_submit_checks_PAIRWISE_new, __modal_submit_checks_LT_new, __modal_submit_checks_FUNNEL_new
+# from tools.functions_handle_nma_processing import __handle_nma_processing__
 from tools.functions_ranking_plots import __ranking_plot
-from tools.functions_funnel_plot import __Tap_funnelplot
+from tools.functions_funnel_plot import __Tap_funnelplot, __Tap_funnelplot_normal
 from tools.functions_nmaforest_plot import __TapNodeData_fig, __TapNodeData_fig_bidim
 from tools.functions_pairwise_plots import __update_forest_pairwise
 from tools.functions_boxplots import __update_boxplot, __update_scatter
@@ -32,7 +34,7 @@ from tools.functions_build_league_data_table import  __update_output_new,__updat
 from tools.functions_generate_stylesheet import __generate_stylesheet
 from tools.functions_export import __generate_xlsx_netsplit, __generate_xlsx_league, __generate_csv_consistency
 from tools.functions_show_forest_plot import __show_forest_plot
-from tools.functions_skt_boxplot import __show_boxplot
+from tools.functions_skt_boxplot import __show_boxplot, __show_scatter
 from tools.functions_skt_others import __generate_skt_stylesheet, __generate_skt_stylesheet2
 from dash import ctx, no_update
 # --------------------------------------------------------------------------------------------------------------------#
@@ -83,6 +85,12 @@ app.index_string = '''
 def get_new_layout():
     SESSION_ID = get_new_session_id()
     return html.Div([dcc.Location(id='url', refresh=False),
+                     dcc.Interval(
+                            id='nma-task-poller',
+                            interval=2000,  # milliseconds, e.g., 2 seconds
+                            n_intervals=0,
+                            disabled=False  # you can start with polling disabled if needed
+                        ),
                      html.Div(id='page-content', style={
                          'background-color':'#fff'
                         #  'background-color':'#5c7780'
@@ -90,6 +98,7 @@ def get_new_layout():
                      dcc.Store(id='consts_STORAGE',  data={'today': TODAY, 'session_ID': SESSION_ID},
                                storage_type='memory',
                                ),
+                    # dcc.Store(id='nma-task-store', storage_type='memory')
                      ])
 server = app.server
 app.layout = get_new_layout()
@@ -105,7 +114,7 @@ HOMEPAGE = Homepage()
 RealHomepage = realHomepage()
 SKTPAGE = Sktpage()
 
-# SKT = Sktpage()
+SKT = Sktpage()
 
 
 
@@ -116,7 +125,7 @@ SKTPAGE = Sktpage()
 def display_page(pathname):
     if pathname == '/home':  return RealHomepage
     elif pathname == '/results':  return HOMEPAGE
-    # elif pathname == '/skt': return SKTPAGE,
+    elif pathname == '/skt': return SKTPAGE,
     # elif pathname == '/doc': return doc_layout
     # elif pathname == '/news': return news_layout
 
@@ -193,13 +202,13 @@ def display_grid(value, children):
 @app.callback([Output('result_page', 'style'),
               Output('upload_page', 'style'),],
               [Input('test_upload', 'n_clicks_timestamp'),
-               Input('back_plot', 'n_clicks_timestamp'),
+            #    Input('back_plot', 'n_clicks_timestamp'),
                Input('submit_modal_data','n_clicks_timestamp')
                ]
                )
-def result_page(click, click_back,click_trans):
-    if ctx.triggered_id == "back_plot":
-        return {'display':'grid'}, {'display':'none'}
+def result_page(click, click_trans):
+    # if ctx.triggered_id == "back_plot":
+    #     return {'display':'grid'}, {'display':'none'}
 
     if ctx.triggered_id == "test_upload":
         return {'display':'none'}, {'display':'grid'}
@@ -385,14 +394,14 @@ def update_options(search_value_format, contents, filename):
               )
 def modal_ENABLE_UPLOAD_button(format,dataselectors):
     if format == 'long':
-        idx = 2
-    else: idx = 3
+        idx = {2, 3}
+    else: idx = {3,4}
     
     show_style = {'display': 'grid', 'justify-content': 'center'}
-    hide_style = {'display': 'none', 'justify-content': 'center'}
+    hide_style = {'display': 'none', 'justify-content':  'center'}
 
-    filtered_values = [val for i,val in enumerate(dataselectors) if i != idx]
-    
+    filtered_values = [val for i,val in enumerate(dataselectors) if i not in idx]
+
     if len(filtered_values):
         if all(filtered_values):
             return show_style, show_style
@@ -548,7 +557,7 @@ def is_data_file_uploaded(protocol_value, click, format, variables, no_modifier)
         messages.append('The protocol link is not provided.')
 
     if no_modifier:
-        messages.append('The potential modifiers are not provided. The boxplots cannot be generated for transitivity check.')
+        messages.append('The potential modifiers are not provided. Boxplots cannot be generated for transitivity check.')
 
     if messages:
         return html.Span(f"Warning!\n" + "\n".join(messages), style=style)
@@ -732,17 +741,22 @@ def update_layout_year_slider(net_data, pw_data, slider_year, out_fun,reset_btn)
     except:
         net_datajs = pd.read_json(net_data[0], orient='split', encoding = 'utf-8')
     
-    outcome = out_fun 
+    outcome = out_fun
     if outcome:
         outcome = int(outcome)
         net_data = pd.read_json(net_data[0], orient='split')
-        net_datajs2 = net_data[net_data.year <= slider_year] if not reset_btn_triggered else net_data[net_data.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs2,i = outcome )
-
+        df_target = net_data.copy()
     else:
-        net_datajs = net_datajs[net_datajs.year <= slider_year] if not reset_btn_triggered else net_datajs[net_datajs.year <= years_dft_max]
-        elements = get_network_new(df=net_datajs, i = 0)
+        df_target = net_datajs.copy()
+        outcome = 0
 
+    if 'year' in df_target.columns:
+        if not reset_btn_triggered:
+            df_target = df_target[df_target['year'] <= slider_year]
+        else:
+            df_target = df_target[df_target['year'] <= years_dft_max]
+
+    elements = get_network_new(df=df_target, i=outcome)
 
     return elements, elements
 
@@ -798,7 +812,7 @@ def TapEdgeData(edge):
         studies_str = f"{n_studies}" + (' studies' if n_studies > 1 else ' study')
         return f"{edge[0]['source'].upper()} vs {edge[0]['target'].upper()}: {studies_str}"
     else:
-        return "Click on an edge to get information."
+        return "Click an edge to get information."
 
 
 ### ----- display forest plot on node click ------ ###
@@ -1096,13 +1110,21 @@ def TapNodeData_info(data):
 ############ - Funnel plot  - ###############
 @app.callback(Output('funnel-fig', 'figure'),
               [Input('cytoscape', 'selectedNodeData'),
-               Input('cytoscape', 'selectedEdgeData'),
                Input("_outcome_select", "value"),
                Input("funnel_data_STORAGE", "data")]
                )
-def Tap_funnelplot(node, edge, outcome_idx, funnel_data):
-    return __Tap_funnelplot(node, edge, outcome_idx, funnel_data)
+def Tap_funnelplot(node, outcome_idx, funnel_data):
+    return __Tap_funnelplot(node, outcome_idx, funnel_data)
 
+@app.callback(Output('funnel-fig-normal', 'figure'),
+              [Input('cytoscape', 'selectedEdgeData'),
+               Input("_outcome_select", "value"),
+               Input("net_data_STORAGE", "data"),
+               Input("forest_data_prws_STORAGE", "data")
+               ]
+               )
+def Tap_funnelplot(edge, outcome_idx, net_data, pw_data):
+    return __Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data)
 
 
 ############ - Ranking plots  - ###############
@@ -1460,6 +1482,32 @@ def modal_submit_checks_NMA_new(modal_data_checks_is_open,num_outcome, TEMP_net_
 
 
 
+# @app.callback(
+#     [Output('R-alert-nma', 'is_open'),
+#      Output('Rconsole-error-nma', 'children'),
+#      Output('para-anls-data', 'children'),
+#      Output('para-anls-data', 'data'),
+#      Output('nma-task-store', 'data'),
+#      Output("TEMP_forest_data_STORAGE", "data"),
+#      Output('nma-task-poller', 'disabled')],
+#     [Input("modal_data_checks", "is_open"),
+#      Input('nma-task-poller', 'n_intervals')],
+#     [State('number-outcomes', "value"),
+#      State("TEMP_net_data_STORAGE", "data"),
+#      State("TEMP_forest_data_STORAGE", "data"),
+#      State('nma-task-store', 'data')],
+#     prevent_initial_call=True
+# )
+# def handle_nma_processing(modal_open, n_intervals, num_outcome, net_data_storage, 
+#                          forest_data_storage, task_store_data):
+#     return __handle_nma_processing__(modal_open, n_intervals, num_outcome, net_data_storage, 
+#                          forest_data_storage, task_store_data)
+
+
+
+
+
+
 @app.callback([Output('R-alert-pair', 'is_open'),
                Output('Rconsole-error-pw', 'children'),
                Output("para-pairwise-data", "children"),
@@ -1674,9 +1722,9 @@ def generate_xlsx_league(n_clicks, leaguedata):
                Output("cinemaswitchlabel2", "style")],
               [Input("rob_vs_cinema", "value")])
 def color_leaguetable_toggle(toggle_value):
-    style1 = {'color': '#808484' if toggle_value else '#5a87c4', 'font-size': '12px',
+    style1 = {'color': '#808484' if toggle_value else '#5a87c4', 'font-size': 'medium',
               'display': 'inline-block', 'margin': 'auto', 'padding-left': '10px'}
-    style2 = {'color': '#5a87c4' if toggle_value else '#808484', 'font-size': '12px',
+    style2 = {'color': '#5a87c4' if toggle_value else '#808484', 'font-size': 'medium',
               'display': 'inline-block', 'margin': 'auto', 'padding-right': '0px', }
     return style1, style2
 
@@ -1757,7 +1805,11 @@ def func(n_clicks):
 def func(n_clicks):
      return send_file("Documentation/variables_explain.pdf")
 
-
+@app.callback(Output("download-statistic", "data"),
+              Input("statsettings", "n_clicks"),
+              prevent_initial_call=True)
+def func(n_clicks):
+     return send_file("Documentation/statistical_settings.pdf")
 #################### save project/generate token/laod project ###################
 
 #modal Save/Load Project
@@ -1906,6 +1958,20 @@ def toggle_modal_scatter(n1, n2, is_open):
         Input("close-body-funnel", "n_clicks"),
     ],
     [State("modal-body-funnel", "is_open")],
+)
+def toggle_modal_funnel(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("modal-body-funnel2", "is_open"),
+    [
+        Input("open-body-funnel2", "n_clicks"),
+        Input("close-body-funnel2", "n_clicks"),
+    ],
+    [State("modal-body-funnel2", "is_open")],
 )
 def toggle_modal_funnel(n1, n2, is_open):
     if n1 or n2:
@@ -2157,34 +2223,135 @@ def display_forestplot(cell, _):
 
 
 @app.callback(Output('boxplot_skt', 'figure'),
+              Input('box_kt_scatter', 'value'),
               Input('ddskt-trans', 'value'),)
-def update_boxplot(value):
+def update_boxplot(scatter, value):
+    if scatter:
+        return __show_scatter(value)
     return __show_boxplot(value)
-
-
-@app.callback([Output('cytoscape_skt', 'stylesheet'),
-               Output('trigger_info', 'children')],
-              [Input('cytoscape_skt', 'tapNode'),
-               Input('cytoscape_skt', 'selectedNodeData'),
-               Input('cytoscape_skt', 'elements'),
-               Input('cytoscape_skt', 'selectedEdgeData')
-               ]
-              )
-def generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata ):
-    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata)
-
-
 
 
 @app.callback(Output('cytoscape_skt2', 'stylesheet'),
               [Input('cytoscape_skt2', 'tapNode'),
                Input('cytoscape_skt2', 'selectedNodeData'),
                Input('cytoscape_skt2', 'elements'),
-               Input('cytoscape_skt2', 'selectedEdgeData')
+               Input('cytoscape_skt2', 'selectedEdgeData'),
+               Input('kt_nclr', 'children'),
+               Input('kt_eclr', 'children'),
+               Input('node_color_input_kt', 'value'),
+               Input('edge_color_input_kt', 'value'),
+               Input('kt_nds', 'children'),
+               Input('kt_egs', 'children'),
                ]
               )
-def generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata ):
-    return __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata)
+def generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs):
+    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs)
+
+
+@app.callback(Output('cytoscape_skt2', 'layout'),
+              [Input('kt-graph-layout-dropdown', 'children'),],
+              prevent_initial_call=False)
+def update_cytoscape_layout(layout):
+    ctx = dash.callback_context
+    if layout:
+       return {'name': layout.lower(),'fit':True }
+    
+    return {'name': 'circle','fit':True }
+
+
+
+
+@app.callback(Output('cytoscape_skt', 'stylesheet'),
+              [Input('cytoscape_skt', 'tapNode'),
+               Input('cytoscape_skt', 'selectedNodeData'),
+               Input('cytoscape_skt', 'elements'),
+               Input('cytoscape_skt', 'selectedEdgeData'),
+               Input('kt2_nclr', 'children'),
+               Input('kt2_eclr', 'children'),
+               Input('node_color_input_kt2', 'value'),
+               Input('edge_color_input_kt2', 'value'),
+               Input('kt2_nds', 'children'),
+               Input('kt2_egs', 'children'),
+               ]
+              )
+def generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs):
+    return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
+                        dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs)
+
+
+@app.callback(Output('cytoscape_skt', 'layout'),
+              [Input('kt2-graph-layout-dropdown', 'children'),],
+              prevent_initial_call=False)
+def update_cytoscape_layout(layout):
+    ctx = dash.callback_context
+    if layout:
+       return {'name': layout.lower(),'fit':True }
+    
+    return {'name': 'circle','fit':True }
+
+
+# @app.callback(Output('trigger_info', 'children'),
+#               Input('cytoscape_skt', 'selectedNodeData')
+#             #    Input('cytoscape_skt', 'selectedEdgeData')
+#               )
+# def generate_text_info(slct_nodesdata):
+#     text = dbc.Toast([
+#         html.Span('Click a node to get the information of the corresponding treatment')],
+#         style={'justify-items': 'center', 
+#                'aligin-items': 'center',
+#                'text-align':'center','font-weight': 'bold'}
+#         )
+#     if slct_nodesdata:
+#         selected_nodes_id = [d['id'] for d in slct_nodesdata]
+#         treat_select = selected_nodes_id[0]
+#         treat_info = html.Span(treat_select, 
+#                                style={'display': 'grid', 
+#                                       'text-align': 'center',
+#                                       'font-weight': 'bold'})
+#         treat_describ = html.Span("ETA (Efalizumab) was a medication for moderate to severe plaque psoriasis, withdrawn in 2009 due to risks like progressive multifocal leukoencephalopathy (PML). It was contraindicated for patients with weakened immune systems or active infections and was administered via weekly injections. ETA is no longer prescribed due to these severe risks.",
+#                                   style={'display': 'grid', 'margin':'2%'}
+#                                   )
+#         text = dbc.Toast([treat_info, treat_describ])
+        
+
+#     return text
+from tools.functions_generate_text_info import __generate_text_info__
+@app.callback(
+    Output('trigger_info', 'children'),
+    Input('cytoscape_skt', 'selectedNodeData'),
+    Input('cytoscape_skt', 'selectedEdgeData')
+)
+def generate_text_info(nodedata, edgedata):
+    return __generate_text_info__(nodedata, edgedata)
+
+
+
+# @app.callback([Output('cytoscape_skt', 'stylesheet'),
+#             #    Output('trigger_info', 'children')
+#                ],
+#               [Input('cytoscape_skt', 'tapNode'),
+#                Input('cytoscape_skt', 'selectedNodeData'),
+#                Input('cytoscape_skt', 'elements'),
+#                Input('cytoscape_skt', 'selectedEdgeData')
+#                ]
+#               )
+# def generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata ):
+#     return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata)
+
+
+
+# @app.callback(Output('cytoscape_skt2', 'stylesheet'),
+#               [Input('cytoscape_skt2', 'tapNode'),
+#                Input('cytoscape_skt2', 'selectedNodeData'),
+#                Input('cytoscape_skt2', 'elements'),
+#                Input('cytoscape_skt2', 'selectedEdgeData')
+#                ]
+#               )
+# def generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata ):
+#     return __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata)
 
 
 
@@ -2431,26 +2598,28 @@ def image_color_change(style_routine, style_count,style_side,style_visit,style_c
 
 #     return rawdat.to_dict("records")
 
-# from tools.skt_table import df_origin
-
-# @app.callback(Output("grid_treat_compare", "rowData"),
-#               [Input('cytoscape_skt2', 'selectedNodeData'),
-#               Input('cytoscape_skt2', 'selectedEdgeData')
-#                ],
-#             #   State("grid_treat_compare", "rowData")
-#               )
-# def filter_data(node_data, edge_data):
-#     rowdata = df_origin
-
-#     if node_data or edge_data:
-#         slctd_nods = {n['id'] for n in node_data} if node_data else set()
-#         slctd_edgs = [e['source'] + e['target'] for e in edge_data] if edge_data else []
-#         rowdata = rowdata[(rowdata.Treatment.isin(slctd_nods) & rowdata.Reference.isin(slctd_nods))
-#                     | ((rowdata.Treatment + rowdata.Reference).isin(slctd_edgs) | (rowdata.Reference + rowdata.Treatment).isin(slctd_edgs))]
-
-#     return rowdata.to_dict("records")
-
 #########unitil here#############
+
+from tools.kt_table_standard import df_origin
+
+@app.callback(Output("grid_treat_compare", "rowData"),
+              [Input('cytoscape_skt2', 'selectedNodeData'),
+              Input('cytoscape_skt2', 'selectedEdgeData')
+               ],
+            #   State("grid_treat_compare", "rowData")
+              )
+def filter_data(node_data, edge_data):
+    rowdata = df_origin
+
+    if node_data or edge_data:
+        slctd_nods = {n['id'] for n in node_data} if node_data else set()
+        slctd_edgs = [e['source'] + e['target'] for e in edge_data] if edge_data else []
+        rowdata = rowdata[(rowdata.Treatment.isin(slctd_nods) & rowdata.Reference.isin(slctd_nods))
+                    | ((rowdata.Treatment + rowdata.Reference).isin(slctd_edgs) | (rowdata.Reference + rowdata.Treatment).isin(slctd_edgs))]
+
+    return rowdata.to_dict("records")
+
+
 
 @app.callback(
     Output("skt_modal_compare_simple", "is_open"), 
@@ -2467,6 +2636,249 @@ def display_sktinfo(cell, _):
         if ('colId' in cell and (cell['colId'] == "RR"or cell['colId'] == "RR_out2") and cell['value']is not None):
             return True
     return no_update
+
+
+@app.callback(
+    Output("skt_modal_fullname_simple", "is_open"), 
+    Input("fullname_button", "n_clicks"),
+    Input("close_fullname_simple", "n_clicks"),
+)
+
+def display_forestplot(cell, _):
+    if ctx.triggered_id == "close_fullname_simple":
+        return False
+    if ctx.triggered_id == "fullname_button":
+        return True
+    return no_update
+
+
+@app.callback(
+    Output("modal_ranking", "is_open"), 
+    Input("ranking_button", "n_clicks"),
+    Input("close_rank", "n_clicks"),
+)
+
+def display_forestplot(cell, _):
+    if ctx.triggered_id == "close_rank":
+        return False
+    if ctx.triggered_id == "ranking_button":
+        return True
+    return no_update
+
+
+
+
+###############################################################################
+################### Bootstrap Dropdowns callbacks for KT ######################
+###############################################################################
+
+# @app.callback([Output('kt_nds', 'children')],
+#               [Input('kt_nds_default', 'n_clicks_timestamp'), Input('kt_nds_default', 'children'),
+#                Input('kt_nds_tot_rnd', 'n_clicks_timestamp'), Input('kt_nds_tot_rnd', 'children')],
+#               prevent_initial_call=True)
+# def which_dd_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+#     values = [default_v, tot_rnd_v]
+#     dd_nds = [default_t or 0, tot_rnd_t or 0]
+#     which = dd_nds.index(max(dd_nds))
+#     return [values[which]]
+
+
+
+# @app.callback([Output('kt_egs', 'children')],
+#               [Input('kt_egs_default', 'n_clicks_timestamp'), Input('kt_egs_default', 'children'),
+#                Input('kt_egs_tot_rnd', 'n_clicks_timestamp'), Input('kt_egs_tot_rnd', 'children')],
+#               prevent_initial_call=True)
+# def which_dd_egs(default_t, default_v, nstud_t, nstud_v):
+#     values = [default_v, nstud_v]
+#     dd_egs = [default_t or 0, nstud_t or 0]
+#     which = dd_egs.index(max(dd_egs))
+#     return [values[which]]
+
+
+# @app.callback([Output('kt_nclr', 'children'), Output('close_modal_kt_nclr_input', 'n_clicks'),
+#                Output("open_modal_kt_nclr_input", "n_clicks")],
+#               [Input('kt_nclr_default', 'n_clicks_timestamp'), Input('kt_nclr_default', 'children'),
+#                Input('kt_nclr_rob', 'n_clicks_timestamp'), Input('kt_nclr_rob', 'children'),
+#                Input('kt_nclr_class', 'n_clicks_timestamp'), Input('kt_nclr_class', 'children'),
+#                Input('close_modal_kt_nclr_input', 'n_clicks'),
+#                ],
+#               prevent_initial_call=True)
+# def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+#     values = [default_v, rob_v, class_v]
+#     dd_nclr = [default_t or 0, rob_t or 0, class_t or 0]
+#     which = dd_nclr.index(max(dd_nclr))
+#     return values[which] if not closing_modal else None, None, None
+
+
+# @app.callback([Output('kt_eclr', 'children'), Output('close_modal_kt_eclr_input', 'n_clicks'),
+#                Output("open_modal_kt_eclr_input", "n_clicks")],
+#               [Input('kt_edge_default', 'n_clicks_timestamp'), Input('kt_edge_default', 'children'),
+#                Input('kt_edge_label', 'n_clicks_timestamp'), Input('kt_edge_label', 'children'),
+#                Input('close_modal_kt_eclr_input', 'n_clicks'),
+#                ],
+#               prevent_initial_call=True)
+# def which_dd_edges(default_t, default_v, eclr_t, eclr_v,closing_modal):
+#     values = [default_v, eclr_v]
+#     dd_eclr = [default_t or 0, eclr_t or 0]
+#     which = dd_eclr.index(max(dd_eclr))
+#     return values[which] if not closing_modal else None, None, None
+
+
+# flatten = lambda t: [item for sublist in t for item in sublist]
+
+# @app.callback([Output('kt-graph-layout-dropdown', 'children')],
+#               flatten([[Input(f'kt_ngl_{item.lower()}', 'n_clicks_timestamp'),
+#                         Input(f'kt_ngl_{item.lower()}', 'children')]
+#                        for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+#                                     'Dagre', 'Klay']
+#                        ]), prevent_initial_call=True)
+# def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+#                  grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+#                  cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+#     values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+#     times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+#     dd_ngl =  [t or 0 for t in times]
+#     which  =  dd_ngl.index(max(dd_ngl))
+#     return [values[which]]
+
+
+# --- Helper to pick the latest clicked button ---
+def pick_latest(values, timestamps):
+    timestamps = [t or 0 for t in timestamps]
+    return values[timestamps.index(max(timestamps))]
+
+
+# ---------------------- MAIN CALLBACKS ----------------------
+
+# 1. kt_nds and kt2_nds
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        Output(f"{prefix}_nds", "children"),
+        [Input(f"{prefix}_nds_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_nds_default", "children"),
+         Input(f"{prefix}_nds_tot_rnd", "n_clicks_timestamp"),
+         Input(f"{prefix}_nds_tot_rnd", "children")],
+        prevent_initial_call=True
+    )
+    def update_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+        return pick_latest([default_v, tot_rnd_v], [default_t, tot_rnd_t])
+
+
+# 2. kt_egs and kt2_egs
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        Output(f"{prefix}_egs", "children"),
+        [Input(f"{prefix}_egs_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_egs_default", "children"),
+         Input(f"{prefix}_egs_tot_rnd", "n_clicks_timestamp"),
+         Input(f"{prefix}_egs_tot_rnd", "children")],
+        prevent_initial_call=True
+    )
+    def update_egs(default_t, default_v, tot_rnd_t, tot_rnd_v):
+        return pick_latest([default_v, tot_rnd_v], [default_t, tot_rnd_t])
+
+
+# 3. kt_nclr and kt2_nclr
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        [Output(f"{prefix}_nclr", "children"),
+         Output(f"close_modal_{prefix}_nclr_input", "n_clicks"),
+         Output(f"open_modal_{prefix}_nclr_input", "n_clicks")],
+        [Input(f"{prefix}_nclr_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_default", "children"),
+         Input(f"{prefix}_nclr_rob", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_rob", "children"),
+         Input(f"{prefix}_nclr_class", "n_clicks_timestamp"),
+         Input(f"{prefix}_nclr_class", "children"),
+         Input(f"close_modal_{prefix}_nclr_input", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def update_nclr(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+        if closing_modal:
+            return None, None, None
+        return pick_latest([default_v, rob_v, class_v], [default_t, rob_t, class_t]), None, None
+
+
+# 4. kt_eclr and kt2_eclr
+for prefix in ["kt", "kt2"]:
+    @app.callback(
+        [Output(f"{prefix}_eclr", "children"),
+         Output(f"close_modal_{prefix}_eclr_input", "n_clicks"),
+         Output(f"open_modal_{prefix}_eclr_input", "n_clicks")],
+        [Input(f"{prefix}_edge_default", "n_clicks_timestamp"),
+         Input(f"{prefix}_edge_default", "children"),
+         Input(f"{prefix}_edge_label", "n_clicks_timestamp"),
+         Input(f"{prefix}_edge_label", "children"),
+         Input(f"close_modal_{prefix}_eclr_input", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def update_eclr(default_t, default_v, label_t, label_v, closing_modal):
+        if closing_modal:
+            return None, None, None
+        return pick_latest([default_v, label_v], [default_t, label_t]), None, None
+
+
+flatten = lambda t: [item for sublist in t for item in sublist]
+
+@app.callback([Output('kt-graph-layout-dropdown', 'children')],
+              flatten([[Input(f'kt_ngl_{item.lower()}', 'n_clicks_timestamp'),
+                        Input(f'kt_ngl_{item.lower()}', 'children')]
+                       for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+                                    'Dagre', 'Klay']
+                       ]), prevent_initial_call=True)
+def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+                 grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+                 cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+    values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+    times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+    dd_ngl =  [t or 0 for t in times]
+    which  =  dd_ngl.index(max(dd_ngl))
+    return [values[which]]
+
+
+@app.callback([Output('kt2-graph-layout-dropdown', 'children')],
+              flatten([[Input(f'kt2_ngl_{item.lower()}', 'n_clicks_timestamp'),
+                        Input(f'kt2_ngl_{item.lower()}', 'children')]
+                       for item in ['Circle', 'Breadthfirst', 'Grid', 'Spread', 'Cose', 'Cola',
+                                    'Dagre', 'Klay']
+                       ]), prevent_initial_call=True)
+def which_dd_nds(circle_t, circle_v, breadthfirst_t, breadthfirst_v,
+                 grid_t, grid_v, spread_t, spread_v, cose_t, cose_v,
+                 cola_t, cola_v, dagre_t, dagre_v, klay_t, klay_v):
+    values =  [circle_v, breadthfirst_v, grid_v, spread_v, cose_v, cola_v, dagre_v, klay_v]
+    times  =  [circle_t, breadthfirst_t, grid_t, spread_t, cose_t, cola_t, dagre_t, klay_t]
+    dd_ngl =  [t or 0 for t in times]
+    which  =  dd_ngl.index(max(dd_ngl))
+    return [values[which]]
+
+
+#################################################################
+############### Bootstrap MODALS callbacks for KT ###############
+#################################################################
+
+# ----- node color modal -----#
+for prefix in ["kt", "kt2"]:
+    @app.callback(Output(f"modal_{prefix}", "is_open"),
+                [Input(f"open_modal_{prefix}_nclr_input", "n_clicks"),
+                Input(f"close_modal_{prefix}_nclr_input", "n_clicks")],
+                )
+    def toggle_modal(open_t, close):
+        if open_t: return True
+        if close: return False
+        return False
+
+# ----- edge color modal -----#
+for prefix in ["kt", "kt2"]:
+    @app.callback(Output(f"modal_edge_{prefix}", "is_open"),
+                [Input(f"open_modal_{prefix}_eclr_input", "n_clicks"),
+                Input(f"close_modal_{prefix}_eclr_input", "n_clicks")],
+                )
+    def toggle_modal_edge(open_t, close):
+        if open_t: return True
+        if close: return False
+        return False
+
+######################################################################
 
 
 
@@ -2571,9 +2983,126 @@ def toggle_layout(print, regular, options):
 #     chat_history += f"{model_output}<split>"
 #     return chat_history, None
 
+################################FAQ#######################################
+
+@app.callback(
+    Output("faq_toast", "is_open"),
+    Input("faq_button", "n_clicks"),
+    Input("close_faq", "n_clicks")
+)
+def open_toast(cell, _):
+    if ctx.triggered_id == "close_faq":
+        return False
+    if ctx.triggered_id == "faq_button":
+        return True
+    return no_update
+
+for ans in range(1, 3):
+    @app.callback(
+        Output(f"faq_ans{ans}", "is_open"),
+        [Input(f"faq_ques{ans}", "n_clicks")],
+        [State(f"faq_ans{ans}", "is_open")],
+    )
+    def toggle_collapse(n, is_open):
+        if n:
+            return not is_open
+        return is_open
 
 
 
+
+# Unified clientside callback to manage AG Grid events
+app.clientside_callback(
+    """
+    function(gridId) {
+        dash_ag_grid.getApiAsync(gridId).then((gridApi) => {
+            // Make the API available globally for debugging
+            window.gridApi = gridApi;
+
+            // Handle row group expansion
+            gridApi.addEventListener('rowGroupOpened', (event) => {
+                if (event.node && event.expanded && event.node.detailNode) {
+                    // Trigger Dash clientside data update
+                    if (window.dash_clientside?.set_props) {
+                        window.dash_clientside.set_props("detail-status", { data: "test" });
+                    }
+                }
+            });
+        }).catch((error) => {
+            console.error("Error initializing grid API:", error);
+        });
+
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("quickstart-grid", "selectedRows"),
+    Input("quickstart-grid", "id")
+)
+
+
+import time
+
+@app.callback(
+    Output("popover-container", "children"),
+    Input("detail-status", "data"),
+    prevent_initial_call=True
+)
+def show_popover(data):
+    if data:
+        children = [
+            dbc.Popover(
+            "Click a cell to see details of the Treatment column.",
+            target="info-icon-Treatment",
+            trigger="click",
+            placement="top",
+            className="popover-grid",
+            id=f"popover-advance-Treatment-{int(time.time()*1000)}"
+        ),
+            dbc.Popover(
+                        "Specify a value for the reference treatment in \'Risk per 1000\'.",
+                        target="info-icon-ab_difference",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id=f"popover-advance-ab_difference-{int(time.time()*1000)}",
+                        className= 'popover-grid'
+                    ),
+            dbc.Popover(
+                    "By default, the forest plots include mixed effect, direct effect and indirect effect. There are several options in the 'Options' box for you to customize the forestplots.",
+                    target="info-icon-Graph",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Graph-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "Click a cell with values to open the pairwise forest plot",
+                    target="info-icon-direct",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-direct-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "Hover the mouse on each cell to see the details in each field",
+                    target="info-icon-Certainty",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Certainty-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                ),
+            dbc.Popover(
+                    "The whole column is editable for adding comments",
+                    target="info-icon-Comments",  # this must match the icon's ID
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-advance-Comments-{int(time.time()*1000)}",
+                    className= 'popover-grid'
+                )
+
+        ]
+        # Still uses the same target, so may not work if multiple icons exist
+        return children
+    return None
 
 
 ####################################################################
@@ -2582,15 +3111,21 @@ def toggle_layout(print, regular, options):
 ####################################################################
 ####################################################################
 
+host = os.environ.get("HOST", "0.0.0.0")
+port = int(os.environ.get("PORT", 8080))
 
 if __name__ == '__main__':
     # app._favicon = ("assets/favicon.ico")
     # app.title = 'NMAstudio' #TODO: title works fine locally, does not on Heroku
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run_server(debug=False, ssl_context=context)
-    app.run_server(port=8080, debug=True) #change port or remove if needed
+    # host = os.environ.get("HOST", "0.0.0.0"),
+    app.run_server(debug=False,port=8080, host = host
+		  # ssl_context=(
+        			#'/home/cloud-user/ssl/fullchain.pem',
+       				#'/home/cloud-user/ssl/privkey.pem')
+		   ) #change port or remove if needed
     # app.run_server(host="macas.lan", port=8080, debug=True) #change port or remove if needed
-
 
 
 

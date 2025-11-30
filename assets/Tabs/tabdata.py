@@ -91,7 +91,7 @@ def tab_data(years=YEARS_DEFAULT):
                     "whiteSpace": "no-wrap",
                     "textOverflow": "ellipsis",
                     "font-family": "sans-serif",
-                    "fontSize": 11,
+                    "fontSize": 'small',
                 },
                 style_data_conditional=[
                     {"if": {"row_index": "odd"}, "backgroundColor": "rgba(0,0,0,0.1)"},
@@ -155,7 +155,7 @@ def raw_data():
                     "whiteSpace": "no-wrap",
                     "textOverflow": "ellipsis",
                     "font-family": "sans-serif",
-                    "fontSize": 11,
+                    "fontSize": 'small',
                 },
                 style_data_conditional=[
                     {"if": {"row_index": "odd"}, "backgroundColor": "rgba(0,0,0,0.1)"},

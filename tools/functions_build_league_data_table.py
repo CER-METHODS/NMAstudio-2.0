@@ -343,8 +343,14 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
     net_data = pd.read_json(net_data[0], orient='split').round(3)
     raw_data = pd.read_json(raw_data[0], orient='split').round(3)
 
-    years = net_data.year #if (not reset_btn_triggered) else YEARS_DEFAULT
-    slider_min, slider_max = years.min(), years.max()
+    
+    if 'year' in net_data.columns:
+        years = net_data['year']
+        slider_min, slider_max = years.min(), years.max()
+    else:
+        years = None
+        slider_min = slider_max = None
+
     slider_marks = set_slider_marks(slider_min, slider_max, years)
     _out_slider = [slider_min, slider_max, slider_marks]
 
@@ -523,11 +529,11 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
 
     cmap = [CINEMA_g, CINEMA_y, CINEMA_r] if not toggle_cinema else [CINEMA_r, CINEMA_y, CINEMA_lb, CINEMA_g]
     legend_height = '4px'
-    legend = [html.Div(style={'display': 'inline-block', 'width': '100px'},
+    legend = [html.Div(style={'display': 'inline-block', 'width': '100px', 'font-size': 'large'},
                        children=[html.Div(),
                                  html.Small('Risk of bias: ' if not toggle_cinema else 'CINeMA rating: ',
                                             style={'color': 'black'})])]
-    legend += [html.Div(style={'display': 'inline-block', 'width': '60px'},
+    legend += [html.Div(style={'display': 'inline-block', 'width': '60px', 'font-size': 'large'},
                         children=[html.Div(style={'backgroundColor': cmap[n],
                                                   'height': legend_height}), html.Small(
                             ('Very Low' if toggle_cinema else 'Low') if n == 0 else 'High' if n == N_BINS - 1 else None,
@@ -577,7 +583,10 @@ def __update_output_new(slider_value, store_node,store_edge,net_data,raw_data, t
 
 
     data_cols = [{"name": c, "id": c} for c in net_data.columns]
-    data_output = net_data[net_data.year <= slider_value].to_dict('records')
+    if 'year' in net_data.columns:
+        data_output = net_data[net_data.year <= slider_value].to_dict('records')
+    else:
+        data_output = net_data.to_dict('records')
     league_table = build_league_table(leaguetable, leaguetable_cols, league_table_styles, tooltip_values)
     league_table_modal = build_league_table(leaguetable, leaguetable_cols, league_table_styles, tooltip_values, modal=True)
     _output = [data_output, data_cols] * 2 + [league_table, league_table_modal] + [legend] * 2 + [toggle_cinema, toggle_cinema_modal]
@@ -599,7 +608,7 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
                                             'color': 'black',
                                             'border': '1px solid #5d6d95',
                                             'font-family': 'sans-serif',
-                                            'fontSize': 11,
+                                            'fontSize': 14,
                                             'minWidth': '55px',
                                             'textAlign': 'center',
                                             'whiteSpace': 'pre-line',  # 'inherit', nowrap
@@ -627,8 +636,9 @@ def build_league_table(data, columns, style_data_conditional, tooltip_values, mo
                                     'overflowX': 'scroll',
                                     'overflowY': 'scroll',
                                     'height': '99%',
-                                    'minWidth': '100%',
+                                    # 'minWidth': '100%',
                                     'max-height': 'calc(85vh)',
+                                    'max-width': 1500,
                                     'width': '99%',
                                     'margin-top': '10px',
                                     'padding': '5px 5px 5px 5px'
@@ -809,11 +819,11 @@ def __update_output_bothout( store_node,store_edge,toggle_cinema,
 
     cmap = [CINEMA_g, CINEMA_y, CINEMA_r] if not toggle_cinema else [CINEMA_r, CINEMA_y, CINEMA_lb, CINEMA_g]
     legend_height = '4px'
-    legend = [html.Div(style={'display': 'inline-block', 'width': '100px'},
+    legend = [html.Div(style={'display': 'inline-block', 'width': '100px', 'font-size': 'large'},
                        children=[html.Div(),
                                  html.Small('Risk of bias: ' if not toggle_cinema else 'CINeMA rating: ',
                                             style={'color': 'black'})])]
-    legend += [html.Div(style={'display': 'inline-block', 'width': '60px'},
+    legend += [html.Div(style={'display': 'inline-block', 'width': '60px', 'font-size': 'large'},
                         children=[html.Div(style={'backgroundColor': cmap[n],
                                                   'height': legend_height}), html.Small(
                             ('Very Low' if toggle_cinema else 'Low') if n == 0 else 'High' if n == N_BINS - 1 else None,

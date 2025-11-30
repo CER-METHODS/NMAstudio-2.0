@@ -121,6 +121,7 @@ ColumnDefs_treat_compare = [
      "field": "switch",
      "editable": False,
      "resizable": False,
+     "headerComponent": "HeaderWithIcon", 
      "cellRenderer": "DMC_Button",
      "cellRendererParams": {
             # "variant": "text",
@@ -152,7 +153,10 @@ ColumnDefs_treat_compare = [
         "resizable": False,
         'suppressStickyLabel': True,
         'children': [
-            {'field': 'RR', 'headerName': 'RR',"suppressHeaderMenuButton": True},
+            {'field': 'RR', 
+             'headerName': 'RR',
+             "headerComponent": "HeaderWithIcon", 
+             "suppressHeaderMenuButton": True},
             # {'field': 'ab_out1', 'headerName': 'Absoute',
             #  'cellStyle': {'line-height': 'normal'}
             #  },
@@ -160,6 +164,7 @@ ColumnDefs_treat_compare = [
              "suppressHeaderMenuButton": True, 
              'headerName': 'Certainty',
              "resizable": False,
+             "headerComponent": "HeaderWithIcon",
              "tooltipField": 'Certainty_out1',
              "tooltipComponentParams": { "color": '#d8f0d3'},
              "tooltipComponent": "CustomTooltip2",
@@ -178,12 +183,16 @@ ColumnDefs_treat_compare = [
         "resizable": False,
         'suppressStickyLabel': True,
         'children': [
-            {'field': 'RR_out2', 'headerName': 'RR',"suppressHeaderMenuButton": True},
+            {'field': 'RR_out2', 
+             'headerName': 'RR',
+             "headerComponent": "HeaderWithIcon",
+             "suppressHeaderMenuButton": True},
             # {'field': 'ab_out2', 'headerName': 'Absoute',
             #  'cellStyle': {'line-height': 'normal'}},
             {'field':'Certainty_out2', 
              "suppressHeaderMenuButton": True,
              'headerName': 'Certainty',
+             "headerComponent": "HeaderWithIcon",
              "tooltipField": 'Certainty_out2',
              "tooltipComponentParams": { "color": '#d8f0d3'},
              "tooltipComponent": "CustomTooltip3",
@@ -209,6 +218,7 @@ treat_compare_grid = dag.AgGrid(
     dashGridOptions = {"rowHeight": 60},
     defaultColDef={
                     'filter':False,
+                    'suppressHeaderMenuButton': True,
                     "floatingFilter": False,
                     "resizable": False,
                     "wrapText": True, 
@@ -394,3 +404,72 @@ modal_compare_grid = dag.AgGrid(
         #    'height':f'{45.5 *30}px'
            }
 )
+
+
+
+
+############################# Full names Grid ####################################################
+data_fullname = pd.read_csv('db/skt/fullname.csv')
+fullname_df = pd.DataFrame(data_fullname)
+
+modal_fullname_column = [
+   
+     {"headerName": "Abbreviation", 
+     "field": "Abbreviation",
+     "suppressHeaderMenuButton": True,
+     "editable": False,
+     "resizable": False,
+     'cellStyle': {
+        'background-color': '#ffecb3',
+        }
+     },
+
+     {"headerName": "Treatment", 
+     "field": "Treatment",
+     "suppressHeaderMenuButton": True,
+     "editable": False,
+     "resizable": False,
+     'cellStyle': {
+        'background-color': '#ffecb3',
+        }
+     }
+]
+
+
+
+modal_fullname_grid = dag.AgGrid(
+    id="modal_fullname",
+    # className="ag-theme-alpine color-fonts",
+    enableEnterpriseModules=True,
+    licenseKey=os.environ["AG_GRID_KEY"],
+    columnDefs=modal_fullname_column,
+    rowData = fullname_df.to_dict("records"),
+    dangerously_allow_code=True,
+    dashGridOptions = {"rowHeight": 60},
+    suppressDragLeaveHidesColumns=False,
+    defaultColDef={
+                    'filter':True,
+                    "floatingFilter": False,
+                    "resizable": False,
+                    "wrapText": True, 
+                    # 'autoHeight': True,
+                    "enableRowGroup": False,
+                    "enableValue": False,
+                    "enablePivot": False,
+                    'cellStyle': {'white-space': 'pre',
+                                  'display': 'grid',
+                                  'text-align': 'center',
+                                  'align-items': 'center',
+                                  'line-height': 'normal'
+                                  },
+                    "animateRows": False,
+                    # "tooltipComponent": "CustomTooltip"
+                    },
+    columnSize="autoSize", 
+    getRowId='params.data.studlab', 
+    style={ 
+        # "width": "100%",
+        #    'height':f'{45.5 *30}px'
+           }
+)
+

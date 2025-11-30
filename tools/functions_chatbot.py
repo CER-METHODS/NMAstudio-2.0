@@ -89,9 +89,10 @@
 #         raise ValueError("Incorrect option for `box`.")
     
 # ##################### chat model#################################################################
+# import os
 # llm = ChatGroq(temperature=0.8, 
-#                model_name="llama3-70b-8192",
-#                api_key = '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',
+#                model="llama-3.1-8b-instant",
+#                api_key = os.getenv("API_KEY"),
 #                max_tokens=300
 #                )
 # # Define the system message introducing the AI assistant's capabilities.

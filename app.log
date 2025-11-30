@@ -1,0 +1,44 @@
+nohup: ignoring input
+Dash is running on https://0.0.0.0:8080/
+
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:8080
+ * Running on https://158.39.200.18:8080
+[33mPress CTRL+C to quit[0m
+206.168.34.52 - - [02/Oct/2025 11:46:21] "GET / HTTP/1.1" 200 -
+206.168.34.52 - - [02/Oct/2025 11:46:24] "GET /assets/favicon.ico?m=1758104047.2320611 HTTP/1.1" 200 -
+206.168.34.52 - - [02/Oct/2025 11:46:32] "GET /favicon.ico HTTP/1.1" 200 -
+206.168.34.52 - - [02/Oct/2025 11:46:38] code 505, message Invalid HTTP version (2.0)
+206.168.34.52 - - [02/Oct/2025 11:46:38] "[35m[1mPRI * HTTP/2.0[0m" 505 -
+206.168.34.52 - - [02/Oct/2025 11:47:42] "GET /favicon.ico HTTP/1.1" 200 -
+206.168.34.52 - - [02/Oct/2025 11:47:48] "GET /security.txt HTTP/1.1" 200 -
+23.95.44.35 - - [02/Oct/2025 11:53:10] "GET / HTTP/1.0" 200 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "GET / HTTP/1.1" 200 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/app.css?m=1758104153.9105866 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/scrollbar.css?m=1758104047.253111 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/style.css?m=1758535001.4111106 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/typography.css?m=1758104047.253111 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/dashAgGridComponentFunctions.js?m=1758104047.2300565 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "GET /_dash-layout HTTP/1.1" 200 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "GET /_dash-dependencies HTTP/1.1" 200 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/favicon.ico?m=1758104047.2320611 HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "POST /_dash-update-component HTTP/1.1" 200 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /_dash-component-suites/dash/dcc/async-markdown.js HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/rank.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/table.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/funel.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/consist.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/boxplot.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/NMAstudio_bold.png HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/mainpage.png HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/network.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/forest.gif HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/oslo_logo.png HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/universite.jpeg HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/cress_logo2.jpeg HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /assets/logos/inserm_logo.png HTTP/1.1[0m" 304 -
+80.212.33.182 - - [02/Oct/2025 12:30:24] "[36mGET /_dash-component-suites/dash/dcc/async-highlight.js HTTP/1.1[0m" 304 -
+103.203.59.3 - - [02/Oct/2025 12:30:38] "GET / HTTP/1.1" 200 -
