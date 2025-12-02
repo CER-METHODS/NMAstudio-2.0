@@ -125,7 +125,7 @@ SKT = Sktpage()
 def display_page(pathname):
     if pathname == '/home':  return RealHomepage
     elif pathname == '/results':  return HOMEPAGE
-    elif pathname == '/skt': return SKTPAGE,
+    # elif pathname == '/skt': return SKTPAGE,
     # elif pathname == '/doc': return doc_layout
     # elif pathname == '/news': return news_layout
 

@@ -393,6 +393,7 @@ def __data_trans(
 
         
         try:
+            # data_user.to_csv('db/test_data.csv', encoding='utf-8')
             data = adjust_data(data_user, search_value_format, number_outcomes)
             if 'rob1' in data.columns: data['rob'] = data['rob1']
 
