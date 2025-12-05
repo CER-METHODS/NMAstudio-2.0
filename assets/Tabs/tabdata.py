@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 from assets.dropdowns_values import *
 from tools.utils import set_slider_marks
+from assets.Infos.dataInfo import infoYear
 
 YEARS_DEFAULT = np.array(
     [
@@ -35,29 +36,19 @@ YEARS_DEFAULT = np.array(
 def tab_data(years=YEARS_DEFAULT):
     y_max, y_min = years.max(), years.min()
     return html.Div(
-        [ 
-            html.Div([
-                dcc.Slider(
-                    min=y_min,
-                    max=y_max,
-                    step=50,
-                    marks=set_slider_marks(y_min, y_max, years),
-                    value=datetime.date.today().year,  # ymax
-                    updatemode="drag",
-                    id="slider-year",
-                    tooltip=dict(placement="top"),
-                ),
-                html.Div([ html.P("Click the slider to see the evolution of the evidence over time. The data table will be filtered accordingly in real-time.",
-                              id='slider-instruction',),
-                html.A(
-                 html.Img(
-                    src="/assets/icons/query.png",
-                    style={
-                        "width": "16px",
-                        "margin-top": "0px",
-                        "border-radius": "0px",},
-                )),
-                ],id="query-icon",),
+        [
+            html.Div(
+                [
+                    dcc.Slider(
+                        min=y_min,
+                        max=y_max,
+                        step=50,
+                        marks=set_slider_marks(y_min, y_max, years),
+                        value=datetime.date.today().year,  # ymax
+                        updatemode="drag",
+                        id="slider-year",
+                        tooltip=dict(placement="top"),
+                    ),
                 ],
                 style={
                     "display": "inline-block",
@@ -67,10 +58,13 @@ def tab_data(years=YEARS_DEFAULT):
                     "padding-top": "25px",
                     "margin-right": "10px",
                     "margin-left": "15px",
-                }, id='slider-container'
-        ), 
-
-            html.Br(),html.Br(),html.Br(),
+                },
+                id="slider-container",
+            ),
+            infoYear,
+            html.Br(),
+            html.Br(),
+            html.Br(),
             dash_table.DataTable(
                 id="datatable-upload-container",
                 editable=False,
@@ -99,7 +93,7 @@ def tab_data(years=YEARS_DEFAULT):
                 ],
                 style_header={
                     # "backgroundColor": "#738789",
-                    'backgroundColor': '#f5c198',
+                    "backgroundColor": "#f5c198",
                     "fontWeight": "bold",
                     "border": "1px solid #5d6d95",
                 },
@@ -130,9 +124,11 @@ def tab_data(years=YEARS_DEFAULT):
 
 
 def raw_data():
-
     return html.Div(
-        [   html.Br(),html.Br(),html.Br(),
+        [
+            html.Br(),
+            html.Br(),
+            html.Br(),
             dash_table.DataTable(
                 id="datatable-raw-container",
                 editable=False,
@@ -160,7 +156,7 @@ def raw_data():
                 ],
                 style_header={
                     # "backgroundColor": "#738789",
-                    'backgroundColor': '#f5c198',
+                    "backgroundColor": "#f5c198",
                     "fontWeight": "bold",
                     "border": "1px solid #5d6d95",
                 },

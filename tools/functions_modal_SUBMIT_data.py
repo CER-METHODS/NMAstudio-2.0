@@ -648,6 +648,20 @@ def __data_trans(
         # filename_exists = True if filename is not None else False
         filename_exists = True if filename is not None else False
 
+        # Guard: Check if file contents are available
+        if contents is None:
+            # No file uploaded yet - return current state without error
+            return (
+                modal_data_checks_is_open,
+                raw_data_STORAGE if raw_data_STORAGE else {},
+                net_data_STORAGE if net_data_STORAGE else {},
+                filename_exists,
+                "",
+                False,
+                treat_list,
+                False,
+            )
+
         try:
             data_user = parse_contents(contents, filename)
             raw_data_STORAGE = {"data": data_user.to_json(orient="split")}

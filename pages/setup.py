@@ -22,9 +22,11 @@ from assets.storage import (  # type: ignore
     __load_project,
     __get_state_of,
 )
-from assets.psoriasisDemo import PSORIASIS_DATA  # type: ignore
+from assets.psoriasisDemo3outcomes import PSORIASIS_3OUTCOMES_DATA  # type: ignore
 from assets.Tabs.saveload_modal_button import saveload_modal  # type: ignore
-from assets.modal_values import modal_checks, file_upload_controls2  # type: ignore
+from assets.modal_values import file_upload_controls2  # type: ignore
+
+# modal_checks moved to app.py global layout (dbc.Modal doesn't render in page layouts)
 from tools.functions_project_setup import (
     __selectbox1_options,
     __update_options,
@@ -52,8 +54,16 @@ layout = html.Div(
     style={"display": "grid"},
     children=[
         dcc.Location(id="setup_page_location", refresh=True),
-        html.Div(STORAGE, style={"display": "none"}),  # hide the stores from React
+        # STORAGE moved to app.py global layout for proper localStorage persistence
         # Alert modals moved to app.py global layout (available on all pages)
+        # Hidden placeholder components for dynamic callbacks (prevent "nonexistent object" errors)
+        html.Div(
+            [
+                dcc.Checklist(id="effect_modifier_checkbox", options=[], value=[]),
+                dcc.Checklist(id="no_effect_modifier", options=[], value=[]),
+            ],
+            style={"display": "none"},
+        ),
         html.Br(),
         html.Br(),
         dbc.Row(
@@ -519,7 +529,7 @@ layout = html.Div(
                 html.Br(),
             ],
         ),
-        html.Div(modal_checks, style={"display": "inline-block", "fontSize": "11px"}),
+        # modal_checks moved to app.py global layout (dbc.Modal doesn't render in page layouts)
         # Error modals for R analysis failures
         R_errors_data,
         R_errors_nma,
@@ -578,6 +588,9 @@ def display_confirm(value):
     prevent_initial_call=True,
 )
 def empty_stt(_nclicks, storagium):
+    # Guard: only proceed if user actually clicked (not on initial page load)
+    if not _nclicks or _nclicks == 0:
+        return [dash.no_update] * len(STORAGEOUTPUT)
     res = __load_project(storagium, EMPTY_STORAGE)
     idx = __get_state_of("results_ready_STORAGE")
     print(f"[DEBUG] empty_stt (reset): results_ready at index {idx} = {res[idx]}")
@@ -601,8 +614,11 @@ def display_confirm_psor(_value):
     prevent_initial_call=True,
 )
 def load_psr(_nclicks, storagium):
+    # Guard: only proceed if user actually clicked (not on initial page load)
+    if not _nclicks or _nclicks == 0:
+        return [dash.no_update] * (len(STORAGEOUTPUT) + 1)
     print(f"[DEBUG] load_psr: CALLBACK TRIGGERED with n_clicks={_nclicks}")
-    res = __load_project(storagium, PSORIASIS_DATA)
+    res = __load_project(storagium, PSORIASIS_3OUTCOMES_DATA)
     # Set results_ready to True - it's already included in STORAGEOUTPUT
     # The __load_project function returns all storage values, we need to update results_ready
     idx = __get_state_of("results_ready_STORAGE")
@@ -732,16 +748,60 @@ def update_variable_selection(
     Input({"type": "effectselectors", "index": ALL}, "value"),
     Input({"type": "directionselectors", "index": ALL}, "value"),
     Input({"type": "variableselectors", "index": ALL}, "value"),
+    State({"type": "outcometype", "index": ALL}, "value"),
+    State("radio-format", "value"),
 )
-def next_outcome(number_outcomes, effect, direction, variables):
+def next_outcome(
+    number_outcomes, effect, direction, variables, outcometype, data_format
+):
     if number_outcomes and effect:
         number_outcomes = int(number_outcomes)
         disables = [True] * (number_outcomes)  # Initialize with True for all outcomes
+
+        # Calculate how many variables each outcome needs based on type and format
+        var_counts = []
         for i in range(number_outcomes):
-            if effect[i] and direction[i] and variables[i]:
+            if not outcometype or i >= len(outcometype):
+                var_counts.append(2)  # default
+                continue
+
+            if data_format == "long":
+                if outcometype[i] == "continuous":
+                    var_counts.append(3)  # y, sd, n
+                else:  # binary
+                    var_counts.append(2)  # events, participants
+            elif data_format == "contrast":
+                if outcometype[i] == "continuous":
+                    var_counts.append(6)  # y1, sd1, y2, sd2, n1, n2
+                else:  # binary
+                    var_counts.append(4)  # r1, n1, r2, n2
+            elif data_format == "iv":
+                var_counts.append(4)  # TE, seTE, n1, n2
+            else:
+                var_counts.append(2)  # default
+
+        # Check if all variables for each outcome are filled
+        var_idx = 0
+        for i in range(number_outcomes):
+            num_vars = var_counts[i]
+            # Get all variable values for this outcome
+            outcome_vars = (
+                variables[var_idx : var_idx + num_vars]
+                if var_idx + num_vars <= len(variables)
+                else []
+            )
+            # Check if all are filled
+            all_filled = len(outcome_vars) == num_vars and all(
+                v is not None and v != "" for v in outcome_vars
+            )
+
+            if effect[i] and direction[i] and all_filled:
                 disables[i] = (
                     False  # Enable the outcome button if all conditions are met
                 )
+
+            var_idx += num_vars
+
         disables[number_outcomes - 1] = True  # Keep last button disabled
         return disables
     return [True] * int(number_outcomes) if number_outcomes else []
@@ -992,6 +1052,8 @@ def is_data_file_uploaded(filename):
         Output("R-alert-data", "is_open"),
         Output("dropdown-intervention", "options"),
         Output("effect_modifiers_STORAGE", "data"),
+        Output("outcome_names_STORAGE", "data"),
+        Output("number_outcomes_STORAGE", "data"),
     ],
     [
         Input("upload_modal_data2", "n_clicks"),
@@ -1004,6 +1066,7 @@ def is_data_file_uploaded(filename):
         State({"type": "effectselectors", "index": ALL}, "value"),
         State({"type": "directionselectors", "index": ALL}, "value"),
         State({"type": "variableselectors", "index": ALL}, "value"),
+        State({"type": "nameoutcomes", "index": ALL}, "value"),
         State("modal_data_checks", "is_open"),
         State("datatable-upload2", "contents"),
         State("datatable-upload2", "filename"),
@@ -1023,6 +1086,7 @@ def data_trans(
     effectselectors,
     directionselectors,
     variableselectors,
+    outcome_names_input,
     modal_data_checks_is_open,
     contents,
     filename,
@@ -1031,63 +1095,126 @@ def data_trans(
     effect_modifier_checkbox,
     no_effect_modifier,
 ):
-    print(f"[DEBUG data_trans] Called!")
-    print(f"  upload (n_clicks): {upload}")
-    print(f"  modal_data_checks_is_open (current): {modal_data_checks_is_open}")
-    print(f"  filename: {filename}")
-    print(f"  effect_modifier_checkbox: {effect_modifier_checkbox}")
-    print(f"  no_effect_modifier: {no_effect_modifier}")
+    # Guard: Check if this is a genuine button click (not from persisted session state)
+    if not upload or upload == 0:
+        return [dash.no_update] * 9
 
-    # Store effect modifiers as a list (or empty list if Skip, or None if not selected)
-    if effect_modifier_checkbox and len(effect_modifier_checkbox) > 0:
-        effect_modifiers_data = effect_modifier_checkbox
-        print(f"  Storing effect modifiers: {effect_modifier_checkbox}")
-    elif no_effect_modifier and len(no_effect_modifier) > 0:
-        # User selected "Skip" - store empty list
-        effect_modifiers_data = []
-        print(f"  No effect modifiers selected (Skip was checked)")
-    else:
-        # No selection made yet
-        effect_modifiers_data = None
-        print(f"  Effect modifiers not yet selected")
+    # Guard: Check if file has been uploaded
+    if contents is None:
+        return [dash.no_update] * 9
 
-    # __data_trans returns 8 values: (modal_open, raw_data, net_data, filename_exists, error, alert_open, dropdown_options, results_ready)
-    # We need: (modal_open, raw_data, net_data, error, alert_open, dropdown_options) = 6 values
-    # So we remove the last 2 values: filename_exists (uploaded_datafile_to_disable_cinema) and results_ready
-    result = __data_trans(
-        upload,
-        None,  # filename2 - not used
-        None,  # submit - not used in this callback anymore
-        search_value_format,
-        overall_variables,
-        number_outcomes,
-        outcome_type,
-        effectselectors,
-        directionselectors,
-        variableselectors,
-        modal_data_checks_is_open,
-        contents,
-        filename,
-        net_data_STORAGE,
-        raw_data_STORAGE,
-        False,  # results_ready - not set here anymore
-    )
-    # Return: modal_open, raw_data, net_data, error, alert_open, dropdown_options, effect_modifiers
-    # (skip filename_exists at index 3 and results_ready at index 7)
-    print(f"[DEBUG data_trans] Returning:")
-    print(f"  modal_open (result[0]): {result[0]}")
-    print(f"  raw_data type: {type(result[1])}")
-    print(f"  net_data type: {type(result[2])}")
-    print(f"  effect_modifiers_data: {effect_modifiers_data}")
-    return (
-        result[0],
-        result[1],
-        result[2],
-        result[4],
-        result[5],
-        result[6],
-        effect_modifiers_data,
-    )
+    try:
+        print(f"[DEBUG data_trans] Called!")
+        print(f"  upload (n_clicks): {upload}")
+        print(f"  modal_data_checks_is_open (current): {modal_data_checks_is_open}")
+        print(f"  filename: {filename}")
+        print(f"  number_outcomes: {number_outcomes}")
+        print(f"  search_value_format: {search_value_format}")
+        print(
+            f"  variableselectors count: {len(variableselectors) if variableselectors else 0}"
+        )
+        print(f"  effect_modifier_checkbox: {effect_modifier_checkbox}")
+        print(f"  no_effect_modifier: {no_effect_modifier}")
+    except Exception as e:
+        print(f"[ERROR data_trans] Exception in debug logging: {e}")
+
+    try:
+        # Store effect modifiers as a list (or empty list if Skip, or None if not selected)
+        if effect_modifier_checkbox and len(effect_modifier_checkbox) > 0:
+            effect_modifiers_data = effect_modifier_checkbox
+            print(f"  Storing effect modifiers: {effect_modifier_checkbox}")
+        elif no_effect_modifier and len(no_effect_modifier) > 0:
+            # User selected "Skip" - store empty list
+            effect_modifiers_data = []
+            print(f"  No effect modifiers selected (Skip was checked)")
+        else:
+            # No selection made yet
+            effect_modifiers_data = None
+            print(f"  Effect modifiers not yet selected")
+
+        # __data_trans returns 8 values: (modal_open, raw_data, net_data, filename_exists, error, alert_open, dropdown_options, results_ready)
+        # We need: (modal_open, raw_data, net_data, error, alert_open, dropdown_options) = 6 values
+        # So we remove the last 2 values: filename_exists (uploaded_datafile_to_disable_cinema) and results_ready
+        result = __data_trans(
+            upload,
+            None,  # filename2 - not used
+            None,  # submit - not used in this callback anymore
+            search_value_format,
+            overall_variables,
+            number_outcomes,
+            outcome_type,
+            effectselectors,
+            directionselectors,
+            variableselectors,
+            modal_data_checks_is_open,
+            contents,
+            filename,
+            net_data_STORAGE,
+            raw_data_STORAGE,
+            False,  # results_ready - not set here anymore
+        )
+        # Prepare outcome names storage
+        # outcome_names_input is a list of outcome names from the input fields
+        outcome_names_list = []
+        number_outcomes_int = 0
+        if outcome_names_input and len(outcome_names_input) > 0:
+            # Filter out empty names
+            outcome_names_list = [name for name in outcome_names_input if name]
+            number_outcomes_int = len(outcome_names_list)
+            print(
+                f"[DEBUG data_trans] Outcome names: {outcome_names_list}, count: {number_outcomes_int}"
+            )
+        else:
+            # If no names provided, use generic names based on number_outcomes
+            if number_outcomes:
+                try:
+                    number_outcomes_int = int(number_outcomes)
+                    outcome_names_list = [
+                        f"Outcome{i + 1}" for i in range(number_outcomes_int)
+                    ]
+                    print(
+                        f"[DEBUG data_trans] Using generic outcome names: {outcome_names_list}"
+                    )
+                except:
+                    pass
+
+        # Return: modal_open, raw_data, net_data, error, alert_open, dropdown_options, effect_modifiers, outcome_names, number_outcomes
+        # (skip filename_exists at index 3 and results_ready at index 7)
+        print(f"[DEBUG data_trans] Returning:")
+        print(f"  modal_open (result[0]): {result[0]}")
+        print(f"  raw_data type: {type(result[1])}")
+        print(f"  net_data type: {type(result[2])}")
+        print(f"  effect_modifiers_data: {effect_modifiers_data}")
+        print(f"  outcome_names_list: {outcome_names_list}")
+        print(f"  number_outcomes_int: {number_outcomes_int}")
+        return (
+            result[0],
+            result[1],
+            result[2],
+            result[4],
+            result[5],
+            result[6],
+            effect_modifiers_data,
+            outcome_names_list,
+            number_outcomes_int,
+        )
+    except Exception as e:
+        print(f"[ERROR data_trans] EXCEPTION CAUGHT: {e}")
+        import traceback
+
+        traceback.print_exc()
+        # Return error state
+        return (
+            False,  # modal not open
+            raw_data_STORAGE if raw_data_STORAGE else {},  # keep current raw data
+            net_data_STORAGE if net_data_STORAGE else {},  # keep current net data
+            str(e),  # error message
+            True,  # show alert
+            [],  # empty dropdown options
+            None,  # no effect modifiers
+            [],  # empty outcome names
+            0,  # zero outcomes
+        )
 
 
 # Analysis callbacks that chain together sequentially using modified_timestamp
@@ -1095,26 +1222,38 @@ def data_trans(
 
 
 # Step 1: Data checks - triggered when modal opens
+# Outputs to both global Store (.data for submit button) and modal display (.children)
 @callback(
-    [Output("para-check-data", "children"), Output("para-check-data", "data")],
+    [
+        Output("para-check-data", "data"),
+        Output("para-check-data-modal", "children"),
+    ],
     Input("modal_data_checks", "is_open"),
     [State("number-outcomes", "value"), State("net_data_STORAGE", "data")],
+    prevent_initial_call=True,
 )
 def modal_submit_checks_DATACHECKS(
     modal_data_checks_is_open, num_outcomes, net_data_STORAGE
 ):
-    return __modal_submit_checks_DATACHECKS(
+    # Guard: Only run when modal is open (prevents errors when on results page)
+    if not modal_data_checks_is_open:
+        return [dash.no_update, dash.no_update]
+
+    result = __modal_submit_checks_DATACHECKS(
         modal_data_checks_is_open, num_outcomes, net_data_STORAGE
     )
+    # result[0] = html.P element for display, result[1] = "__Para_Done__" marker
+    return [result[1], result[0]]
 
 
 # Step 2: NMA analysis - triggered when modal opens (runs in parallel with data checks)
+# Outputs to both global Store (.data for submit button) and modal display (.children)
 @callback(
     [
         Output("R-alert-nma", "is_open"),
         Output("Rconsole-error-nma", "children"),
-        Output("para-anls-data", "children"),
         Output("para-anls-data", "data"),
+        Output("para-anls-data-modal", "children"),
         Output("forest_data_STORAGE", "data"),
     ],
     Input("modal_data_checks", "is_open"),
@@ -1123,55 +1262,75 @@ def modal_submit_checks_DATACHECKS(
         State("net_data_STORAGE", "data"),
         State("forest_data_STORAGE", "data"),
     ],
+    prevent_initial_call=True,
 )
 def modal_submit_checks_NMA_new(
     modal_data_checks_is_open, num_outcome, net_data_STORAGE, forest_data_STORAGE
 ):
-    return __modal_submit_checks_NMA_new(
+    # Guard: Only run when modal is open (prevents errors when on results page)
+    if not modal_data_checks_is_open:
+        return [dash.no_update] * 5
+
+    result = __modal_submit_checks_NMA_new(
         modal_data_checks_is_open, num_outcome, net_data_STORAGE, forest_data_STORAGE
     )
+    # result is (alert_open, error_msg, children, data_marker, forest_data)
+    # Output: alert, error_msg, marker to Store, children to modal, forest_data
+    return [result[0], result[1], result[3], result[2], result[4]]
 
 
 # Step 3: Pairwise analysis - triggered when NMA completes (forest_data_STORAGE updates)
+# Outputs to both global Store (.data for submit button) and modal display (.children)
 @callback(
     [
         Output("R-alert-pair", "is_open"),
         Output("Rconsole-error-pw", "children"),
-        Output("para-pairwise-data", "children"),
         Output("para-pairwise-data", "data"),
+        Output("para-pairwise-data-modal", "children"),
         Output("forest_data_prws_STORAGE", "data"),
     ],
     Input("forest_data_STORAGE", "modified_timestamp"),
     [
-        State("number-outcomes", "value"),
+        State("number_outcomes_STORAGE", "data"),
         State("modal_data_checks", "is_open"),
         State("net_data_STORAGE", "data"),
         State("forest_data_prws_STORAGE", "data"),
     ],
+    prevent_initial_call=True,
 )
 def modal_submit_checks_PAIRWISE(
     nma_data_ts,
-    num_outcome,
+    num_outcome_storage,
     modal_data_checks_is_open,
     net_data_STORAGE,
     forest_data_prws_STORAGE,
 ):
-    return __modal_submit_checks_PAIRWISE_new(
+    # Use stored number of outcomes (fallback to 1)
+    num_outcome = num_outcome_storage if num_outcome_storage else 1
+    # Guard: Only run when modal is open (prevents errors when on results page)
+    if not modal_data_checks_is_open:
+        return [dash.no_update] * 5
+
+    result = __modal_submit_checks_PAIRWISE_new(
         nma_data_ts,
         num_outcome,
         modal_data_checks_is_open,
         net_data_STORAGE,
         forest_data_prws_STORAGE,
     )
+    # result is (alert_open, error_msg, children, data_marker, forest_prws_data)
+    # Output: alert, error_msg, marker to Store, children to modal, forest_prws_data
+    return [result[0], result[1], result[3], result[2], result[4]]
 
 
 # Step 4: League table - triggered when Pairwise completes (forest_data_prws_STORAGE updates)
+# Outputs to both global Store (.data for submit button) and modal display (.children)
 @callback(
     [
         Output("R-alert-league", "is_open"),
         Output("Rconsole-error-league", "children"),
-        Output("para-LT-data", "children"),
         Output("para-LT-data", "data"),
+        Output("para-LT-data-modal", "children"),
         Output("league_table_data_STORAGE", "data"),
         Output("ranking_data_STORAGE", "data"),
         Output("consistency_data_STORAGE", "data"),
@@ -1180,7 +1339,7 @@ def modal_submit_checks_PAIRWISE(
     ],
     Input("forest_data_prws_STORAGE", "modified_timestamp"),
     [
-        State("number-outcomes", "value"),
+        State("number_outcomes_STORAGE", "data"),
         State("modal_data_checks", "is_open"),
         State("net_data_STORAGE", "data"),
         State("league_table_data_STORAGE", "data"),
@@ -1190,10 +1349,11 @@ def modal_submit_checks_PAIRWISE(
         State("net_split_ALL_data_STORAGE", "data"),
         State({"type": "outcomeprimary", "index": ALL}, "value"),
     ],
+    prevent_initial_call=True,
 )
 def modal_submit_checks_LT(
     pw_data_ts,
-    num_outcome,
+    num_outcome_storage,
     modal_data_checks_is_open,
     net_data_STORAGE,
     league_table_data,
@@ -1203,7 +1363,13 @@ def modal_submit_checks_LT(
     netsplit_all,
     outcome_index,
 ):
-    return __modal_submit_checks_LT_new(
+    # Use stored number of outcomes (fallback to 1)
+    num_outcome = num_outcome_storage if num_outcome_storage else 1
+    # Guard: Only run when modal is open (prevents errors when on results page)
+    if not modal_data_checks_is_open:
+        return [dash.no_update] * 9
+
+    result = __modal_submit_checks_LT_new(
         pw_data_ts,
         num_outcome,
         modal_data_checks_is_open,
@@ -1215,35 +1381,64 @@ def modal_submit_checks_LT(
         netsplit_all,
         outcome_index,
     )
+    # result is (alert, error, children, data_marker, league, ranking, consistency, netsplit, netsplit_all)
+    # Output: alert, error, marker to Store, children to modal, league, ranking, consistency, netsplit, netsplit_all
+    return [
+        result[0],
+        result[1],
+        result[3],
+        result[2],
+        result[4],
+        result[5],
+        result[6],
+        result[7],
+        result[8],
+    ]
 
 
 # Step 5: Funnel plot - triggered when League table completes (league_table_data_STORAGE updates)
+# Outputs to both global Store (.data for submit button) and modal display (.children)
 @callback(
     [
         Output("R-alert-funnel", "is_open"),
         Output("Rconsole-error-funnel", "children"),
-        Output("para-FA-data", "children"),
         Output("para-FA-data", "data"),
+        Output("para-FA-data-modal", "children"),
         Output("funnel_data_STORAGE", "data"),
     ],
     Input("league_table_data_STORAGE", "modified_timestamp"),
     [
-        State("number-outcomes", "value"),
+        State("number_outcomes_STORAGE", "data"),
         State("modal_data_checks", "is_open"),
         State("net_data_STORAGE", "data"),
         State("funnel_data_STORAGE", "data"),
     ],
+    prevent_initial_call=True,
 )
 def modal_submit_checks_FUNNEL(
-    lt_data_ts, num_outcome, modal_data_checks_is_open, net_data_STORAGE, funnel_data
+    lt_data_ts,
+    num_outcome_storage,
+    modal_data_checks_is_open,
+    net_data_STORAGE,
+    funnel_data,
 ):
-    return __modal_submit_checks_FUNNEL_new(
+    # Guard: Only run when modal is open (prevents errors when on results page)
+    if not modal_data_checks_is_open:
+        return [dash.no_update] * 5
+
+    # Use stored number of outcomes (fallback to 1)
+    num_outcome = num_outcome_storage if num_outcome_storage else 1
+
+    result = __modal_submit_checks_FUNNEL_new(
         lt_data_ts,
         num_outcome,
         modal_data_checks_is_open,
         net_data_STORAGE,
         funnel_data,
     )
+    # result is (alert, error, children, data_marker, funnel_data)
+    # Output: alert, error, marker to Store, children to modal, funnel_data
+    return [result[0], result[1], result[3], result[2], result[4]]
 
 
 # Collect R errors from all analysis steps and store them
@@ -1333,14 +1528,25 @@ def finalize_analysis(n_clicks):
 # Hide uploader when results are ready
 @callback(
     Output("uploader", "style"),
-    Input("results_ready_STORAGE", "data"),
-    prevent_initial_call=True,
+    [
+        Input("results_ready_STORAGE", "data"),
+        Input("setup_page_location", "pathname"),  # Also trigger on page navigation
+    ],
+    prevent_initial_call=False,  # Must run on initial load to check if results are already ready
 )
-def hide_uploader_when_results_ready(results_ready_STORAGE):
+def hide_uploader_when_results_ready(results_ready_STORAGE, pathname):
     """Hide the uploader section when results are ready"""
+    # Base style for the uploader element
+    base_style = {
+        "display": "grid",
+        "justifyContent": "center",
+        "width": "1000px",
+        "justifySelf": "center",
+        "margin": "0 auto",
+    }
     if results_ready_STORAGE:
-        return {"display": "none"}
-    return {"display": "block"}
+        return {"display": "none"}  # Hide completely
+    return base_style  # Show with full styling
 
 
 # ---------- clientside console logger for _STORAGE stores only ----------

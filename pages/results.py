@@ -7,7 +7,7 @@ from assets.dropdowns_values import *
 from assets.modal_values import (
     modal,
     modal_edges,
-    modal_checks,
+    # modal_checks removed - only needed on setup page
     modal_data_table,
     modal_league_table,
     modal_network,
@@ -28,11 +28,12 @@ export_selection = "as png"
 from assets.Tabs.tabtransitivity import tab_trstvty
 
 from assets.Tabs.tabforests import tab_forests
+from assets.Infos.graphInfo import infoGraph
 
-# from assets.Tabs.tableaguetable import tab_league, tab_league_both
-# from assets.Tabs.tabfunnel import tab_funnel
-# from assets.Tabs.tabranking import tab_ranking
-# from assets.Tabs.tabconsistency import tab_consistency
+from assets.Tabs.tableaguetable import tab_league, tab_league_both
+from assets.Tabs.tabfunnel import tab_funnel
+from assets.Tabs.tabranking import tab_ranking
+from assets.Tabs.tabconsistency import tab_consistency
 from assets.alerts import (
     alert_outcome_type,
     alert_data_type,
@@ -103,21 +104,21 @@ dash.register_page(__name__, path="/results")
 # Load extra layouts
 cyto.load_extra_layouts()
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 5000)
-# OPTIONS_results - Data & Transitivity, and Forest plots are enabled
+# OPTIONS_results - All plot types are enabled
 OPTIONS_results = [
     {"label": "Data & Transitivity", "value": 0},
     {"label": "Forest plots", "value": 1},
-    {"label": "League tables", "value": 2, "disabled": True},
-    {"label": "Ranking", "value": 3, "disabled": True},
-    {"label": "Consistency checks", "value": 4, "disabled": True},
-    {"label": "Funnel plots", "value": 5, "disabled": True},
+    {"label": "League tables", "value": 2},
+    {"label": "Ranking", "value": 3},
+    {"label": "Consistency checks", "value": 4},
+    {"label": "Funnel plots", "value": 5},
 ]
 
 layout = html.Div(
     id="result_page",
     className="_container",
-    children=STORAGE
-    + [
+    children=[
+        # STORAGE moved to app.py global layout for proper localStorage persistence
         # Hidden location component for redirects when results are reset
         dcc.Location(id="results_page_location", refresh=True),
         # Placeholder shown when results are not ready
@@ -195,13 +196,7 @@ layout = html.Div(
                                             },
                                         ),
                                         #     html.Div(modal_data, style={'display': 'inline-block', 'font-size': '11px'}),
-                                        html.Div(
-                                            modal_checks,
-                                            style={
-                                                "display": "inline-block",
-                                                "font-size": "11px",
-                                            },
-                                        ),
+                                        # modal_checks removed - only needed on setup page for data analysis progress
                                         html.Div(
                                             modal_data_table,
                                             style={
@@ -386,6 +381,7 @@ layout = html.Div(
                                                 "font-size": "11px",
                                             },
                                         ),
+                                        infoGraph,
                                     ]
                                 ),
                             ],
@@ -661,7 +657,7 @@ layout = html.Div(
                                                                 },
                                                             ),
                                                             dcc.Tab(
-                                                                label="Raw Data",
+                                                                label="Imported Data",
                                                                 id="raw_data",
                                                                 value="raw_data",
                                                                 className="control-tab",
@@ -723,32 +719,86 @@ layout = html.Div(
                                                 },
                                             ),
                                         ),
-                                        # dcc.Tab(id='league_tab',value= 'league_tab',style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
-                                        # selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
-                                        # 'align-items': 'center'},
-                                        # label='League Tables',
-                                        # children=html.Div(className='control-tab', children=[tab_league],
-                                        # style={'overflowX': 'unset',
-                                        # 'overflowY': 'unset',
-                                        # 'height': '99%',
-                                        # })
-                                        # ),
-                                        # dcc.Tab(id='consis_tab',value= 'consis_tab',style={'color': 'grey', 'display': 'none', 'justify-content': 'center', 'align-items': 'center'},
-                                        # selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
-                                        # 'align-items': 'center'},
-                                        # label='Consistency checks',
-                                        # children=html.Div(className='control-tab', children=[tab_consistency()],
-                                        # style={'overflowX': 'auto',
-                                        # 'overflowY': 'auto',
-                                        # 'height': '99%',
-                                        # })
-                                        # ),
-                                        # dcc.Tab(id='ranking_tab',value= 'ranking_tab',style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
-                                        # selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
-                                        # 'align-items': 'center'},
-                                        # label='Ranking plots',
-                                        # children=html.Div(className='control-tab', children=[tab_ranking])
-                                        # ),
+                                        dcc.Tab(
+                                            id="league_tab",
+                                            value="league_tab",
+                                            style={
+                                                "color": "grey",
+                                                "display": "none",
+                                                "justify-content": "center",
+                                                "align-items": "center",
+                                            },
+                                            selected_style={
+                                                "color": "grey",
+                                                "display": "flex",
+                                                "justify-content": "center",
+                                                "background-color": "#f5c198",
+                                                "align-items": "center",
+                                            },
+                                            label="League Tables",
+                                            children=html.Div(
+                                                className="control-tab",
+                                                children=[tab_league],
+                                                style={
+                                                    "overflowX": "unset",
+                                                    "overflowY": "unset",
+                                                    "height": "99%",
+                                                },
+                                            ),
+                                        ),
+                                        # Consistency tab - HIDDEN (not yet implemented)
+                                        dcc.Tab(
+                                            id="consis_tab",
+                                            value="consis_tab",
+                                            disabled=True,  # Disabled until fully implemented
+                                            style={
+                                                "color": "grey",
+                                                "display": "none",  # Hidden
+                                                "justify-content": "center",
+                                                "align-items": "center",
+                                            },
+                                            selected_style={
+                                                "color": "grey",
+                                                "display": "flex",
+                                                "justify-content": "center",
+                                                "background-color": "#f5c198",
+                                                "align-items": "center",
+                                            },
+                                            label="Consistency checks",
+                                            children=html.Div(
+                                                className="control-tab",
+                                                children=[tab_consistency()],
+                                                style={
+                                                    "overflowX": "auto",
+                                                    "overflowY": "auto",
+                                                    "height": "99%",
+                                                },
+                                            ),
+                                        ),
+                                        # Ranking tab - HIDDEN (not yet implemented)
+                                        dcc.Tab(
+                                            id="ranking_tab",
+                                            value="ranking_tab",
+                                            disabled=True,  # Disabled until fully implemented
+                                            style={
+                                                "color": "grey",
+                                                "display": "none",  # Hidden
+                                                "justify-content": "center",
+                                                "align-items": "center",
+                                            },
+                                            selected_style={
+                                                "color": "grey",
+                                                "display": "flex",
+                                                "justify-content": "center",
+                                                "background-color": "#f5c198",
+                                                "align-items": "center",
+                                            },
+                                            label="Ranking plots",
+                                            children=html.Div(
+                                                className="control-tab",
+                                                children=[tab_ranking],
+                                            ),
+                                        ),
                                     ],
                                     colors={
                                         "border": "grey",
@@ -923,16 +973,33 @@ layout = html.Div(
                                             ],
                                         ),
                                         # TO UNCOMMENT
-                                        # dcc.Tab(id='league_tab_both',value= 'league_tab_both',style={'color':'grey', 'display': 'none', 'justify-content':'center', 'align-items':'center'},
-                                        # selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
-                                        # 'align-items': 'center'},
-                                        # label='League Tables for two outcomes',
-                                        # children=html.Div(className='control-tab', children=[tab_league_both],
-                                        # style={'overflowX': 'unset',
-                                        # 'overflowY': 'unset',
-                                        # 'height': '99%',
-                                        # })
-                                        # ),
+                                        dcc.Tab(
+                                            id="league_tab_both",
+                                            value="league_tab_both",
+                                            style={
+                                                "color": "grey",
+                                                "display": "none",
+                                                "justify-content": "center",
+                                                "align-items": "center",
+                                            },
+                                            selected_style={
+                                                "color": "grey",
+                                                "display": "flex",
+                                                "justify-content": "center",
+                                                "background-color": "#f5c198",
+                                                "align-items": "center",
+                                            },
+                                            label="League Tables for two outcomes",
+                                            children=html.Div(
+                                                className="control-tab",
+                                                children=[tab_league_both],
+                                                style={
+                                                    "overflowX": "unset",
+                                                    "overflowY": "unset",
+                                                    "height": "99%",
+                                                },
+                                            ),
+                                        ),
                                         dcc.Tab(
                                             id="trans_tab",
                                             value="trans_tab",
@@ -955,15 +1022,30 @@ layout = html.Div(
                                                 children=[tab_trstvty],
                                             ),
                                         ),
-                                        # dcc.Tab(style={'color':'grey', 'display': 'none'},
-                                        # label=''
-                                        # ),
-                                        # dcc.Tab(id='funnel_tab',value= 'funnel_tab',style={'color':'grey','display': 'none', 'justify-content':'center', 'align-items':'center'},
-                                        # selected_style={'color': 'grey', 'display': 'flex', 'justify-content': 'center','background-color': '#f5c198',
-                                        # 'align-items': 'center'},
-                                        # label='Funnel plots',
-                                        # children=html.Div(className='control-tab', children=[tab_funnel])
-                                        # ),
+                                        # Funnel tab - HIDDEN (not yet implemented)
+                                        dcc.Tab(
+                                            id="funnel_tab",
+                                            value="funnel_tab",
+                                            disabled=True,  # Disabled until fully implemented
+                                            style={
+                                                "color": "grey",
+                                                "display": "none",  # Hidden
+                                                "justify-content": "center",
+                                                "align-items": "center",
+                                            },
+                                            selected_style={
+                                                "color": "grey",
+                                                "display": "flex",
+                                                "justify-content": "center",
+                                                "background-color": "#f5c198",
+                                                "align-items": "center",
+                                            },
+                                            label="Funnel plots",
+                                            children=html.Div(
+                                                className="control-tab",
+                                                children=[tab_funnel],
+                                            ),
+                                        ),
                                     ],
                                     colors={
                                         "border": "grey",
@@ -1041,53 +1123,117 @@ def redirect_on_reset(current_path, results_ready):
 
 
 @callback(
+    Output("_outcome_select", "options"),
     [
-        Output("_outcome_select", "options"),
-        Output("ranking_outcome_select2", "options"),
-    ],
-    [
-        Input("number-outcomes", "value"),
-        Input({"type": "nameoutcomes", "index": ALL}, "value"),
         Input("number_outcomes_STORAGE", "data"),
         Input("outcome_names_STORAGE", "data"),
     ],
     prevent_initial_call=False,
 )
-def update_outcome_options(number_outcomes, nameoutcomes, stored_num, stored_names):
-    """Update outcome selector dropdowns with outcome names."""
-    # Priority: stored values (from loaded project) > input values (from setup page)
+def update_outcome_options(stored_num, stored_names):
+    """Update outcome selector dropdowns with outcome names from STORAGE."""
+    print(
+        f"[DEBUG] update_outcome_options: stored_num={stored_num}, stored_names={stored_names}"
+    )
 
-    # Use stored number of outcomes if available
-    if stored_num and isinstance(stored_num, dict) and "value" in stored_num:
-        number_outcomes = stored_num["value"]
+    # If no data in storage, return empty options
+    if not stored_num or stored_num == 0:
+        print(f"[DEBUG] update_outcome_options: No data in storage, returning empty []")
+        return []
 
-    if not number_outcomes:
-        return [], []
-
-    try:
-        number_outcomes = int(number_outcomes)
-    except (ValueError, TypeError):
-        return [], []
-
-    # Use stored names if available
-    if stored_names and isinstance(stored_names, dict) and "names" in stored_names:
-        outcome_names_list = stored_names["names"][:number_outcomes]
-    # Otherwise use custom names from setup page
-    elif (
-        nameoutcomes
-        and len(nameoutcomes) >= number_outcomes
-        and all(nameoutcomes[:number_outcomes])
-    ):
-        outcome_names_list = [str(nameoutcomes[i]) for i in range(number_outcomes)]
+    # Convert stored_num to integer
+    if isinstance(stored_num, int):
+        number_outcomes = stored_num
     else:
-        # Otherwise use generic names
-        outcome_names_list = [f"outcome{i + 1}" for i in range(number_outcomes)]
+        try:
+            number_outcomes = int(stored_num)
+        except (ValueError, TypeError):
+            print(
+                f"[DEBUG] update_outcome_options: Invalid stored_num format, returning empty []"
+            )
+            return []
+
+    # Use stored names (must be a list with proper length)
+    if not stored_names or not isinstance(stored_names, list):
+        print(
+            f"[DEBUG] update_outcome_options: stored_names invalid, returning empty []"
+        )
+        return []
+
+    if len(stored_names) < number_outcomes:
+        print(
+            f"[DEBUG] update_outcome_options: stored_names too short ({len(stored_names)} < {number_outcomes}), returning empty []"
+        )
+        return []
+
+    outcome_names_list = stored_names[:number_outcomes]
 
     options_var = [
         {"label": outcome_names_list[i], "value": i} for i in range(number_outcomes)
     ]
 
-    return options_var, options_var
+    print(f"[DEBUG] update_outcome_options: Returning options={options_var}")
+    return options_var
+
+
+@callback(
+    Output("biforest_outcome_select2", "options"),
+    Output("biforest_outcome_select2", "value"),
+    Output("ranking_outcome_select2", "options"),
+    Output("ranking_outcome_select2", "value"),
+    [
+        Input("number_outcomes_STORAGE", "data"),
+        Input("outcome_names_STORAGE", "data"),
+    ],
+)
+def update_outcome2_selectors(stored_num, stored_names):
+    """Update outcome 2 selector dropdowns (biforest and ranking) with outcome names from STORAGE."""
+    print(
+        f"[DEBUG] update_outcome2_selectors: stored_num={stored_num}, stored_names={stored_names}"
+    )
+
+    # If no data in storage, return empty options
+    if not stored_num or stored_num == 0:
+        print(
+            f"[DEBUG] update_outcome2_selectors: No data in storage, returning empty []"
+        )
+        return [], None, [], None
+
+    # Use stored number of outcomes
+    if isinstance(stored_num, int):
+        number_outcomes = stored_num
+    else:
+        try:
+            number_outcomes = int(stored_num)
+        except (ValueError, TypeError):
+            print(
+                f"[DEBUG] update_outcome2_selectors: Invalid stored_num format, returning empty []"
+            )
+            return [], None, [], None
+
+    # Get outcome names
+    if not stored_names or not isinstance(stored_names, list):
+        outcome_names_list = [f"Outcome {i + 1}" for i in range(number_outcomes)]
+    else:
+        # stored_names is a list, use it directly
+        if len(stored_names) >= number_outcomes:
+            outcome_names_list = stored_names[:number_outcomes]
+        else:
+            # Fallback if not enough names
+            outcome_names_list = [f"Outcome {i + 1}" for i in range(number_outcomes)]
+
+    # Create dropdown options
+    options_var = [
+        {"label": outcome_names_list[i], "value": i} for i in range(number_outcomes)
+    ]
+
+    # Set default value to 1 if there are at least 2 outcomes, otherwise 0
+    default_value = 1 if number_outcomes >= 2 else 0
+
+    print(
+        f"[DEBUG] update_outcome2_selectors: Returning options={options_var}, value={default_value}"
+    )
+    return options_var, default_value, options_var, default_value
 
 
 ### --- update graph layout with dropdown: graph layout --- ###
@@ -1114,7 +1260,6 @@ def update_cytoscape_layout(layout):
     [
         Output("cytoscape", "stylesheet"),
         Output("modal-cytoscape", "stylesheet"),
-        Output("net_download_activation", "data"),
     ],
     [
         Input("cytoscape", "tapNode"),
@@ -1129,8 +1274,6 @@ def update_cytoscape_layout(layout):
         Input("treat_name_input", "value"),
         Input("dd_nds", "children"),
         Input("dd_egs", "children"),
-        Input("btn-get-png", "n_clicks"),
-        Input("btn-get-png-modal", "n_clicks"),
     ],
     prevent_initial_call=True,
     suppress_callback_exceptions=True,
@@ -1148,10 +1291,8 @@ def generate_stylesheet(
     treat_name,
     dd_nds,
     dd_egs,
-    dwld_button,
-    dwld_button2,
 ):
-    return __generate_stylesheet(
+    stylesheet, stylesheet_modal, _ = __generate_stylesheet(
         node,
         slct_nodesdata,
         elements,
@@ -1164,39 +1305,38 @@ def generate_stylesheet(
         treat_name,
         dd_nds,
         dd_egs,
-        dwld_button,
-        dwld_button2,
-        False,  # net_download_activation - pass False as initial value
+        None,  # dwld_button - not used anymore
+        None,  # dwld_button2 - not used anymore
+        False,  # net_download_activation - not used anymore
     )
+    return stylesheet, stylesheet_modal
 
 
 ### ----- save network plot as png ------ ###
 @callback(
     [Output("cytoscape", "generateImage"), Output("modal-cytoscape", "generateImage")],
-    Input("net_download_activation", "data"),
+    [Input("btn-get-png", "n_clicks"), Input("btn-get-png-modal", "n_clicks")],
     State("exp-options", "children"),
     prevent_initial_call=True,
 )
-def get_image(net_download_activation, export):
-    action = "store"
-    if net_download_activation:
-        action = "download"
+def get_image(btn_clicks, btn_modal_clicks, export):
+    """Download network graph image only when button is clicked"""
+    # Only download if a button was actually clicked
+    if not btn_clicks and not btn_modal_clicks:
+        return no_update, no_update
+
     return {
         "type": "jpeg"
         if export_selection == "as jpeg"
         else ("png" if export_selection == "as png" else "svg"),
-        "action": action,
-        "options": {  # 'bg':'#40515e',
-            "scale": 3
-        },
+        "action": "download",
+        "options": {"scale": 3},
     }, {
         "type": "jpeg"
         if export_selection == "as jpeg"
         else ("png" if export_selection == "as png" else "svg"),
-        "action": action,
-        "options": {  # 'bg':'#40515e',
-            "scale": 3
-        },
+        "action": "download",
+        "options": {"scale": 3},
     }
 
 
@@ -1215,11 +1355,10 @@ def get_image(net_download_activation, export):
         # Reset button removed from results page
         #    Input('node_size_input', 'value'),
     ],
-    prevent_initial_call=True,
+    prevent_initial_call=False,  # Must run on initial load to show network graph
 )
 def update_layout_year_slider(net_data, slider_year, out_fun):
-    # Guard: Don't execute if we're not on the results page (components don't exist)
-    # This prevents errors when loading demo on setup page
+    # Guard: Don't execute if data is not ready
     if not net_data or slider_year is None:
         return no_update, no_update
 
@@ -1334,13 +1473,19 @@ def TapEdgeData(edge):
         Input("cytoscape", "selectedNodeData"),
         Input("_outcome_select", "value"),
         Input("forest_data_STORAGE", "data"),
+        Input("forest_data_prws_STORAGE", "data"),
         Input("tapNodeData-fig", "style"),
         Input("add_pi", "value"),
+        Input("add_tau2", "value"),
     ],
     State("net_data_STORAGE", "data"),
 )
-def TapNodeData_fig(data, outcome_idx, forest_data, style, pi, net_storage):
-    return __TapNodeData_fig(data, outcome_idx, forest_data, style, pi, net_storage)
+def TapNodeData_fig(
+    data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage
+):
+    return __TapNodeData_fig(
+        data, outcome_idx, forest_data, pw_forest_data, style, pi, add_tau, net_storage
+    )
 
 
 ### ----- display bidim forest plot on node click ------ ###
@@ -1364,18 +1509,26 @@ def TapNodeData_fig_bidim(
 
 
 ### - figures on edge click: pairwise forest plots  - ###
-# UNCOMMENT
-# @callback([Output('tapEdgeData-fig-pairwise', 'figure'),
-# Output('tapEdgeData-fig-pairwise', 'style')],
-# [Input('cytoscape', 'selectedEdgeData'),
-# Input("_outcome_select", "value"),
-# Input('forest_data_prws_STORAGE', 'data'),
-# Input('tapEdgeData-fig-pairwise', 'style')],
-# State("net_data_STORAGE", "data")
-# )
+@callback(
+    [
+        Output("tapEdgeData-fig-pairwise", "figure"),
+        Output("tapEdgeData-fig-pairwise", "style"),
+    ],
+    [
+        Input("cytoscape", "selectedEdgeData"),
+        Input("_outcome_select", "value"),
+        Input("forest_data_prws_STORAGE", "data"),
+        Input("tapEdgeData-fig-pairwise", "style"),
+    ],
+    State("net_data_STORAGE", "data"),
+)
+def update_forest_pairwise(
+    edge, outcome_idx, forest_data_prws, style_pair, net_storage
+):
+    return __update_forest_pairwise(
+        edge, outcome_idx, forest_data_prws, style_pair, net_storage
+    )
 
-# def  update_forest_pairwise(edge, outcome_idx, forest_data_prws, style_pair, net_storage):
-# return __update_forest_pairwise(edge, outcome_idx, forest_data_prws,style_pair,net_storage)
 
 ### ----------------------------------  TRANSITIVITY CALLBACK ---------------------------------- ###
 
@@ -1388,9 +1541,12 @@ def TapNodeData_fig_bidim(
         Input("cytoscape", "selectedEdgeData"),
         Input("net_data_STORAGE", "data"),
     ],
-    prevent_initial_call=True,
+    prevent_initial_call=False,  # Run on page load to show instructions
 )
 def update_boxplot(scatter, value, edges, net_data):
+    print(
+        f"[DEBUG update_boxplot] Called with scatter={scatter}, value={value}, edges={edges}, net_data type={type(net_data)}"
+    )
     if scatter:
         return __update_scatter(value, edges, net_data)
     return __update_boxplot(value, edges, net_data)
@@ -1436,7 +1592,7 @@ def update_boxplot(scatter, value, edges, net_data):
     ],
     State("net_data_STORAGE", "data"),
     State("raw_data_STORAGE", "data"),
-    prevent_initial_call=True,
+    prevent_initial_call=False,  # Run on page load to populate tables with stored data
 )
 def updateput(
     slider_value,
@@ -1444,28 +1600,26 @@ def updateput(
     store_edge,
     net_data,
     raw_data,
-    toggle_cinema,
-    toggle_cinema_modal,
-    league_table_data,
-    cinema_net_data,
-    data_and_league_table_DATA,
     forest_data,
-    # reset_btn removed
+    ranking_data,
     outcome_idx,
     net_storage,
     raw_storage,
 ):
+    # Guard: If no data is loaded yet, return empty tables
+    if not net_data or not raw_data:
+        return [[], [], [], [], 0, 0, {}, [], []]
     return __update_output_new(
         slider_value,
         store_node,
         store_edge,
         net_data,
         raw_data,
-        toggle_cinema,
-        toggle_cinema_modal,
-        league_table_data,
-        cinema_net_data,
-        data_and_league_table_DATA,
+        None,  # toggle_cinema - not used yet
+        None,  # toggle_cinema_modal - not used yet
+        None,  # league_table_data - not used for data tables
+        None,  # cinema_net_data - not used yet
+        None,  # data_and_league_table_DATA - not used yet
         forest_data,
         None,  # reset_btn removed, passing None for compatibility
         outcome_idx,
@@ -1474,30 +1628,392 @@ def updateput(
     )
 
 
-# UNCOMMENT
-# @callback([
-# Output('league_table_both', 'children'),
-# Output('league_table_legend_both', 'children'),
-# Output('rob_vs_cinema-both', 'value'),
-# ],
-# [
-# Input('cytoscape', 'selectedNodeData'),
-# Input('cytoscape', 'selectedEdgeData'),
-# Input('rob_vs_cinema-both', 'value'),
-# Input('league_table_data_STORAGE', 'data'),
-# Input('cinema_net_data_STORAGE2', 'data'),
-# Input("forest_data_STORAGE", "data"),
-# Input('reset_project', 'n_clicks'),
-# Input({'type': 'outcomeprimary', 'index': ALL}, "value"),
-# ],
-# [State('net_data_STORAGE', 'data'),
-# State('datatable-secondfile-upload-2', 'filename')],
-# prevent_initial_call=True)
-# def update_output( store_node,store_edge,toggle_cinema,
-# league_table_data, cinema_net_data,
-# forest_data,  reset_btn,  outcome_idx,net_storage,filename_cinema2):
-# return __update_output_bothout( store_node,store_edge,toggle_cinema,
-# league_table_data, cinema_net_data, forest_data,  reset_btn,  outcome_idx,net_storage,filename_cinema2)
+### ---------------------------------- LEAGUE TABLE CALLBACK ---------------------------------- ###
+
+
+@callback(
+    [
+        Output("league_table", "children"),
+        Output("modal_league_table_data", "children"),
+        Output("league_table_legend", "children"),
+        Output("modal_league_table_legend", "children"),
+    ],
+    [
+        Input("league_table_data_STORAGE", "data"),
+        Input("_outcome_select", "value"),
+        Input("cytoscape", "selectedNodeData"),
+        Input("net_data_STORAGE", "data"),
+        Input("forest_data_STORAGE", "data"),
+        Input("rob_vs_cinema", "value"),
+        Input("cinema_net_data_STORAGE", "data"),
+    ],
+)
+def update_league_table(
+    league_table_data,
+    outcome_idx,
+    store_node,
+    net_data,
+    forest_data,
+    toggle_cinema,
+    cinema_net_data,
+):
+    """
+    Dedicated callback for league table display.
+    Reads from league_table_data_STORAGE and renders the league table.
+    Supports CINeMA coloring when toggle_cinema is True and CINeMA data is available.
+    """
+    from tools.functions_build_league_data_table import build_league_table
+    from assets.COLORS import (
+        CINEMA_g,
+        CINEMA_y,
+        CINEMA_r,
+        CINEMA_lb,
+        CX1,
+        CLR_BCKGRND2,
+        CX2,
+    )
+
+    # Guard: If no league table data, return empty
+    if not league_table_data or not net_data:
+        return [html.Div("No data available"), html.Div(), [], []]
+
+    # Default outcome index
+    if outcome_idx is None:
+        outcome_idx = 0
+
+    try:
+        # Get net_data for treatments list
+        net_data_json = get_net_data_json(net_data)
+        net_data_df = pd.read_json(net_data_json, orient="split").round(3)
+
+        # Get league table data for selected outcome
+        # League table is stored with treatments as index, so we need to add Treatment column
+        leaguetable = pd.read_json(league_table_data[outcome_idx], orient="split")
+        treatments = np.unique(
+            net_data_df[["treat1", "treat2"]].dropna().values.flatten()
+        )
+
+        # Handle node selection filtering
+        if store_node and any("id" in nd for nd in store_node):
+            slctd_trmnts = [nd["id"] for nd in store_node]
+            if len(slctd_trmnts) > 0:
+                # Filter to selected treatments (before adding Treatment column)
+                treatments = slctd_trmnts
+                # Filter leaguetable to selected treatments
+                leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
+
+        # Add Treatment column by resetting index (matching main version behavior)
+        leaguetable = leaguetable.reset_index().rename(columns={"index": "Treatment"})
+
+        # Get ROB data from net_data
+        net_data_df["rob"] = net_data_df["rob"].replace("__none__", "")
+        net_data_df["rob"] = net_data_df["rob"].replace(".", np.nan)
+        net_data_df["rob"] = net_data_df["rob"].replace("", np.nan)
+
+        robs = (
+            net_data_df.groupby(["treat1", "treat2"])
+            .rob.mean()
+            .reset_index()
+            .pivot_table(index="treat2", columns="treat1", values="rob")
+            .reindex(index=treatments, columns=treatments, fill_value=np.nan)
+        )
+
+        # Initialize CINeMA confidence data
+        comprs_conf_lt = None
+        comprs_conf_ut = None
+        comprs_downgrade = pd.DataFrame()
+
+        # Process CINeMA data if toggle is on and data is available
+        # cinema_net_data is a list with one entry per outcome
+        if (
+            toggle_cinema
+            and cinema_net_data
+            and isinstance(cinema_net_data, list)
+            and len(cinema_net_data) > outcome_idx
+            and cinema_net_data[outcome_idx]
+        ):
+            try:
+                cinema_df = pd.read_json(cinema_net_data[outcome_idx], orient="split")
+                confidence_map = {
+                    k: n for n, k in enumerate(["very low", "low", "moderate", "high"])
+                }
+
+                # Parse comparisons from CINeMA data
+                comparisons1 = cinema_df.Comparison.str.split(":", expand=True)
+                confidence1 = (
+                    cinema_df["Confidence rating"].str.lower().map(confidence_map)
+                )
+
+                # Set up comparison matrices
+                comparisons2 = comparisons1.copy()
+                comprs_conf_ut = comparisons2.copy()  # Upper triangle
+                comparisons1.columns = [1, 0]  # To get lower triangle
+                comprs_conf_lt = comparisons1.copy()  # Lower triangle
+
+                # Process downgrading reasons if available
+                if "Reason(s) for downgrading" in cinema_df.columns:
+                    downgrading1 = cinema_df["Reason(s) for downgrading"]
+                    comprs_downgrade_lt = comprs_conf_lt.copy()
+                    comprs_downgrade_ut = comprs_conf_ut.copy()
+                    comprs_downgrade_lt["Downgrading"] = downgrading1
+                    comprs_downgrade_ut["Downgrading"] = pd.Series(
+                        np.array([np.nan] * len(downgrading1)), copy=False
+                    )
+                    comprs_downgrade = pd.concat(
+                        [comprs_downgrade_ut, comprs_downgrade_lt]
+                    )
+                    comprs_downgrade = comprs_downgrade.pivot(
+                        index=0, columns=1, values="Downgrading"
+                    )
+
+                # Build confidence pivot table
+                comprs_conf_lt["Confidence"] = confidence1
+                comprs_conf_ut["Confidence"] = pd.Series(
+                    np.array([np.nan] * len(confidence1)), copy=False
+                )
+                comprs_conf = pd.concat([comprs_conf_ut, comprs_conf_lt])
+                comprs_conf = comprs_conf.pivot(index=0, columns=1, values="Confidence")
+
+                # Mask upper triangle
+                ut = np.triu(np.ones(comprs_conf.shape), 1).astype(bool)
+                comprs_conf = comprs_conf.where(ut == False, np.nan)
+
+                robs = comprs_conf
+            except Exception as e:
+                print(f"Error processing CINeMA data: {e}")
+                # Fall back to ROB if CINeMA processing fails
+                toggle_cinema = False
+        else:
+            # Ensure toggle_cinema is False if no CINeMA data
+            if toggle_cinema:
+                toggle_cinema = False
+
+        robs = robs.fillna(robs.T) if not toggle_cinema else robs
+        robs = robs.apply(pd.to_numeric, errors="coerce")
+
+        # Set up styling
+        N_BINS = 3 if not toggle_cinema else 4
+        cmap = (
+            [CINEMA_g, CINEMA_y, CINEMA_r]
+            if not toggle_cinema
+            else [CINEMA_r, CINEMA_y, CINEMA_lb, CINEMA_g]
+        )
+
+        # Define bounds for color mapping
+        if toggle_cinema:
+            confidence_map = {
+                k: n for n, k in enumerate(["very low", "low", "moderate", "high"])
+            }
+        else:
+            confidence_map = {k: n for n, k in enumerate(["low", "medium", "high"])}
+
+        df_max, df_min = max(confidence_map.values()), min(confidence_map.values())
+        bounds = np.arange(N_BINS + 1) / N_BINS
+        ranges = (df_max - df_min) * bounds + df_min
+        ranges[-1] *= 1.001
+        ranges = ranges + 1 if not toggle_cinema else ranges
+
+        # Create legend
+        legend_height = "4px"
+        legend = [
+            html.Div(
+                style={"display": "inline-block", "width": "100px"},
+                children=[
+                    html.Div(),
+                    html.Small(
+                        "Risk of bias: " if not toggle_cinema else "CINeMA rating: ",
+                        style={"color": "black"},
+                    ),
+                ],
+            )
+        ]
+        legend += [
+            html.Div(
+                style={"display": "inline-block", "width": "60px"},
+                children=[
+                    html.Div(
+                        style={"backgroundColor": cmap[n], "height": legend_height}
+                    ),
+                    html.Small(
+                        ("Very Low" if toggle_cinema else "Low")
+                        if n == 0
+                        else "High"
+                        if n == N_BINS - 1
+                        else None,
+                        style={"paddingLeft": "2px", "color": "black"},
+                    ),
+                ],
+            )
+            for n in range(N_BINS)
+        ]
+
+        # Build league table columns and styling
+        leaguetable_cols = [{"name": c, "id": c} for c in leaguetable.columns]
+
+        # Build conditional styling for ROB/CINeMA colors (matching main version format)
+        league_table_styles = []
+        for treat_c in treatments:
+            for treat_r in treatments:
+                if treat_r != treat_c:
+                    try:
+                        rob_val = (
+                            robs.loc[treat_r, treat_c]
+                            if treat_r in robs.index and treat_c in robs.columns
+                            else np.nan
+                        )
+                        # Check for NaN using the same pattern as main version
+                        empty = rob_val != rob_val
+                        diag = treat_r == treat_c
+
+                        # Map value to color bin
+                        indxs = (
+                            np.where(rob_val < ranges)[0] if rob_val == rob_val else [0]
+                        )
+                        clr_indx = indxs[0] - 1 if len(indxs) > 0 else 0
+
+                        # Use same filter_query format as main version
+                        league_table_styles.append(
+                            {
+                                "if": {
+                                    "filter_query": f"{{Treatment}} = {{{treat_r}}}",
+                                    "column_id": treat_c,
+                                },
+                                "backgroundColor": cmap[clr_indx]
+                                if not empty
+                                else CLR_BCKGRND2,
+                                "color": "white"
+                                if not empty
+                                else CX2
+                                if diag
+                                else "black",
+                            }
+                        )
+                    except (KeyError, IndexError):
+                        pass
+
+        league_table_styles.append(
+            {"if": {"column_id": "Treatment"}, "backgroundColor": CX1}
+        )
+
+        # Build tooltip values (matching main version format)
+        tooltip_values = []
+        if toggle_cinema and not comprs_downgrade.empty:
+            for rn, (_, tip) in enumerate(comprs_downgrade.iterrows()):
+                row_tooltips = {}
+                for col in leaguetable_cols:
+                    if col["id"] == "Treatment":
+                        row_tooltips[col["id"]] = None
+                    else:
+                        try:
+                            reason = tip[col["id"]] if col["id"] in tip.index else ""
+                            row_tooltips[col["id"]] = {
+                                "value": f"**Reason for Downgrading:** {reason}",
+                                "type": "markdown",
+                            }
+                        except KeyError:
+                            row_tooltips[col["id"]] = {
+                                "value": "**Reason for Downgrading:**",
+                                "type": "markdown",
+                            }
+                tooltip_values.append(row_tooltips)
+        else:
+            # ROB tooltips
+            for rn, (_, tip) in enumerate(robs.iterrows()):
+                row_tooltips = {}
+                for col in leaguetable_cols:
+                    if col["id"] == "Treatment":
+                        row_tooltips[col["id"]] = None
+                    else:
+                        try:
+                            rob_val = tip[col["id"]] if col["id"] in tip.index else None
+                            if rob_val is not None and pd.notna(rob_val):
+                                row_tooltips[col["id"]] = {
+                                    "value": f"**Average ROB:** {rob_val}",
+                                    "type": "markdown",
+                                }
+                            else:
+                                row_tooltips[col["id"]] = {
+                                    "value": "**Average ROB:** N/A",
+                                    "type": "markdown",
+                                }
+                        except KeyError:
+                            row_tooltips[col["id"]] = {
+                                "value": "**Average ROB:** N/A",
+                                "type": "markdown",
+                            }
+                tooltip_values.append(row_tooltips)
+
+        # Build league table component
+        league_table = build_league_table(
+            leaguetable.to_dict("records"),
+            leaguetable_cols,
+            league_table_styles,
+            tooltip_values,
+        )
+        league_table_modal = build_league_table(
+            leaguetable.to_dict("records"),
+            leaguetable_cols,
+            league_table_styles,
+            tooltip_values,
+            modal=True,
+        )
+
+        return [league_table, league_table_modal, legend, legend]
+
+    except Exception as e:
+        import traceback
+
+        error_msg = f"Error loading league table: {str(e)}"
+        print(f"League table error: {traceback.format_exc()}")
+        return [html.Div(error_msg), html.Div(), [], []]
+
+
+### ---------------------------------- LEAGUE TABLE FOR BOTH OUTCOMES ---------------------------------- ###
+@callback(
+    [
+        Output("league_table_both", "children"),
+        Output("league_table_legend_both", "children"),
+        Output("rob_vs_cinema-both", "value"),
+    ],
+    [
+        Input("cytoscape", "selectedNodeData"),
+        Input("cytoscape", "selectedEdgeData"),
+        Input("rob_vs_cinema-both", "value"),
+        Input("league_table_data_STORAGE", "data"),
+        Input("cinema_net_data_STORAGE2", "data"),
+        Input("forest_data_STORAGE", "data"),
+        Input({"type": "outcomeprimary", "index": ALL}, "value"),
+    ],
+    [
+        State("net_data_STORAGE", "data"),
+        State("datatable-secondfile-upload-2", "filename"),
+    ],
+    prevent_initial_call=True,
+)
+def update_league_table_both(
+    store_node,
+    store_edge,
+    toggle_cinema,
+    league_table_data,
+    cinema_net_data,
+    forest_data,
+    outcome_idx,
+    net_storage,
+    filename_cinema2,
+):
+    """Update the league table for both outcomes."""
+    return __update_output_bothout(
+        store_node,
+        store_edge,
+        toggle_cinema,
+        league_table_data,
+        cinema_net_data,
+        forest_data,
+        None,  # reset_btn - not used
+        outcome_idx,
+        net_storage,
+        filename_cinema2,
+    )
 
 
 ### ---------------------------------- FUNNEL, CONSISTENCY, RANKING  CALLBACKS ---------------------------------- ###
@@ -1505,18 +2021,23 @@ def updateput(
 
 #### ----- consistency table and netsplit table ----- ####
 
-# UNCOMMENT
-# @callback([Output('netsplit_table-container', 'data'),
-# Output('netsplit_table-container', 'columns'),
-# Output('consistency-table', 'data'),
-# Output('consistency-table', 'columns')],
-# [Input('cytoscape', 'selectedEdgeData'),
-# Input("_outcome_select", "value"),
-# Input('net_split_data_STORAGE', 'data'),
-# Input('consistency_data_STORAGE', 'data'),]
-# )
-# def netsplit(edges, outcome_idx, net_split_data, consistency_data):
-# return __netsplit(edges, outcome_idx, net_split_data, consistency_data)
+
+@callback(
+    [
+        Output("netsplit_table-container", "data"),
+        Output("netsplit_table-container", "columns"),
+        Output("consistency-table", "data"),
+        Output("consistency-table", "columns"),
+    ],
+    [
+        Input("cytoscape", "selectedEdgeData"),
+        Input("_outcome_select", "value"),
+        Input("net_split_data_STORAGE", "data"),
+        Input("consistency_data_STORAGE", "data"),
+    ],
+)
+def netsplit(edges, outcome_idx, net_split_data, consistency_data):
+    return __netsplit(edges, outcome_idx, net_split_data, consistency_data)
 
 
 ### ----- upload CINeMA data file 1 ------ ###
@@ -1670,16 +2191,40 @@ def Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data):
 
 
 # ############ - Ranking plots  - ###############
-# @callback([Output('tab-rank1', 'figure'),
-# Output('tab-rank2', 'figure')],
-# Input('ranking_data_STORAGE', 'data'),
-# Input('number-outcomes', 'value'),
-# #   Input("submit_modal_data", "n_clicks_timestamp"),
-# Input("_outcome_select", "value"),
-# Input("ranking_outcome_select2", "value"),
-# State('net_data_STORAGE', 'data'))
-# def ranking_plot(ranking_data, out_number, out_idx1, out_idx2,net_data):
-# return __ranking_plot(ranking_data, out_number, out_idx1,out_idx2,net_data)
+@callback(
+    [Output("tab-rank1", "figure"), Output("tab-rank2", "figure")],
+    Input("ranking_data_STORAGE", "data"),
+    Input("number_outcomes_STORAGE", "data"),
+    Input("_outcome_select", "value"),
+    Input("_outcome_select", "options"),
+    Input("ranking_outcome_select2", "value"),
+    State("net_data_STORAGE", "data"),
+)
+def ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_data):
+    """Generate ranking heatmap and scatter plots based on outcome selection."""
+    from tools.functions_ranking_plots import __ranking_plot
+
+    # Guard against missing data
+    if not ranking_data or not net_data:
+        import plotly.express as px
+
+        empty_fig = px.scatter()
+        empty_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        return empty_fig, empty_fig
+
+    # Default indices
+    if out_idx1 is None:
+        out_idx1 = 0
+    if out_idx2 is None:
+        out_idx2 = 1 if out_number and out_number >= 2 else 0
+
+    return __ranking_plot(
+        ranking_data, out_number, out_idx1, options, out_idx2, net_data
+    )
+
 
 ###############################################################################
 ################### Bootstrap Dropdowns callbacks #############################
@@ -1696,7 +2241,7 @@ def Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data):
     ],
     prevent_initial_call=True,
 )
-def which_dd_nds(default_t, default_v, tot_rnd_t, tot_rnd_v):
+def which_dd_nds_size(default_t, default_v, tot_rnd_t, tot_rnd_v):
     values = [default_v, tot_rnd_v]
     dd_nds = [default_t or 0, tot_rnd_t or 0]
     which = dd_nds.index(max(dd_nds))
@@ -1756,7 +2301,9 @@ def which_dd_egs(default_t, default_v, nstud_t, nstud_v):
     ],
     prevent_initial_call=True,
 )
-def which_dd_nds(default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal):
+def which_dd_nds_color(
+    default_t, default_v, rob_t, rob_v, class_t, class_v, closing_modal
+):
     values = [default_v, rob_v, class_v]
     dd_nclr = [default_t or 0, rob_t or 0, class_t or 0]
     which = dd_nclr.index(max(dd_nclr))
@@ -1810,7 +2357,7 @@ flatten = lambda t: [item for sublist in t for item in sublist]
     ),
     prevent_initial_call=True,
 )
-def which_dd_nds(
+def which_dd_nds_layout(
     circle_t,
     circle_v,
     breadthfirst_t,
@@ -1866,7 +2413,7 @@ def which_dd_nds(
         Input("close_modal_dd_nclr_input", "n_clicks"),
     ],
 )
-def toggle_modal(open_t, close):
+def toggle_modal_node_color(open_t, close):
     if open_t:
         return True
     if close:
@@ -2067,7 +2614,7 @@ def update_dropdown_effect_mod(stored_modifiers, tab_value):
     Input("network-expand", "n_clicks_timestamp"),
     Input("network-zoomout", "n_clicks_timestamp"),
 )
-def toggle_modal(expand, zoomout, expand1, zoomout1, expand_plot, zoomout_plot):
+def toggle_expand_views(expand, zoomout, expand1, zoomout1, expand_plot, zoomout_plot):
     style_display = {"display": "block"}
     style_no_display = {"display": "none"}
     style_expand_width = {"width": "93.4%", "margin-left": "3.3%"}
@@ -2210,7 +2757,7 @@ def toggle_modal(expand, zoomout, expand1, zoomout1, expand_plot, zoomout_plot):
     [Input("info_icon", "n_clicks"), Input("close_modal_info", "n_clicks")],
     [State("modal_info", "is_open")],
 )
-def toggle_modal(open, close, is_open):
+def toggle_modal_info(open, close, is_open):
     if open or close:
         return not is_open
     return is_open
@@ -2377,13 +2924,21 @@ def infor_overall(data):
         Output("data_tab", "style"),
         Output("trans_tab", "style"),
         Output("forest_tab", "style"),
+        Output("league_tab", "style"),
+        Output("league_tab_both", "style"),
         Output("results_tabs", "value"),
         Output("results_tabs2", "value"),
     ],
     Input("result_selected", "value"),
 )
 def results_display(selected):
-    """Display Data, Transitivity, and Forest tabs"""
+    """Display tabs based on result selection dropdown.
+
+    Options:
+        0 - Data & Transitivity: show data_tab and trans_tab
+        1 - Forest plots: show forest_tab
+        2 - League tables: show league_tab and league_tab_both
+    """
     style_display = {
         "color": "grey",
         "display": "flex",
@@ -2399,23 +2954,69 @@ def results_display(selected):
 
     # Option 0: Data & Transitivity
     if selected == 0:
-        return style_display, style_display, style_no_display, "data_tab", "trans_tab"
+        return (
+            style_display,  # data_tab
+            style_display,  # trans_tab
+            style_no_display,  # forest_tab
+            style_no_display,  # league_tab
+            style_no_display,  # league_tab_both
+            "data_tab",  # results_tabs value
+            "trans_tab",  # results_tabs2 value
+        )
 
-    # Option 1: Forest plots (show forest tab, hide others)
+    # Option 1: Forest plots
     elif selected == 1:
         return (
-            style_no_display,
-            style_no_display,
-            style_display,
-            "forest_tab",
-            "forest_tab",
+            style_no_display,  # data_tab
+            style_no_display,  # trans_tab
+            style_display,  # forest_tab
+            style_no_display,  # league_tab
+            style_no_display,  # league_tab_both
+            "forest_tab",  # results_tabs value
+            "forest_tab",  # results_tabs2 value
+        )
+
+    # Option 2: League tables
+    elif selected == 2:
+        return (
+            style_no_display,  # data_tab
+            style_no_display,  # trans_tab
+            style_no_display,  # forest_tab
+            style_display,  # league_tab
+            style_display,  # league_tab_both
+            "league_tab",  # results_tabs value
+            "league_tab_both",  # results_tabs2 value
         )
 
     # Default: show Data & Transitivity
-    return style_display, style_display, style_no_display, "data_tab", "trans_tab"
+    return (
+        style_display,
+        style_display,
+        style_no_display,
+        style_no_display,
+        style_no_display,
+        "data_tab",
+        "trans_tab",
+    )
 
 
 ## -------------------------------------------- INFOBOXES CALLBACKS ----------------------------------------------- ##
+
+
+# Year info modal callback
+@callback(
+    Output("modal-body-year", "is_open"),
+    [
+        Input("open-body-year", "n_clicks"),
+        Input("close-body-year", "n_clicks"),
+    ],
+    [State("modal-body-year", "is_open")],
+)
+def toggle_modal_year(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
 
 ### -------------------------------------------- FUNNEL CALLBACKS ----------------------------------------------- ###
 # UNCOMMENT
@@ -2432,4 +3033,384 @@ def results_display(selected):
 # return not is_open
 # return is_open
 
+
+# Scatter info modal callback for transitivity checks
+@callback(
+    Output("modal-body-scatter", "is_open"),
+    [
+        Input("open-body-scatter", "n_clicks"),
+        Input("close-body-scatter", "n_clicks"),
+    ],
+    [State("modal-body-scatter", "is_open")],
+)
+def toggle_modal_scatter(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Graph info modal callback for network graph
+@callback(
+    Output("modal-body-graph", "is_open"),
+    [
+        Input("open-body-graph", "n_clicks"),
+        Input("close-body-graph", "n_clicks"),
+    ],
+    [State("modal-body-graph", "is_open")],
+)
+def toggle_modal_graph(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Forest info modal callback
+@callback(
+    Output("modal-body-forest", "is_open"),
+    [
+        Input("open-body-forest", "n_clicks"),
+        Input("close-body-forest", "n_clicks"),
+    ],
+    [State("modal-body-forest", "is_open")],
+)
+def toggle_modal_forest(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Forest2 info modal callback for bi-dimensional forest plot
+@callback(
+    Output("modal-body-forest2", "is_open"),
+    [
+        Input("open-body-forest2", "n_clicks"),
+        Input("close-body-forest2", "n_clicks"),
+    ],
+    [State("modal-body-forest2", "is_open")],
+)
+def toggle_modal_forest2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+### -------------------------------------------- LEAGUE TABLE INFO CALLBACKS ----------------------------------------------- ###
+
+
+# League table info modal callback
+@callback(
+    Output("modal-body-league1", "is_open"),
+    [
+        Input("open-body-league1", "n_clicks"),
+        Input("close-body-league1", "n_clicks"),
+    ],
+    [State("modal-body-league1", "is_open")],
+)
+def toggle_modal_league1(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Risk of Bias info modal callback
+@callback(
+    Output("modal-body-RoB", "is_open"),
+    [
+        Input("open-body-RoB", "n_clicks"),
+        Input("close-body-RoB", "n_clicks"),
+    ],
+    [State("modal-body-RoB", "is_open")],
+)
+def toggle_modal_rob(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# CINeMA info modal callback
+@callback(
+    Output("modal-body-cinema", "is_open"),
+    [
+        Input("open-body-cinema", "n_clicks"),
+        Input("close-body-cinema", "n_clicks"),
+    ],
+    [State("modal-body-cinema", "is_open")],
+)
+def toggle_modal_cinema(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# League table 2 (both outcomes) info modal callback
+@callback(
+    Output("modal-body-league2", "is_open"),
+    [
+        Input("open-body-league2", "n_clicks"),
+        Input("close-body-league2", "n_clicks"),
+    ],
+    [State("modal-body-league2", "is_open")],
+)
+def toggle_modal_league2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
 ## -------------------------------------------- END INFOBOXES CALLBACKS ----------------------------------------------- ##
+
+
+## -------------------------------------------- CINEMA UPLOAD CALLBACKS ----------------------------------------------- ##
+
+
+### ----- upload CINeMA data file (single outcome league table) ------ ###
+@callback(
+    [
+        Output("cinema_net_data_STORAGE", "data"),
+        Output("file2-list", "children"),
+    ],
+    [
+        Input("datatable-secondfile-upload", "contents"),
+    ],
+    [
+        State("datatable-secondfile-upload", "filename"),
+        State("cinema_net_data_STORAGE", "data"),
+        State("_outcome_select", "value"),
+        State("number_outcomes_STORAGE", "data"),
+    ],
+    prevent_initial_call=True,
+)
+def upload_cinema_single_outcome(
+    contents, filename, cinema_net_data, outcome_idx, number_outcomes
+):
+    """
+    Upload CINeMA report for single outcome league table.
+    Stores the CINeMA data in cinema_net_data_STORAGE as a list (one entry per outcome).
+    Only stores valid CINeMA files (with required columns).
+    Data is persisted to localStorage.
+    """
+    from tools.utils import parse_contents
+    from tools.functions_cinema import validate_cinema_csv
+
+    if contents is None:
+        raise PreventUpdate
+
+    # Default outcome index
+    if outcome_idx is None:
+        outcome_idx = 0
+
+    # Get number of outcomes
+    if number_outcomes is None or number_outcomes < 1:
+        number_outcomes = 1
+
+    try:
+        # Parse uploaded file
+        cinema_df = parse_contents(contents, filename)
+
+        # Validate CINeMA CSV format
+        is_valid, error_msg = validate_cinema_csv(cinema_df)
+        if not is_valid:
+            print(f"CINeMA validation failed for {filename}: {error_msg}")
+            # Return existing data unchanged, show error message
+            return cinema_net_data if cinema_net_data else [], html.Span(
+                f"Invalid file: {error_msg}", style={"color": "red", "fontSize": "12px"}
+            )
+
+        # Initialize storage list if empty
+        if cinema_net_data is None or not isinstance(cinema_net_data, list):
+            cinema_net_data = [None] * number_outcomes
+        else:
+            # Make a copy to avoid mutating the original
+            cinema_net_data = list(cinema_net_data)
+
+        # Ensure list is long enough
+        while len(cinema_net_data) <= outcome_idx:
+            cinema_net_data.append(None)
+
+        # Store at correct outcome index
+        cinema_net_data[outcome_idx] = cinema_df.to_json(orient="split")
+
+        return cinema_net_data, html.Span(
+            f"Loaded: {filename}",
+            style={"color": "green", "fontSize": "12px"},
+        )
+
+    except Exception as e:
+        print(f"Error uploading CINeMA file: {e}")
+        return cinema_net_data if cinema_net_data else [], html.Span(
+            f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}
+        )
+
+
+### ----- upload CINeMA data files (both outcomes league table) ------ ###
+@callback(
+    [
+        Output("cinema_net_data_STORAGE2", "data"),
+        Output("file-list-out1", "children"),
+        Output("file-list-out2", "children"),
+    ],
+    [
+        Input("datatable-secondfile-upload-1", "contents"),
+        Input("datatable-secondfile-upload-2", "contents"),
+    ],
+    [
+        State("datatable-secondfile-upload-1", "filename"),
+        State("datatable-secondfile-upload-2", "filename"),
+        State("cinema_net_data_STORAGE2", "data"),
+    ],
+    prevent_initial_call=True,
+)
+def upload_cinema_both_outcomes(
+    contents1, contents2, filename1, filename2, cinema_net_data2
+):
+    """
+    Upload CINeMA reports for both outcomes league table.
+    Stores CINeMA data in cinema_net_data_STORAGE2 as a list [outcome1_json, outcome2_json].
+    Only stores valid CINeMA files (with required columns).
+    Data is persisted to localStorage.
+    """
+    from tools.utils import parse_contents
+    from tools.functions_cinema import validate_cinema_csv
+
+    # Determine which input triggered the callback
+    triggered = [tr["prop_id"] for tr in dash.callback_context.triggered]
+
+    # Initialize storage list if empty [outcome1, outcome2]
+    if cinema_net_data2 is None or not isinstance(cinema_net_data2, list):
+        cinema_net_data2 = [None, None]
+    else:
+        # Make a copy to avoid mutating the original
+        cinema_net_data2 = list(cinema_net_data2)
+
+    # Ensure list has at least 2 elements
+    while len(cinema_net_data2) < 2:
+        cinema_net_data2.append(None)
+
+    file1_msg = ""
+    file2_msg = ""
+
+    try:
+        # Process file 1 if uploaded (for outcome 1)
+        if (
+            "datatable-secondfile-upload-1.contents" in triggered
+            and contents1 is not None
+        ):
+            cinema_df1 = parse_contents(contents1, filename1)
+            # Validate CINeMA CSV format
+            is_valid, error_msg = validate_cinema_csv(cinema_df1)
+            if is_valid:
+                cinema_net_data2[0] = cinema_df1.to_json(orient="split")
+                file1_msg = html.Span(
+                    f"Loaded: {filename1}",
+                    style={"color": "green", "fontSize": "12px"},
+                )
+            else:
+                file1_msg = html.Span(
+                    f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
+                )
+
+        # Process file 2 if uploaded (for outcome 2)
+        if (
+            "datatable-secondfile-upload-2.contents" in triggered
+            and contents2 is not None
+        ):
+            cinema_df2 = parse_contents(contents2, filename2)
+            # Validate CINeMA CSV format
+            is_valid, error_msg = validate_cinema_csv(cinema_df2)
+            if is_valid:
+                cinema_net_data2[1] = cinema_df2.to_json(orient="split")
+                file2_msg = html.Span(
+                    f"Loaded: {filename2}",
+                    style={"color": "green", "fontSize": "12px"},
+                )
+            else:
+                file2_msg = html.Span(
+                    f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
+                )
+
+        return cinema_net_data2, file1_msg, file2_msg
+
+    except Exception as e:
+        print(f"Error uploading CINeMA files: {e}")
+        return (
+            cinema_net_data2,
+            html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
+            html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
+        )
+
+
+### ----- disable CINeMA toggle when no CINeMA file uploaded or invalid ------ ###
+@callback(
+    Output("rob_vs_cinema", "disabled"),
+    [
+        Input("cinema_net_data_STORAGE", "data"),
+        Input("_outcome_select", "value"),
+    ],
+)
+def disable_cinema_toggle(cinema_net_data, outcome_idx):
+    """
+    Disable CINeMA toggle switch when no valid CINeMA data is available for current outcome.
+    cinema_net_data is a list with one entry per outcome.
+    """
+    from tools.functions_cinema import validate_cinema_csv
+
+    if outcome_idx is None:
+        outcome_idx = 0
+
+    # Check if cinema data exists for current outcome (list format)
+    if cinema_net_data is None or not isinstance(cinema_net_data, list):
+        return True
+
+    if len(cinema_net_data) <= outcome_idx or cinema_net_data[outcome_idx] is None:
+        return True
+
+    # Validate the stored CINeMA data has required columns
+    try:
+        cinema_df = pd.read_json(cinema_net_data[outcome_idx], orient="split")
+        is_valid, _ = validate_cinema_csv(cinema_df)
+        if not is_valid:
+            return True
+    except Exception:
+        return True
+
+    return False
+
+
+@callback(
+    Output("rob_vs_cinema-both", "disabled"),
+    [
+        Input("cinema_net_data_STORAGE2", "data"),
+    ],
+)
+def disable_cinema_toggle_both(cinema_net_data2):
+    """
+    Disable CINeMA toggle switch for both outcomes table when no valid CINeMA data.
+    cinema_net_data2 is a list [outcome1_json, outcome2_json].
+    """
+    from tools.functions_cinema import validate_cinema_csv
+
+    # Check if cinema data exists for both outcomes (list format)
+    if cinema_net_data2 is None or not isinstance(cinema_net_data2, list):
+        return True
+
+    if len(cinema_net_data2) < 2:
+        return True
+
+    if cinema_net_data2[0] is None or cinema_net_data2[1] is None:
+        return True
+
+    # Validate both CINeMA datasets have required columns
+    try:
+        cinema_df1 = pd.read_json(cinema_net_data2[0], orient="split")
+        cinema_df2 = pd.read_json(cinema_net_data2[1], orient="split")
+        is_valid1, _ = validate_cinema_csv(cinema_df1)
+        is_valid2, _ = validate_cinema_csv(cinema_df2)
+        if not is_valid1 or not is_valid2:
+            return True
+    except Exception:
+        return True
+
+    return False
+
+
+## -------------------------------------------- END CINEMA UPLOAD CALLBACKS ----------------------------------------------- ##

@@ -2,6 +2,14 @@ import os, shutil, pickle, base64, io
 import string
 import random
 from pandas.api.types import is_numeric_dtype
+import pandas as pd
+
+# Monkey patch for pandas 2.0+ compatibility with rpy2
+# rpy2's pandas2ri uses iteritems() which was removed in pandas 2.0
+if not hasattr(pd.DataFrame, "iteritems"):
+    pd.DataFrame.iteritems = pd.DataFrame.items
+if not hasattr(pd.Series, "iteritems"):
+    pd.Series.iteritems = pd.Series.items
 
 # from tools.PATHS import __SESSIONS_FOLDER, YESTERDAY
 from assets.effect_sizes import *
@@ -72,6 +80,8 @@ def _process_rob_column(df):
     """Process rob column if it exists, otherwise create it with NaN values."""
     if "rob" not in df.columns:
         df["rob"] = np.nan
+
+    # Convert to string for text processing
     df["rob"] = df["rob"].astype("string")
     df["rob"] = (
         df["rob"]
@@ -80,6 +90,11 @@ def _process_rob_column(df):
         .replace({"low": "l", "medium": "m", "high": "h"})
         .replace({"l": 1, "m": 2, "h": 3})
     )
+
+    # Convert to nullable integer type to avoid encoding issues with rpy2
+    # This ensures the column is consistently numeric after the string-to-int replacement
+    df["rob"] = pd.to_numeric(df["rob"], errors="coerce")
+
     return df
 
 
@@ -87,8 +102,8 @@ def apply_r_func(func, df):
     """Apply R function with proper conversion context for threading."""
     df = _process_rob_column(df)
 
-    # Use context manager for thread-safe conversion (rpy2 3.x+)
-    with (ro.default_converter + pandas2ri.converter).context():
+    # Use localconverter for thread-safe conversion
+    with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
         func_r_res = func(dat=df_r)
         r_result = ro.conversion.rpy2py(func_r_res)
@@ -113,8 +128,8 @@ def apply_r_func_new(func, df, i):
     """Apply R function with outcome index and proper conversion context."""
     df = _process_rob_column(df)
 
-    # Use context manager for thread-safe conversion (rpy2 3.x+)
-    with (ro.default_converter + pandas2ri.converter).context():
+    # Use localconverter for thread-safe conversion
+    with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
         func_r_res = func(dat=df_r, i=i)
         r_result = ro.conversion.rpy2py(func_r_res)
@@ -140,8 +155,8 @@ def apply_r_func_new_lt(func, df, i, j):
     """Apply R function for league table with proper conversion context."""
     df = _process_rob_column(df)
 
-    # Use context manager for thread-safe conversion (rpy2 3.x+)
-    with (ro.default_converter + pandas2ri.converter).context():
+    # Use localconverter for thread-safe conversion
+    with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
         func_r_res = func(dat=df_r, i=i, j=j)
         r_result = ro.conversion.rpy2py(func_r_res)
@@ -149,6 +164,10 @@ def apply_r_func_new_lt(func, df, i, j):
         if isinstance(r_result, ro.vectors.ListVector):
             # Convert all list elements while still in context
             leaguetable = [ro.conversion.rpy2py(rf) for rf in r_result]
+            # If it's a list of DataFrames, ensure they're properly converted
+            if len(leaguetable) > 0 and isinstance(leaguetable[0], pd.DataFrame):
+                # For league table with 2 outcomes, return the combined table (usually the last one)
+                return leaguetable[-1]
             return leaguetable
         else:
             # r_result should be a pandas DataFrame after conversion
@@ -182,12 +201,11 @@ def apply_r_func_two_outcomes(func, df, num_outcomes):
     """
     Apply R function with proper conversion context for threading.
     Ensures pandas2ri conversion works in Dash callback threads.
-    Uses Converter.context() instead of deprecated activate/deactivate.
     """
     df = _process_rob_column(df)
 
-    # Use context manager for thread-safe conversion (rpy2 3.x+)
-    with (ro.default_converter + pandas2ri.converter).context():
+    # Use localconverter for thread-safe conversion
+    with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
         func_r_res = func(dat=df_r, num_outcome=num_outcomes)
         r_result = ro.conversion.rpy2py(func_r_res)
@@ -624,20 +642,34 @@ def parse_contents(contents, filename):
     decoded = base64.b64decode(content_string)
     missing_values = ["n/a", "na", "--", ".", "missing", "NA", "NAN", "None", "", " "]
     if "csv" in filename:  # Assume that the user uploaded a CSV file
+        # Try different encodings and delimiters
+        encodings = ["utf-8", "unicode-escape", "ISO-8859-1"]
+        delimiters = [",", ";", "\t"]  # comma, semicolon, tab
+
+        for encoding in encodings:
+            for delimiter in delimiters:
+                try:
+                    df = pd.read_csv(
+                        io.StringIO(decoded.decode(encoding, errors="ignore")),
+                        na_values=missing_values,
+                        sep=delimiter,
+                    )
+                    # Check if parsing was successful (more than 1 column usually means correct delimiter)
+                    if len(df.columns) > 1:
+                        return df
+                except Exception:
+                    continue
+
+        # Fallback: try with default settings
         try:
             df = pd.read_csv(
                 io.StringIO(decoded.decode("utf-8", errors="ignore")),
                 na_values=missing_values,
             )
-        except:
-            try:
-                df = pd.read_csv(
-                    io.StringIO(decoded.decode("unicode-escape", errors="ignore")),
-                    na_values=missing_values,
-                )
-            except:
-                df = pd.read_csv(io.StringIO(decoded.decode("ISO-8859-1")))
-        return df
+            return df
+        except Exception as e:
+            raise ValueError(f"Could not parse CSV file: {str(e)}")
+
     elif "xls" in filename:  # TODO: add xls options: so far this is not working
         return pd.read_excel(io.BytesIO(decoded))
 

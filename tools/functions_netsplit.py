@@ -1,7 +1,12 @@
 import pandas as pd
+from dash import no_update
 
 
 def __netsplit(edges, outcome_idx, net_split_data, consistency_data):
+    # Guard: return no_update if outcome_idx is None or data is missing
+    if outcome_idx is None or not net_split_data or not consistency_data:
+        return no_update
+
     df = pd.read_json(net_split_data[outcome_idx], orient="split")
     consistency_data = pd.read_json(consistency_data[0], orient="split")
 

@@ -122,8 +122,18 @@ PSORIASIS_DATA = {
         NETSPLIT_DATA_ALL.to_json(orient="split"),
         NETSPLIT_DATA_ALL_OUT2.to_json(orient="split"),
     ],
-    "net_download_activation": True,
     "results_ready_STORAGE": True,
     "effect_modifiers_STORAGE": ["age", "bmi", "weight", "male_percentage"],
-    "uploaded_datafile_to_disable_cinema": "psoriasis_long_complete.csv",
+    "uploaded_datafile_to_disable_cinema": {"filename": "psoriasis_long_complete.csv"},
+    "R_errors_STORAGE": {},
+    "number_outcomes_STORAGE": 2,
+    "outcome_names_STORAGE": ["PASI90", "SAE"],
+    "cinema_net_data_STORAGE": [
+        CINEMA_NET_DATA1.to_json(orient="split"),
+        CINEMA_NET_DATA2.to_json(orient="split"),
+    ],
+    "cinema_net_data_STORAGE2": [
+        CINEMA_NET_DATA1.to_json(orient="split"),
+        CINEMA_NET_DATA2.to_json(orient="split"),
+    ],
 }

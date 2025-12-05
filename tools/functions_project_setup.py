@@ -1038,8 +1038,8 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                     style={
                                         "display": "grid",
                                         "gridTemplateColumns": "1fr 1fr",
-                                        "width": "400px",
-                                        "justifyContent": "center",
+                                        "width": "550px",
+                                        "justifyItems": "center",
                                     },
                                 )
                             ],

@@ -113,7 +113,12 @@ async def test_create_3outcomes_project():
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False, slow_mo=100)
-        page = await browser.new_page()
+        # Set up downloads directory
+        output_dir = Path(__file__).parent / "downloads"
+        output_dir.mkdir(exist_ok=True)
+        # Create context with downloads acceptance
+        context = await browser.new_context(accept_downloads=True)
+        page = await context.new_page()
 
         # Set longer default timeout
         page.set_default_timeout(15000)
@@ -727,58 +732,41 @@ async def test_create_3outcomes_project():
                 except:
                     print(f"⚠️  No redirect detected. Current URL: {page.url}")
 
-                # Step 18: Save the project
-                print("\n💾 Step 18: Saving project...")
+                # Step 18: Save the project using Save/Load modal
+                print("\n💾 Step 18: Saving project using Save/Load modal...")
                 await page.wait_for_timeout(2000)
 
-                # Extract localStorage data (where all STORAGE keys are kept)
-                storage_data = await page.evaluate("""
-                    () => {
-                        const data = {};
-                        const storageKeys = [
-                            'raw_data_STORAGE',
-                            'net_data_STORAGE',
-                            'league_table_data_STORAGE',
-                            'consistency_data_STORAGE',
-                            'forest_data_STORAGE',
-                            'forest_data_prws_STORAGE',
-                            'ranking_data_STORAGE',
-                            'funnel_data_STORAGE',
-                            'net_split_data_STORAGE',
-                            'net_split_ALL_data_STORAGE',
-                            'net_download_activation',
-                            'results_ready_STORAGE',
-                            'effect_modifiers_STORAGE',
-                            'uploaded_datafile_to_disable_cinema',
-                            'R_errors_STORAGE',
-                            'nmastudio-version'
-                        ];
-                        
-                        for (const key of storageKeys) {
-                            const value = localStorage.getItem(key);
-                            if (value !== null) {
-                                try {
-                                    data[key] = JSON.parse(value);
-                                } catch {
-                                    data[key] = value;
-                                }
-                            } else {
-                                data[key] = null;
-                            }
-                        }
-                        return data;
-                    }
-                """)
-
-                # Save to file
                 output_dir = Path(__file__).parent / "downloads"
-                output_dir.mkdir(exist_ok=True)
+
+                # Click Save/Load Project button
+                await page.click("#open_saveload")
+                print("✅ Clicked Save/Load Project button")
+                await page.wait_for_timeout(2000)
+
+                # Wait for modal to be visible
+                await page.wait_for_selector(
+                    "#modal_saveload", state="visible", timeout=5000
+                )
+                print("✅ Save/Load modal opened")
+
+                # Enter project name
+                await page.fill("#input-projectname", "3outcomes_test_project")
+                print("✅ Entered project name: 3outcomes_test_project")
+                await page.wait_for_timeout(500)
+
+                # Set up download event listener before clicking Save
+                async with page.expect_download() as download_info:
+                    await page.click("#btn_json")
+                    print("✅ Clicked Save Project button")
+
+                download = await download_info.value
                 output_file = output_dir / "3outcomes_test_project.nmastudio"
-
-                with open(output_file, "w") as f:
-                    json.dump(storage_data, f, indent=4)
-
+                await download.save_as(str(output_file))
                 print(f"✅ Project saved to: {output_file}")
+
+                # Close the modal
+                await page.click("#close_saveload")
+                await page.wait_for_timeout(500)
 
             # Take a screenshot
             screenshot_path = Path(__file__).parent / "test_create_3outcomes_result.png"

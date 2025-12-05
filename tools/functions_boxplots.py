@@ -1,8 +1,12 @@
 import pandas as pd
 import plotly.graph_objects as go
+from tools.utils import get_net_data_json
 
 
 def __update_boxplot(value, edges, net_data):
+    print(
+        f"[DEBUG __update_boxplot] Called with value={value}, edges={edges}, net_data type={type(net_data)}"
+    )
     active, non_active = "#1B58E2", "#313539"  # '#4C5353'
     if value:
         net_data = pd.read_json(get_net_data_json(net_data), orient="split")

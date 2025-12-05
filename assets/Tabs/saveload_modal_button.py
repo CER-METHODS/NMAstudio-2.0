@@ -249,8 +249,11 @@ def export_json(n_clicks, storagium, prjname):
     prevent_initial_call=True,
 )
 def update_output(contents, filename, storagium):
+    # Guard: only proceed if there's actual file content (not on initial page load)
     if contents is None:
-        return storagium + [None]  # Return storage without changes, no trigger
+        from dash import no_update
+
+        return [no_update] * (len(STORAGEOUTPUT) + 1)  # Don't update anything
 
     # Decode the file contents
     content_type, content_string = contents.split(",")
@@ -267,26 +270,35 @@ def update_output(contents, filename, storagium):
         idx = __get_state_of("results_ready_STORAGE")
         res[idx] = True
 
-        # Derive number of outcomes from loaded data
-        # Check forest_data_STORAGE (most reliable for outcome count)
-        forest_data = prjdata.get("forest_data_STORAGE", [])
-        if isinstance(forest_data, list):
-            num_outcomes = len(forest_data)
-        elif isinstance(forest_data, dict):
-            # New format: count keys starting with "outcome"
-            num_outcomes = len(
-                [k for k in forest_data.keys() if k.startswith("outcome")]
-            )
-        else:
-            num_outcomes = 2  # Default
+        # Derive number of outcomes and outcome names from loaded data
+        # First try to get from the project data directly (if it was saved)
+        num_outcomes = prjdata.get("number_outcomes_STORAGE")
+        outcome_names = prjdata.get("outcome_names_STORAGE")
 
-        # Store the number of outcomes
+        # If not in project, derive from forest_data_STORAGE
+        if not num_outcomes:
+            forest_data = prjdata.get("forest_data_STORAGE", [])
+            if isinstance(forest_data, list):
+                num_outcomes = len(forest_data)
+            elif isinstance(forest_data, dict):
+                # New format: count keys starting with "outcome"
+                num_outcomes = len(
+                    [k for k in forest_data.keys() if k.startswith("outcome")]
+                )
+            else:
+                num_outcomes = 2  # Default
+
+        # If outcome names not in project, use generic names
+        if not outcome_names or not isinstance(outcome_names, list):
+            outcome_names = [f"Outcome{i + 1}" for i in range(num_outcomes)]
+
+        # Store the number of outcomes (as integer, not dict)
         idx_outcomes = __get_state_of("number_outcomes_STORAGE")
-        res[idx_outcomes] = {"value": num_outcomes}
+        res[idx_outcomes] = num_outcomes
 
-        # For now, use generic outcome names (can be enhanced later)
+        # Store outcome names (as list, not dict)
         idx_names = __get_state_of("outcome_names_STORAGE")
-        res[idx_names] = {"names": [f"outcome{i + 1}" for i in range(num_outcomes)]}
+        res[idx_names] = outcome_names
 
         print(f"[DEBUG] Project loaded with {num_outcomes} outcomes")
 

@@ -20,8 +20,18 @@ except ImportError:
 DEBUG_MODE = os.environ.get("DEBUG_MODE", "False").lower() in ("true", "1", "yes")
 
 from dash import dash, html, dcc, Output, Input, State, ctx
+import dash_bootstrap_components as dbc
 from tools.navbar import Navbar
-from assets.storage import TODAY, SESSION_TYPE, get_new_session_id
+from assets.storage import TODAY, SESSION_TYPE, get_new_session_id, STORAGE
+from assets.alerts import (
+    R_errors_data,
+    R_errors_nma,
+    R_errors_pair,
+    R_errors_league,
+    R_errors_funnel,
+    dataupload_error,
+)
+from assets.modal_values import modal_checks  # Data analysis progress modal
 
 app = dash.Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
 
@@ -41,6 +51,37 @@ def get_new_layout():
                 id="consts_STORAGE",
                 data={"today": TODAY, "session_ID": SESSION_ID},
                 storage_type=SESSION_TYPE,
+            ),
+            # Global STORAGE - shared across all pages (localStorage persistence)
+            html.Div(STORAGE, style={"display": "none"}),
+            # Global Alert modals - available on all pages for callbacks
+            html.Div(
+                [
+                    R_errors_data,
+                    R_errors_nma,
+                    R_errors_pair,
+                    R_errors_league,
+                    R_errors_funnel,
+                    dataupload_error,
+                ],
+                style={"display": "none"},
+            ),
+            # Data analysis progress modal - must be in global layout for multi-page app
+            # (dbc.Modal doesn't render correctly inside page layouts)
+            modal_checks,
+            # Global placeholder components for setup page analysis callbacks
+            # These components are updated during data analysis and need to exist globally
+            # so callbacks don't fail when triggered during page transitions.
+            # Must be dcc.Store (not html.Div) because callbacks use .data property
+            html.Div(
+                [
+                    dcc.Store(id="para-check-data"),
+                    dcc.Store(id="para-anls-data"),
+                    dcc.Store(id="para-pairwise-data"),
+                    dcc.Store(id="para-LT-data"),
+                    dcc.Store(id="para-FA-data"),
+                ],
+                style={"display": "none"},
             ),
             dash.page_container,
         ]

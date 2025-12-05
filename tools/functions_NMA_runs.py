@@ -201,40 +201,24 @@ def __modal_submit_checks_LT(
                 netsplit_all2,
             )
         except Exception as Rconsole_error_league:
+            # Convert exception to string to avoid JSON serialization issues
+            error_msg = str(Rconsole_error_league)
             return (
-                (
-                    True,
-                    str(Rconsole_error_league),
-                    html.P(
-                        "\u274c"
-                        + " An error occurred when computing analyses in R: check your data",
-                        style={"color": "red"},
-                    ),
-                    "__Para_Done__",
-                    LEAGUETABLE_data,
-                    ranking_data,
-                    consistency_data,
-                    net_split_data,
-                    netsplit_all,
-                )
-                if "TE2" not in data.columns
-                else (
-                    False,
-                    html.P(
-                        "\u274c"
-                        + "An error occurred when computing analyses in R: check your data",
-                        style={"color": "red"},
-                    ),
-                    "__Para_Done__",
-                    Rconsole_error_league,
-                    LEAGUETABLE_data,
-                    ranking_data,
-                    consistency_data,
-                    net_split_data,
-                    net_split_data2,
-                    netsplit_all,
-                    netsplit_all2,
-                )
+                True,
+                error_msg,
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                net_split_data2,
+                netsplit_all,
+                netsplit_all2,
             )
     else:
         net_split_data2 = {}
@@ -339,38 +323,22 @@ def __modal_submit_checks_LT_new(
                 netsplit_all,
             )
         except Exception as Rconsole_error_league:
+            # Convert exception to string to avoid JSON serialization issues
+            error_msg = str(Rconsole_error_league)
             return (
-                (
-                    True,
-                    str(Rconsole_error_league),
-                    html.P(
-                        "\u274c"
-                        + " An error occurred when computing analyses in R: check your data",
-                        style={"color": "red"},
-                    ),
-                    "__Para_Done__",
-                    LEAGUETABLE_data,
-                    ranking_data,
-                    consistency_data,
-                    net_split_data,
-                    netsplit_all,
-                )
-                if "TE2" not in data.columns
-                else (
-                    False,
-                    html.P(
-                        "\u274c"
-                        + "An error occurred when computing analyses in R: check your data",
-                        style={"color": "red"},
-                    ),
-                    "__Para_Done__",
-                    Rconsole_error_league,
-                    LEAGUETABLE_data,
-                    ranking_data,
-                    consistency_data,
-                    net_split_data,
-                    netsplit_all,
-                )
+                True,
+                error_msg,
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                netsplit_all,
             )
     else:
         return (

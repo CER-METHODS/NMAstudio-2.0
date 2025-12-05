@@ -65,7 +65,7 @@ async def test_load_psoriasis_demo():
                     return None
 
             print(f"✅ Page loaded: {page.url}")
-            await page.wait_for_timeout(2000)
+            await page.wait_for_timeout(5000)  # Give Dash more time to render
 
             # Take a screenshot
             await page.screenshot(path="tests/psoriasis_workflow/01_setup_page.png")
@@ -73,17 +73,30 @@ async def test_load_psoriasis_demo():
 
             print("\n🔍 Step 2: Looking for 'Load Psoriasis Demo Project' button...")
 
-            # Check if button exists
-            button_exists = await page.locator("#load_psor").count() > 0
-            if not button_exists:
-                print("❌ 'Load Psoriasis Demo Project' button not found!")
+            # Check if button exists and wait for it
+            load_demo_button = page.locator("#load_psor")
+            try:
+                await load_demo_button.wait_for(state="visible", timeout=10000)
+                print("✅ Found 'Load Psoriasis Demo Project' button")
+                button_exists = True
+            except Exception as e:
+                print(
+                    f"❌ 'Load Psoriasis Demo Project' button not found! Error: {str(e)[:100]}"
+                )
                 print("Available buttons:")
-                buttons = await page.locator("button").all_text_contents()
-                for i, btn_text in enumerate(buttons, 1):
-                    print(f"  {i}. {btn_text}")
+                try:
+                    buttons = await page.locator("button").all()
+                    print(f"Found {len(buttons)} buttons total")
+                    for i, btn in enumerate(buttons[:10]):
+                        try:
+                            btn_text = await btn.inner_text()
+                            btn_id = await btn.get_attribute("id")
+                            print(f"  {i + 1}. id='{btn_id}' text='{btn_text[:40]}'")
+                        except:
+                            pass
+                except Exception as e2:
+                    print(f"Error getting buttons: {e2}")
                 return None
-
-            print("✅ Found 'Load Psoriasis Demo Project' button")
 
             print("\n⏳ Step 3: Clicking 'Load Psoriasis Demo Project' button...")
 

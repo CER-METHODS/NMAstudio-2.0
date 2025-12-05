@@ -6,13 +6,18 @@ from assets.psoriasisDemo import PSORIASIS_DATA
 import pandas as pd
 import json
 
+# Default consistency data for tab initialization
+CONSISTENCY_DATA = pd.read_csv("db/consistency/consistency.csv")
+
 # from collections import OrderedDict
 import datetime, uuid
 from dash.dependencies import Output, State
 
 SESSION_PICKLE = {"wait": False}
 get_new_session_id = lambda: uuid.uuid4().__str__()
-SESSION_TYPE = "local"  # localstorage
+SESSION_TYPE = (
+    "local"  # localStorage - data persists across page refresh and browser close
+)
 
 TODAY = str(datetime.datetime.today().date())
 
@@ -69,13 +74,14 @@ STORAGE_SCHEMA = {
     "funnel_data_STORAGE": "list",
     "net_split_data_STORAGE": "list",
     "net_split_ALL_data_STORAGE": "list",
-    "net_download_activation": "bl",
     "results_ready_STORAGE": "bl",
     "effect_modifiers_STORAGE": "list",  # List of effect modifier names
     "uploaded_datafile_to_disable_cinema": "dict",
     "R_errors_STORAGE": "dict",
-    "number_outcomes_STORAGE": "dict",
-    "outcome_names_STORAGE": "dict",
+    "number_outcomes_STORAGE": "int",  # Integer: number of outcomes (e.g., 3)
+    "outcome_names_STORAGE": "list",  # List of outcome names (e.g., ["PASI90", "SAE", "AE"])
+    "cinema_net_data_STORAGE": "list",  # List of CINeMA data JSON strings (one per outcome)
+    "cinema_net_data_STORAGE2": "list",  # CINeMA data for "both outcomes" league table [outcome1_json, outcome2_json]
 }
 
 EMPTY_STORAGE = {
@@ -90,13 +96,14 @@ EMPTY_STORAGE = {
     "funnel_data_STORAGE": [],
     "net_split_data_STORAGE": [],
     "net_split_ALL_data_STORAGE": [],
-    "net_download_activation": False,
     "results_ready_STORAGE": False,
     "effect_modifiers_STORAGE": [],
     "uploaded_datafile_to_disable_cinema": {},
     "R_errors_STORAGE": {},
-    "number_outcomes_STORAGE": {},
-    "outcome_names_STORAGE": {},
+    "number_outcomes_STORAGE": 0,  # Integer: number of outcomes
+    "outcome_names_STORAGE": [],  # List of outcome names
+    "cinema_net_data_STORAGE": [],  # List of CINeMA data JSON strings (one per outcome)
+    "cinema_net_data_STORAGE2": [],  # CINeMA data for "both outcomes" league table
 }
 
 
@@ -128,6 +135,8 @@ def init_type(stkey):
             stype = list()
         case "bl":
             stype = False
+        case "int":
+            stype = 0
         case "strng":
             stype = "Nothing"
         case "version":
@@ -153,7 +162,6 @@ def __empty_project():
         dcc.Store(
             id="net_split_ALL_data_STORAGE", data=None, storage_type=SESSION_TYPE
         ),
-        dcc.Store(id="net_download_activation", data=False, storage_type=SESSION_TYPE),
         dcc.Store(id="results_ready_STORAGE", data=False, storage_type=SESSION_TYPE),
         dcc.Store(id="effect_modifiers_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(
@@ -164,6 +172,8 @@ def __empty_project():
         dcc.Store(id="R_errors_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="number_outcomes_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="outcome_names_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="cinema_net_data_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="cinema_net_data_STORAGE2", data=None, storage_type=SESSION_TYPE),
     ]
 
 
@@ -180,5 +190,3 @@ def __storage_to_dict(storagium):
 
 # Start with empty storage
 STORAGE = __empty_project()
-
-# STORAGE = __load_project(__empty_project(), PSORIASIS_DATA)

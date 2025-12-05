@@ -333,6 +333,9 @@ file_upload_controls2 = [
 #                   id="modal_data", centered=False, style={'backgroundColor':'#40515e',"max-width": "none", "width": "50%"})
 
 
+# Note: para-check-data, para-anls-data, para-pairwise-data, para-LT-data, para-FA-data
+# are defined globally in app.py to prevent callback errors during page transitions.
+# The modal references these global components.
 modal_checks = dbc.Modal(
     is_open=False,
     children=[
@@ -344,36 +347,22 @@ modal_checks = dbc.Modal(
                 html.P("Data check:", style={"color": "black"}),
                 dcc.Loading(
                     id="loading-data-checks",
-                    children=[
-                        html.Div(
-                            children=[html.P(" ...", style={"color": "black"})],
-                            id="para-check-data",
-                        )
-                    ],
+                    # Reference the global para-check-data component
+                    children=[html.Div(id="para-check-data-modal")],
                     type="default",
                 ),
                 html.Br(),
                 html.P("Network meta-analysis:", style={"color": "black"}),
                 dcc.Loading(
                     id="loading-data-analysis",
-                    children=[
-                        html.Div(
-                            children=[html.P(" ...", style={"color": "black"})],
-                            id="para-anls-data",
-                        )
-                    ],
+                    children=[html.Div(id="para-anls-data-modal")],
                     type="default",
                 ),
                 html.Br(),
                 html.P("Pairwise meta-analysis:", style={"color": "black"}),
                 dcc.Loading(
                     id="loading-data-analysis2",
-                    children=[
-                        html.Div(
-                            children=[html.P(" ...", style={"color": "black"})],
-                            id="para-pairwise-data",
-                        )
-                    ],
+                    children=[html.Div(id="para-pairwise-data-modal")],
                     type="default",
                 ),
                 html.Br(),
@@ -382,24 +371,14 @@ modal_checks = dbc.Modal(
                 ),
                 dcc.Loading(
                     id="loading-data-analysis3",
-                    children=[
-                        html.Div(
-                            children=[html.P(" ...", style={"color": "black"})],
-                            id="para-LT-data",
-                        )
-                    ],
+                    children=[html.Div(id="para-LT-data-modal")],
                     type="default",
                 ),
                 html.Br(),
                 html.P("Funnel plot:", style={"color": "black"}),
                 dcc.Loading(
                     id="loading-data-analysis4",
-                    children=[
-                        html.Div(
-                            children=[html.P(" ...", style={"color": "black"})],
-                            id="para-FA-data",
-                        )
-                    ],
+                    children=[html.Div(id="para-FA-data-modal")],
                     type="default",
                 ),
                 html.Br(),
