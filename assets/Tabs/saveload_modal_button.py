@@ -9,6 +9,7 @@ from assets.storage import (
     __load_project,
     __storage_to_dict,
 )
+from assets.skt_storage import SKT_EMPTY_STORAGE
 
 saveload_modal = html.Div(
     [
@@ -241,7 +242,11 @@ def export_json(n_clicks, storagium, prjname):
 
 # Define callback to process uploaded file (reactivated for file processing, but output display is disabled)
 @callback(
-    STORAGEOUTPUT + [Output("project_upload_trigger", "data")],  # Add trigger output
+    STORAGEOUTPUT
+    + [
+        Output("treatment_fullnames_SKT", "data", allow_duplicate=True),
+        Output("project_upload_trigger", "data"),
+    ],  # Add SKT clear + trigger output
     Input("upload-json", "contents"),
     State("upload-json", "filename"),
     [STORAGESTATE],
@@ -252,7 +257,9 @@ def update_output(contents, filename, storagium):
     if contents is None:
         from dash import no_update
 
-        return [no_update] * (len(STORAGEOUTPUT) + 1)  # Don't update anything
+        return [no_update] * (
+            len(STORAGEOUTPUT) + 2
+        )  # Don't update anything (storage + SKT + trigger)
 
     # Decode the file contents
     content_type, content_string = contents.split(",")
@@ -302,14 +309,17 @@ def update_output(contents, filename, storagium):
         print(f"[DEBUG] Project loaded with {num_outcomes} outcomes")
 
         print(f"[DEBUG] Loaded project '{filename}' with {num_outcomes} outcomes")
-        # Return storage data and trigger redirect with timestamp
+        # Return storage data, clear SKT storage, and trigger redirect with timestamp
         import time
 
-        return res + [time.time()]  # Timestamp triggers redirect
+        return res + [
+            SKT_EMPTY_STORAGE["treatment_fullnames_SKT"],
+            time.time(),
+        ]  # Clear SKT + timestamp triggers redirect
     except Exception as e:
         print(f"[ERROR] Failed to load project '{filename}': {e}")
         import traceback
 
         traceback.print_exc()
         # Return storage without changes on error, no trigger
-        return storagium + [None]
+        return storagium + [None, None]  # No SKT update, no trigger

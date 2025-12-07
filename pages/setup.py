@@ -24,7 +24,8 @@ from assets.storage import (  # type: ignore
     __load_project,
     __get_state_of,
 )
-from assets.psoriasisDemo3outcomes import PSORIASIS_3OUTCOMES_DATA  # type: ignore
+from assets.skt_storage import SKT_EMPTY_STORAGE  # type: ignore
+from assets.psoriasisDemo import PSORIASIS_DATA  # type: ignore
 from assets.Tabs.saveload_modal_button import saveload_modal  # type: ignore
 from assets.modal_values import file_upload_controls2  # type: ignore
 
@@ -662,7 +663,7 @@ def display_confirm(value):
 
 
 @callback(
-    STORAGEOUTPUT,
+    STORAGEOUTPUT + [Output("treatment_fullnames_SKT", "data", allow_duplicate=True)],
     [Input("confirm-reset", "submit_n_clicks")],
     [STORAGESTATE],
     prevent_initial_call=True,
@@ -670,11 +671,12 @@ def display_confirm(value):
 def empty_stt(_nclicks, storagium):
     # Guard: only proceed if user actually clicked (not on initial page load)
     if not _nclicks or _nclicks == 0:
-        return [dash.no_update] * len(STORAGEOUTPUT)
+        return [dash.no_update] * (len(STORAGEOUTPUT) + 1)
     res = __load_project(storagium, EMPTY_STORAGE)
     idx = __get_state_of("results_ready_STORAGE")
     print(f"[DEBUG] empty_stt (reset): results_ready at index {idx} = {res[idx]}")
-    return res
+    # Also clear SKT storage
+    return res + [SKT_EMPTY_STORAGE["treatment_fullnames_SKT"]]
 
 
 # Load psoriasis CHECKED
@@ -688,7 +690,11 @@ def display_confirm_psor(_value):
 
 
 @callback(
-    STORAGEOUTPUT + [Output("setup_page_location", "pathname")],
+    STORAGEOUTPUT
+    + [
+        Output("treatment_fullnames_SKT", "data", allow_duplicate=True),
+        Output("setup_page_location", "pathname"),
+    ],
     [Input("confirm-psor", "submit_n_clicks")],
     [STORAGESTATE],
     prevent_initial_call=True,
@@ -696,9 +702,9 @@ def display_confirm_psor(_value):
 def load_psr(_nclicks, storagium):
     # Guard: only proceed if user actually clicked (not on initial page load)
     if not _nclicks or _nclicks == 0:
-        return [dash.no_update] * (len(STORAGEOUTPUT) + 1)
+        return [dash.no_update] * (len(STORAGEOUTPUT) + 2)
     print(f"[DEBUG] load_psr: CALLBACK TRIGGERED with n_clicks={_nclicks}")
-    res = __load_project(storagium, PSORIASIS_3OUTCOMES_DATA)
+    res = __load_project(storagium, PSORIASIS_DATA)
     # Set results_ready to True - it's already included in STORAGEOUTPUT
     # The __load_project function returns all storage values, we need to update results_ready
     idx = __get_state_of("results_ready_STORAGE")
@@ -708,7 +714,8 @@ def load_psr(_nclicks, storagium):
     print(f"[DEBUG] load_psr: res[{idx}] = {res[idx]}")
     # Redirect to results page by setting pathname (with refresh=True, causes page reload)
     print(f"[DEBUG] load_psr: Redirecting to /results")
-    return res + ["/results"]
+    # Clear SKT storage and redirect
+    return res + [SKT_EMPTY_STORAGE["treatment_fullnames_SKT"], "/results"]
 
 
 # Auto-redirect to results when project is uploaded (triggered by upload, not by results_ready)
@@ -1126,14 +1133,18 @@ def is_data_file_uploaded(filename):
 @callback(
     [
         Output("modal_data_checks", "is_open"),
-        Output("raw_data_STORAGE", "data"),
-        Output("net_data_STORAGE", "data"),
+        Output("raw_data_STORAGE", "data", allow_duplicate=True),
+        Output("net_data_STORAGE", "data", allow_duplicate=True),
         Output("Rconsole-error-data", "children"),
         Output("R-alert-data", "is_open"),
         Output("dropdown-intervention", "options"),
-        Output("effect_modifiers_STORAGE", "data"),
-        Output("outcome_names_STORAGE", "data"),
-        Output("number_outcomes_STORAGE", "data"),
+        Output("effect_modifiers_STORAGE", "data", allow_duplicate=True),
+        Output("outcome_names_STORAGE", "data", allow_duplicate=True),
+        Output("number_outcomes_STORAGE", "data", allow_duplicate=True),
+        # Clear CINeMA and SKT stores when running new analysis
+        Output("cinema_net_data_STORAGE", "data", allow_duplicate=True),
+        Output("cinema_net_data_STORAGE2", "data", allow_duplicate=True),
+        Output("treatment_fullnames_SKT", "data", allow_duplicate=True),
     ],
     [
         Input("upload_modal_data2", "n_clicks"),
@@ -1177,11 +1188,11 @@ def data_trans(
 ):
     # Guard: Check if this is a genuine button click (not from persisted session state)
     if not upload or upload == 0:
-        return [dash.no_update] * 9
+        return [dash.no_update] * 12  # 9 original + 3 new (cinema*2 + skt)
 
     # Guard: Check if file has been uploaded
     if contents is None:
-        return [dash.no_update] * 9
+        return [dash.no_update] * 12
 
     try:
         print(f"[DEBUG data_trans] Called!")
@@ -1214,7 +1225,7 @@ def data_trans(
 
         # __data_trans returns 8 values: (modal_open, raw_data, net_data, filename_exists, error, alert_open, dropdown_options, results_ready)
         # We need: (modal_open, raw_data, net_data, error, alert_open, dropdown_options) = 6 values
-        # So we remove the last 2 values: filename_exists (uploaded_datafile_to_disable_cinema) and results_ready
+        # So we remove the last 2 values: filename_exists and results_ready
         result = __data_trans(
             upload,
             None,  # filename2 - not used
@@ -1277,6 +1288,10 @@ def data_trans(
             effect_modifiers_data,
             outcome_names_list,
             number_outcomes_int,
+            # Clear CINeMA and SKT stores when running new analysis
+            [],  # cinema_net_data_STORAGE
+            [],  # cinema_net_data_STORAGE2
+            SKT_EMPTY_STORAGE["treatment_fullnames_SKT"],  # treatment_fullnames_SKT
         )
     except Exception as e:
         print(f"[ERROR data_trans] EXCEPTION CAUGHT: {e}")
@@ -1294,6 +1309,10 @@ def data_trans(
             None,  # no effect modifiers
             [],  # empty outcome names
             0,  # zero outcomes
+            # Still clear CINeMA and SKT on error to avoid stale data
+            [],  # cinema_net_data_STORAGE
+            [],  # cinema_net_data_STORAGE2
+            SKT_EMPTY_STORAGE["treatment_fullnames_SKT"],  # treatment_fullnames_SKT
         )
 
 
@@ -1428,6 +1447,7 @@ def modal_submit_checks_PAIRWISE(
         State("net_split_data_STORAGE", "data"),
         State("net_split_ALL_data_STORAGE", "data"),
         State({"type": "outcomeprimary", "index": ALL}, "value"),
+        State("outcome_names_STORAGE", "data"),
     ],
     prevent_initial_call=True,
 )
@@ -1442,6 +1462,7 @@ def modal_submit_checks_LT(
     net_split_data,
     netsplit_all,
     outcome_index,
+    outcome_names,
 ):
     # Use stored number of outcomes (fallback to 1)
     num_outcome = num_outcome_storage if num_outcome_storage else 1
@@ -1460,6 +1481,7 @@ def modal_submit_checks_LT(
         net_split_data,
         netsplit_all,
         outcome_index,
+        outcome_names,
     )
     # result is (alert, error, children, data_marker, league, ranking, consistency, netsplit, netsplit_all)
     # Output: alert, error, marker to Store, children to modal, league, ranking, consistency, netsplit, netsplit_all

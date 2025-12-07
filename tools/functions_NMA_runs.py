@@ -249,8 +249,13 @@ def __modal_submit_checks_LT_new(
     net_split_data,
     netsplit_all,
     outcome_idx,
+    outcome_names=None,
 ):
-    """produce new league table from R"""
+    """produce new league table from R
+
+    Args:
+        outcome_names: List of outcome names from outcome_names_STORAGE
+    """
     if modal_data_checks_is_open:
         if len(outcome_idx) == 0:
             # If outcome_idx is None, set default values
@@ -277,7 +282,7 @@ def __modal_submit_checks_LT_new(
 
         try:
             LEAGUETABLE_OUTS = [[] for _ in range(num_outcome)]
-            LEAGUETABLE_data = [[] for _ in range(num_outcome + 1)]
+            league_table_list = [[] for _ in range(num_outcome + 1)]
             ranking_data = [[] for _ in range(num_outcome)]
             consistency_data = [[] for _ in range(num_outcome)]
             net_split_data = [[] for _ in range(num_outcome)]
@@ -286,7 +291,7 @@ def __modal_submit_checks_LT_new(
             for i in range(num_outcome):
                 LEAGUETABLE_OUTS[i] = generate_league_table(data, i)
                 (
-                    LEAGUETABLE_data[i],
+                    league_table_list[i],
                     ranking_data[i],
                     consistency_data[i],
                     net_split_data[i],
@@ -299,7 +304,28 @@ def __modal_submit_checks_LT_new(
                 else pd.DataFrame()
             )
             # LEAGUETABLE_both.to_csv('leaguw_test.csv')
-            LEAGUETABLE_data[-1] = LEAGUETABLE_both.to_json(orient="split")
+            league_table_both_json = LEAGUETABLE_both.to_json(orient="split")
+
+            # Get compared outcome names from outcome_names_STORAGE
+            compared_outcome_names = []
+            if outcome_names and isinstance(outcome_names, list):
+                if outcome_idx1 < len(outcome_names):
+                    compared_outcome_names.append(outcome_names[outcome_idx1])
+                if outcome_idx2 < len(outcome_names) and outcome_idx1 != outcome_idx2:
+                    compared_outcome_names.append(outcome_names[outcome_idx2])
+
+            # Build league_table_data dict with data and compared_outcomes metadata
+            # The "both outcomes" league table is stored in compared_outcomes, not in data list
+            LEAGUETABLE_data = {
+                "data": league_table_list[:-1],  # Exclude the last item (both outcomes)
+                "compared_outcomes": {
+                    "indices": [outcome_idx1, outcome_idx2]
+                    if outcome_idx1 != outcome_idx2
+                    else [outcome_idx1],
+                    "names": compared_outcome_names,
+                    "league_table": league_table_both_json,
+                },
+            }
 
             # merged_ranking_data = pd.read_json(ranking_data[0], orient='split')
             # for i, json_path in enumerate(ranking_data[1:], start=2):

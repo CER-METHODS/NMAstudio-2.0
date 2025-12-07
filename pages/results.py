@@ -1511,7 +1511,17 @@ def update_layout_year_slider(net_data, slider_year, out_fun):
 
     outcome = out_fun
     if outcome:
-        outcome = int(outcome)
+        try:
+            outcome = int(outcome)
+        except (ValueError, TypeError):
+            outcome = 0
+        # Clamp outcome to valid range based on available TE columns
+        max_outcome = 0
+        for col in net_datajs.columns:
+            if col.startswith("TE") and col[2:].isdigit():
+                max_outcome = max(max_outcome, int(col[2:]) - 1)
+        outcome = min(outcome, max_outcome)
+
         net_data_df = pd.read_json(net_data_json, orient="split")
         net_datajs2 = net_data_df[net_data_df.year <= slider_year]
         elements = get_network_new(df=net_datajs2, i=outcome)
@@ -1799,7 +1809,8 @@ def update_league_table(
 
         # Get league table data for selected outcome
         # League table is stored with treatments as index, so we need to add Treatment column
-        leaguetable = pd.read_json(league_table_data[outcome_idx], orient="split")
+        league_data_list = get_league_table_data_list(league_table_data)
+        leaguetable = pd.read_json(league_data_list[outcome_idx], orient="split")
         treatments = np.unique(
             net_data_df[["treat1", "treat2"]].dropna().values.flatten()
         )
@@ -2125,6 +2136,32 @@ def update_league_table_both(
         net_storage,
         filename_cinema2,
     )
+
+
+### ---------------------------------- CINEMA UPLOAD LABELS FOR BOTH OUTCOMES ---------------------------------- ###
+@callback(
+    [
+        Output("cinema-upload-label-1", "children"),
+        Output("cinema-upload-label-2", "children"),
+    ],
+    Input("league_table_data_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def update_cinema_upload_labels(league_table_data):
+    """Update CINeMA upload labels with actual outcome names from compared_outcomes."""
+    # Default labels
+    label1 = "Upload CINeMA report for outcome 1"
+    label2 = "Upload CINeMA report for outcome 2"
+
+    if league_table_data and isinstance(league_table_data, dict):
+        compared = league_table_data.get("compared_outcomes", {})
+        names = compared.get("names", [])
+        if len(names) >= 1:
+            label1 = f"Upload CINeMA report for {names[0]}"
+        if len(names) >= 2:
+            label2 = f"Upload CINeMA report for {names[1]}"
+
+    return label1, label2
 
 
 ### ---------------------------------- FUNNEL, CONSISTENCY, RANKING  CALLBACKS ---------------------------------- ###
@@ -2594,39 +2631,7 @@ def toggle_modal_edge(open_t, close):
 
 # REMOVED: These setup-specific callbacks belong in setup.py only
 # Results page should only read from STORAGE and display plots
-# @callback(
-#     [
-#         Output("modal_data_checks", "is_open"),
-#         Output("TEMP_raw_data_STORAGE", "data"),
-#         Output("TEMP_net_data_STORAGE", "data"),
-#         Output("uploaded_datafile_to_disable_cinema", "data"),
-#         Output("Rconsole-error-data", "children"),
-#         Output("R-alert-data", "is_open"),
-#         Output("dropdown-intervention", "options"),
-#     ],
-#     [
-#         Input("upload_modal_data2", "n_clicks_timestamp"),
-#         Input("uploaded_datafile_to_disable_cinema", "data"),
-#         Input("submit_modal_data", "n_clicks_timestamp"),
-#     ],
-#     [
-#         State("radio-format", "value"),
-#         State({"type": "dataselectors_1", "index": ALL}, "value"),
-#         State("number-outcomes", "value"),
-#         State({"type": "outcometype", "index": ALL}, "value"),
-#         State({"type": "effectselectors", "index": ALL}, "value"),
-#         State({"type": "directionselectors", "index": ALL}, "value"),
-#         State({"type": "variableselectors", "index": ALL}, "value"),
-#         State("modal_data_checks", "is_open"),
-#         State("datatable-upload2", "contents"),
-#         State("datatable-upload2", "filename"),
-#         State("TEMP_net_data_STORAGE", "data"),
-#         State("TEMP_raw_data_STORAGE", "data"),
-#     ],
-#     prevent_initial_call=True,
-# )
-# def data_trans(...):
-#     return __data_trans(...)
+# NOTE: Data upload callbacks are now in pages/setup.py
 
 # @callback(
 #     [
@@ -3030,31 +3035,6 @@ def generate_xlsx_league_modal(n_clicks, leaguedata):
 #############################################################################
 ######################### DISABLE TOGGLE SWITCHES ###########################
 #############################################################################
-# UNCOMMENT
-# ## disable cinema coloring toggle if no cinema files are passed
-# @callback([Output('rob_vs_cinema', 'disabled'),
-# Output('rob_vs_cinema_modal', 'disabled')],
-# [Input('datatable-secondfile-upload', 'filename'),
-# Input("uploaded_datafile_to_disable_cinema", "data"),
-# ]
-# )
-# def disable_cinema_toggle(filename_cinema1, filename_data):
-
-# if filename_cinema1 is None and filename_data: return True, True
-# else: return False, False
-
-# @callback(Output('rob_vs_cinema-both', 'disabled'),
-# [Input('datatable-secondfile-upload-1', 'filename'),
-# Input('datatable-secondfile-upload-2', 'filename'),
-# Input("uploaded_datafile_to_disable_cinema", "data"),
-# ]
-# )
-# def disable_cinema_toggle(filename_cinema1, filename_cinema2,file_data):
-
-# if (filename_cinema1 is None or filename_cinema2 is None) and file_data: return True
-# else: return False
-
-
 ###############overall information##################
 
 

@@ -165,6 +165,7 @@ tab_league_both = html.Div(
                         dcc.Upload(
                             html.A(
                                 "Upload CINeMA report for outcome 1",
+                                id="cinema-upload-label-1",
                                 style={
                                     "margin-left": "5px",
                                     "font-size": "15px",
@@ -200,7 +201,8 @@ tab_league_both = html.Div(
                     [
                         dcc.Upload(
                             html.A(
-                                "Upload CINeMA report 2 for outcome 2",
+                                "Upload CINeMA report for outcome 2",
+                                id="cinema-upload-label-2",
                                 style={
                                     "margin-left": "5px",
                                     "margin-top": "1px",

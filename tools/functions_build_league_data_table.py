@@ -2,7 +2,14 @@ import numpy as np, pandas as pd
 import dash
 from dash import html
 from dash import dash_table
-from tools.utils import set_slider_marks, get_net_data_json, get_raw_data_json
+from tools.utils import (
+    set_slider_marks,
+    get_net_data_json,
+    get_raw_data_json,
+    get_league_table_data_list,
+    get_league_table_outcomes,
+    get_league_table_both,
+)
 from assets.COLORS import *
 
 # def __update_output(store_node, net_data, store_edge, toggle_cinema, toggle_cinema_modal, slider_value,
@@ -448,7 +455,8 @@ def __update_output_new(
         )
 
     # ranking_data = pd.read_json(ranking_data, orient='split')
-    leaguetable = pd.read_json(league_table_data[outcome_idx], orient="split")
+    league_data_list = get_league_table_data_list(league_table_data)
+    leaguetable = pd.read_json(league_data_list[outcome_idx], orient="split")
     confidence_map = {k: n for n, k in enumerate(["low", "medium", "high"])}
     treatments = np.unique(net_data[["treat1", "treat2"]].dropna().values.flatten())
 
@@ -490,7 +498,7 @@ def __update_output_new(
         comprs_conf_lt = comparisons1  # Lower triangle
         comprs_downgrade_lt = comprs_conf_lt
         comprs_downgrade_ut = comprs_conf_ut
-        
+
         if "Reason(s) for downgrading" in cinema_net_data.columns:
             downgrading1 = cinema_net_data["Reason(s) for downgrading"]
             comprs_downgrade_lt["Downgrading"] = downgrading1
@@ -887,7 +895,8 @@ def __update_output_bothout(
         triggered = []
         toggle_cinema_modal = toggle_cinema
 
-    leaguetable = pd.read_json(league_table_data[-1], orient="split")
+    league_both_json = get_league_table_both(league_table_data)
+    leaguetable = pd.read_json(league_both_json, orient="split")
     confidence_map = {k: n for n, k in enumerate(["low", "medium", "high"])}
     treatments = np.unique(net_data[["treat1", "treat2"]].dropna().values.flatten())
 

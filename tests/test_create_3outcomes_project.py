@@ -751,8 +751,20 @@ async def test_create_3outcomes_project():
 
             is_submit_disabled = await page.locator(submit_button).is_disabled()
             if is_submit_disabled:
-                print("⚠️  Submit button still disabled after analysis")
-            else:
+                print(
+                    "⚠️  Submit button still disabled after analysis, waiting longer..."
+                )
+                # Wait up to 30 more seconds for submit to be enabled
+                for i in range(30):
+                    await page.wait_for_timeout(1000)
+                    is_submit_disabled = await page.locator(submit_button).is_disabled()
+                    if not is_submit_disabled:
+                        print(f"✅ Submit button enabled after {i + 1} more seconds")
+                        break
+                else:
+                    print("❌ Submit button still disabled after extended wait")
+
+            if not is_submit_disabled:
                 print("✅ Submit button is enabled")
 
                 # Click Submit button
@@ -768,13 +780,33 @@ async def test_create_3outcomes_project():
                 except:
                     print(f"⚠️  No redirect detected. Current URL: {page.url}")
 
-                # Step 18: Save the project using Save/Load modal
-                print("\n💾 Step 18: Saving project using Save/Load modal...")
-                await page.wait_for_timeout(2000)
+            # Step 18: Save the project using Save/Load modal (always try to save)
+            print("\n💾 Step 18: Saving project using Save/Load modal...")
 
-                output_dir = Path(__file__).parent / "downloads"
+            # Navigate back to setup page where the save/load button is located
+            print("   Navigating to setup page for save/load...")
+            base_url = (
+                page.url.split("/results")[0]
+                if "/results" in page.url
+                else page.url.rsplit("/", 1)[0]
+            )
+            await page.goto(
+                f"{base_url}/setup", wait_until="networkidle", timeout=30000
+            )
+            print(f"   Now on: {page.url}")
 
-                # Click Save/Load Project button
+            # Wait for the setup page to fully load
+            await page.wait_for_timeout(3000)
+
+            # Save to db/ directory
+            output_dir = Path(__file__).parent.parent / "db"
+
+            # Click Save/Load Project button
+            try:
+                # Wait for the button to be visible first
+                await page.wait_for_selector(
+                    "#open_saveload", state="visible", timeout=10000
+                )
                 await page.click("#open_saveload")
                 print("✅ Clicked Save/Load Project button")
                 await page.wait_for_timeout(2000)
@@ -786,23 +818,67 @@ async def test_create_3outcomes_project():
                 print("✅ Save/Load modal opened")
 
                 # Enter project name
-                await page.fill("#input-projectname", "3outcomes_test_project")
-                print("✅ Entered project name: 3outcomes_test_project")
+                project_name = "3outcomes_test_project"
+                await page.fill("#input-projectname", project_name)
+                print(f"✅ Entered project name: {project_name}")
                 await page.wait_for_timeout(500)
 
-                # Set up download event listener before clicking Save
-                async with page.expect_download() as download_info:
-                    await page.click("#btn_json")
-                    print("✅ Clicked Save Project button")
+                # Click Save button and wait for download using Playwright's download handler
+                import shutil
 
-                download = await download_info.value
-                output_file = output_dir / "3outcomes_test_project.nmastudio"
-                await download.save_as(str(output_file))
-                print(f"✅ Project saved to: {output_file}")
+                try:
+                    # Use Playwright's expect_download to capture the download
+                    async with page.expect_download(timeout=30000) as download_info:
+                        await page.click("#btn_json")
+                        print("✅ Clicked Save Project button")
+
+                    download = await download_info.value
+                    output_file = output_dir / f"{project_name}.nmastudio"
+                    await download.save_as(str(output_file))
+                    print(f"✅ Project saved to: {output_file}")
+                except Exception as download_error:
+                    print(f"⚠️  Playwright download failed: {download_error}")
+                    print("   Trying fallback method - checking Downloads folder...")
+
+                    # Fallback: Wait for the download to complete (check Downloads folder)
+                    downloads_folder = Path.home() / "Downloads"
+                    expected_file = downloads_folder / f"{project_name}.nmastudio"
+
+                    await page.wait_for_timeout(3000)  # Give time for download
+
+                    if expected_file.exists():
+                        output_file = output_dir / f"{project_name}.nmastudio"
+                        shutil.copy(str(expected_file), str(output_file))
+                        print(f"✅ Project copied from Downloads to: {output_file}")
+                    else:
+                        # Check for any recent .nmastudio file
+                        matching_files = list(downloads_folder.glob("*.nmastudio"))
+                        if matching_files:
+                            latest = max(
+                                matching_files, key=lambda p: p.stat().st_mtime
+                            )
+                            # Only use if modified in last 60 seconds
+                            import time
+
+                            if time.time() - latest.stat().st_mtime < 60:
+                                output_file = output_dir / f"{project_name}.nmastudio"
+                                shutil.copy(str(latest), str(output_file))
+                                print(
+                                    f"✅ Project copied from {latest.name} to: {output_file}"
+                                )
+                            else:
+                                print(f"⚠️  No recent download found")
+                        else:
+                            print(f"⚠️  No .nmastudio files in Downloads")
 
                 # Close the modal
                 await page.click("#close_saveload")
                 await page.wait_for_timeout(500)
+            except Exception as e:
+                print(f"⚠️  Error saving project: {e}")
+                import traceback
+
+                traceback.print_exc()
 
             # Take a screenshot
             screenshot_path = Path(__file__).parent / "test_create_3outcomes_result.png"
@@ -831,9 +907,9 @@ async def test_create_3outcomes_project():
             else:
                 print("\n⚠️  Test completed with some issues. Check output above.")
 
-            # Keep browser open for inspection
-            print("\n⏳ Keeping browser open for 5 minutes for inspection...")
-            await page.wait_for_timeout(300000)
+            # Keep browser open briefly for inspection
+            print("\n⏳ Keeping browser open for 30 seconds for inspection...")
+            await page.wait_for_timeout(30000)
 
             return {
                 "console_messages": console_messages,

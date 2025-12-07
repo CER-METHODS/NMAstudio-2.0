@@ -66,7 +66,7 @@ STORAGE_SCHEMA = {
     "nmastudio-version": "version",
     "raw_data_STORAGE": "dict",
     "net_data_STORAGE": "dict",
-    "league_table_data_STORAGE": "list",  # List of JSON strings for multiple outcomes
+    "league_table_data_STORAGE": "dict",  # Dict with "data" (list of JSON strings) and "primary_outcomes" metadata
     "consistency_data_STORAGE": "list",
     "forest_data_STORAGE": "list",
     "forest_data_prws_STORAGE": "list",
@@ -76,7 +76,6 @@ STORAGE_SCHEMA = {
     "net_split_ALL_data_STORAGE": "list",
     "results_ready_STORAGE": "bl",
     "effect_modifiers_STORAGE": "list",  # List of effect modifier names
-    "uploaded_datafile_to_disable_cinema": "dict",
     "R_errors_STORAGE": "dict",
     "number_outcomes_STORAGE": "int",  # Integer: number of outcomes (e.g., 3)
     "outcome_names_STORAGE": "list",  # List of outcome names (e.g., ["PASI90", "SAE", "AE"])
@@ -90,7 +89,10 @@ EMPTY_STORAGE = {
     "nmastudio-version": "2.0",
     "raw_data_STORAGE": {},
     "net_data_STORAGE": {},
-    "league_table_data_STORAGE": [],
+    "league_table_data_STORAGE": {
+        "data": [],
+        "compared_outcomes": {"indices": [], "names": [], "league_table": None},
+    },
     "consistency_data_STORAGE": [],
     "forest_data_STORAGE": [],
     "forest_data_prws_STORAGE": [],
@@ -100,7 +102,6 @@ EMPTY_STORAGE = {
     "net_split_ALL_data_STORAGE": [],
     "results_ready_STORAGE": False,
     "effect_modifiers_STORAGE": [],
-    "uploaded_datafile_to_disable_cinema": {},
     "R_errors_STORAGE": {},
     "number_outcomes_STORAGE": 0,  # Integer: number of outcomes
     "outcome_names_STORAGE": [],  # List of outcome names
@@ -168,11 +169,6 @@ def __empty_project():
         ),
         dcc.Store(id="results_ready_STORAGE", data=False, storage_type=SESSION_TYPE),
         dcc.Store(id="effect_modifiers_STORAGE", data=None, storage_type=SESSION_TYPE),
-        dcc.Store(
-            id="uploaded_datafile_to_disable_cinema",
-            data=None,
-            storage_type=SESSION_TYPE,
-        ),
         dcc.Store(id="R_errors_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="number_outcomes_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="outcome_names_STORAGE", data=None, storage_type=SESSION_TYPE),

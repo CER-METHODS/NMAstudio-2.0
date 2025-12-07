@@ -90,11 +90,19 @@ PSORIASIS_DATA = {
         if "n_class" in USER_ELEMENTS[-1]["data"]
         else 1,
     },
-    "league_table_data_STORAGE": [
-        LEAGUE_TABLE_DATA1.to_json(orient="split"),  # Outcome 1
-        LEAGUE_TABLE_DATA2.to_json(orient="split"),  # Outcome 2
-        LEAGUE_TABLE_DATA_BOTH.to_json(orient="split"),  # Both outcomes combined
-    ],
+    "league_table_data_STORAGE": {
+        "data": [
+            LEAGUE_TABLE_DATA1.to_json(orient="split"),  # Outcome 1
+            LEAGUE_TABLE_DATA2.to_json(orient="split"),  # Outcome 2
+        ],
+        "compared_outcomes": {
+            "indices": [0, 1],  # Outcomes 1 and 2 selected for league table
+            "names": ["PASI90", "SAE"],  # Corresponding outcome names
+            "league_table": LEAGUE_TABLE_DATA_BOTH.to_json(
+                orient="split"
+            ),  # Both outcomes combined
+        },
+    },
     "consistency_data_STORAGE": [
         CONSISTENCY_DATA.to_json(orient="split"),
         CONSISTENCY_DATA.to_json(orient="split"),  # Placeholder for outcome 2
@@ -125,7 +133,6 @@ PSORIASIS_DATA = {
     ],
     "results_ready_STORAGE": True,
     "effect_modifiers_STORAGE": ["age", "bmi", "weight", "male_percentage"],
-    "uploaded_datafile_to_disable_cinema": {"filename": "psoriasis_long_complete.csv"},
     "R_errors_STORAGE": {},
     "number_outcomes_STORAGE": 2,
     "outcome_names_STORAGE": ["PASI90", "SAE"],

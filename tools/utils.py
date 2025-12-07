@@ -552,12 +552,14 @@ def get_network_new(df, i):
 
     # Normalize the values in 'size' to the range of 10 to 60
     if size_range == 0:
-    # Assign a default normalized size if all values are identical
-        normalized_size = [1.0 for _ in all_nodes_sized.n]  # or any other constant value
+        # Assign a default normalized size if all values are identical
+        normalized_size = [
+            1.0 for _ in all_nodes_sized.n
+        ]  # or any other constant value
     else:
         # Perform normalization
         normalized_size = [(s - min_size) / size_range for s in all_nodes_sized.n]
-    
+
     number = [int(n * 60) + 20 for n in normalized_size]
     all_nodes_sized["n_2"] = number
 
@@ -1032,3 +1034,74 @@ def get_league_table_json(league_table_storage, outcome_idx):
     return get_multi_outcome_json(
         league_table_storage, outcome_idx, key_prefix="league"
     )
+
+
+def get_league_table_data_list(league_table_storage):
+    """
+    Extract the data list from league_table_data_STORAGE (individual outcome league tables only).
+
+    Handles both new dict format and legacy list format for backward compatibility.
+
+    New format: {"data": [...], "compared_outcomes": {"indices": [...], "names": [...], "league_table": json_str}}
+    Legacy format: [json_str1, json_str2, ..., json_str_both] (both is at index -1)
+
+    Args:
+        league_table_storage: league_table_data_STORAGE value (dict or list)
+
+    Returns:
+        list: List of JSON strings for individual outcome league tables (excludes "both" in legacy format)
+    """
+    if league_table_storage is None:
+        return []
+    if isinstance(league_table_storage, dict):
+        return league_table_storage.get("data", [])
+    if isinstance(league_table_storage, list):
+        # Legacy format - return all except last item (which is "both")
+        # But only if there are more than 1 items
+        if len(league_table_storage) > 1:
+            return league_table_storage[:-1]
+        return league_table_storage
+    return []
+
+
+def get_league_table_outcomes(league_table_storage):
+    """
+    Extract the compared outcomes metadata from league_table_data_STORAGE.
+
+    Args:
+        league_table_storage: league_table_data_STORAGE value (dict)
+
+    Returns:
+        dict: {"indices": [...], "names": [...], "league_table": json_str} or empty dict if not available
+    """
+    if league_table_storage is None or not isinstance(league_table_storage, dict):
+        return {"indices": [], "names": [], "league_table": None}
+    return league_table_storage.get(
+        "compared_outcomes", {"indices": [], "names": [], "league_table": None}
+    )
+
+
+def get_league_table_both(league_table_storage):
+    """
+    Extract the "both outcomes" combined league table from league_table_data_STORAGE.
+
+    Handles both new dict format and legacy list format for backward compatibility.
+
+    New format: {"data": [...], "compared_outcomes": {"indices": [...], "names": [...], "league_table": json_str}}
+    Legacy format: [json_str1, json_str2, ..., json_str_both] (both is at index -1)
+
+    Args:
+        league_table_storage: league_table_data_STORAGE value (dict or list)
+
+    Returns:
+        str: JSON string for the "both outcomes" league table, or None if not available
+    """
+    if league_table_storage is None:
+        return None
+    if isinstance(league_table_storage, dict):
+        compared = league_table_storage.get("compared_outcomes", {})
+        return compared.get("league_table")
+    if isinstance(league_table_storage, list) and len(league_table_storage) > 0:
+        # Legacy format - "both" is at index -1
+        return league_table_storage[-1]
+    return None

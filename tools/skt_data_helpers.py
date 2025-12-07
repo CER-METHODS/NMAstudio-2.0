@@ -8,7 +8,7 @@ This replaces the hardcoded CSV file loading with dynamic data from the user's p
 import pandas as pd
 import numpy as np
 from io import StringIO
-from tools.utils import get_net_data_json
+from tools.utils import get_net_data_json, get_league_table_data_list
 
 
 def get_skt_final_data(forest_data_storage, net_split_data_storage, outcome_idx=0):
@@ -207,16 +207,21 @@ def get_skt_league_table(league_table_data_storage, outcome_idx=0):
     Get league table data from STORAGE.
 
     Args:
-        league_table_data_storage: List of JSON strings with league table data
+        league_table_data_storage: Dict or list with league table data
+            New format: {"data": [...], "primary_outcomes": {...}}
+            Legacy format: [json_str1, json_str2, ...]
         outcome_idx: Which outcome to use
 
     Returns:
         DataFrame with league table format (Treatment as rows, treatments as columns)
     """
-    if not league_table_data_storage or len(league_table_data_storage) <= outcome_idx:
+    # Handle new dict format and legacy list format
+    league_data_list = get_league_table_data_list(league_table_data_storage)
+
+    if not league_data_list or len(league_data_list) <= outcome_idx:
         return pd.DataFrame()
 
-    league_json = league_table_data_storage[outcome_idx]
+    league_json = league_data_list[outcome_idx]
     if not league_json:
         return pd.DataFrame()
 
