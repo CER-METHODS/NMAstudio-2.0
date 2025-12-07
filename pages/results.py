@@ -1,7 +1,8 @@
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
-from dash import Input, Output, State, ALL, callback, ctx
+from dash import Input, Output, State, ALL, callback, ctx, exceptions
+from dash.exceptions import PreventUpdate
 from dash import ctx, no_update
 from assets.dropdowns_values import *
 from assets.modal_values import (
@@ -55,6 +56,7 @@ import itertools
 import json
 from dash import clientside_callback
 from dash_extensions.snippets import send_file
+from dash_extensions import Download
 from tools.utils import *
 from tools.functions_modal_SUBMIT_data import (
     __modal_SUBMIT_button_new,
@@ -105,18 +107,18 @@ dash.register_page(__name__, path="/results")
 cyto.load_extra_layouts()
 GRAPH_INTERVAL = os.environ.get("GRAPH_INTERVAL", 5000)
 # OPTIONS_results - All plot types are enabled
+# Matches NMAstudio-app-main layout structure
 OPTIONS_results = [
     {"label": "Data & Transitivity", "value": 0},
     {"label": "Forest plots", "value": 1},
     {"label": "League tables", "value": 2},
     {"label": "Ranking", "value": 3},
-    {"label": "Consistency checks", "value": 4},
-    {"label": "Funnel plots", "value": 5},
+    {"label": "Consistency & Reporting bias", "value": 4},
 ]
 
 layout = html.Div(
     id="result_page",
-    className="_container",
+    className="app__container",
     children=[
         # STORAGE moved to app.py global layout for proper localStorage persistence
         # Hidden location component for redirects when results are reset
@@ -157,13 +159,144 @@ layout = html.Div(
                 )
             ],
         ),
-        ##>DELETE
-        # html.Div(R_errors_data, style={'vertical-align': "top"}),
-        # html.Div(R_errors_nma, style={'vertical-align': "top"}),
-        # html.Div(R_errors_pair, style={'vertical-align': "top"}),
-        # html.Div(R_errors_league, style={'vertical-align': "top"}),
-        # html.Div(R_errors_funnel, style={'vertical-align': "top"}),
-        ##<DELETE
+        # Error alerts
+        html.Div(dataupload_error, style={"vertical-align": "top"}),
+        html.Div(R_errors_data, style={"vertical-align": "top"}),
+        html.Div(R_errors_nma, style={"vertical-align": "top"}),
+        html.Div(R_errors_pair, style={"vertical-align": "top"}),
+        html.Div(R_errors_league, style={"vertical-align": "top"}),
+        html.Div(R_errors_funnel, style={"vertical-align": "top"}),
+        html.Br(),
+        html.Br(),
+        # Protocol link section
+        dbc.Row(
+            [
+                html.Span(
+                    "Project protocol link:   ",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "white-space": "pre",
+                        "font-size": "x-large",
+                        "color": "chocolate",
+                    },
+                    id="link_title",
+                ),
+                dcc.Link(
+                    href="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535/full",
+                    target="_blank",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "color": "#0FA0CE",
+                        "font-size": "x-large",
+                        "padding": "unset",
+                    },
+                    id="show_protocol_link",
+                ),
+            ]
+        ),
+        dbc.Row(id="warning_message"),
+        html.Br(),
+        # Results selector row
+        dbc.Row(
+            [
+                html.Span(
+                    "Select results to display:",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "font-size": "large",
+                        "font-weight": "bold",
+                    },
+                ),
+                dcc.Dropdown(
+                    placeholder="",
+                    options=OPTIONS_results,
+                    value=0,
+                    style={
+                        "display": "grid",
+                        "justify-items": "center",
+                        "place-self": "center",
+                        "font-size": "large",
+                        "width": "250px",
+                    },
+                    id="result_selected",
+                ),
+                html.Span(
+                    "or",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "font-size": "large",
+                    },
+                ),
+                dcc.Link(
+                    html.Button("Setup Analysis", id="test_upload", n_clicks=0),
+                    href="/setup",
+                ),
+                html.Div(
+                    [
+                        html.A(
+                            html.Img(
+                                src="/assets/icons/reset.png",
+                                style={"width": "40px", "filter": "invert()"},
+                            ),
+                            id="reset_project",
+                            style={"display": "grid", "justify-items": "center"},
+                        ),
+                        dbc.Tooltip(
+                            "Reset project - uploaded data will be lost",
+                            style={
+                                "color": "black",
+                                "font-size": 15,
+                                "letter-spacing": "0.2rem",
+                            },
+                            placement="top",
+                            target="reset_project",
+                        ),
+                    ],
+                    style={
+                        "display": "inline-block",
+                        "margin-left": "20px",
+                        "margin-bottom": "2px",
+                    },
+                ),
+                saveload_modal,
+            ],
+            style={
+                "display": "grid",
+                "width": "1050px",
+                "justify-self": "center",
+                "grid-template-columns": "0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr",
+            },
+        ),
+        html.Br(),
+        # Statistics settings download button
+        html.Div(
+            [
+                html.Button(
+                    "Download settings of statistical analysis",
+                    id="statsettings",
+                    style={"display": "inline-block", "padding": "1px"},
+                ),
+                Download(id="download-statistic"),
+            ]
+        ),
+        html.Br(),
+        html.Br(),
+        # Horizontal divider
+        html.Hr(
+            style={
+                "size": "50",
+                "borderColor": "orange",
+                "borderHeight": "10vh",
+                "width": "100%",
+                "border-top": "3px solid #E1E1E1",
+            }
+        ),
+        html.Br(),
+        html.Br(),
         html.Div(
             id="main_page",
             ### LEFT HALF OF THE PAGE
@@ -502,57 +635,7 @@ layout = html.Div(
                             ],
                             className="info__container",
                         ),
-                        # NOTE: Reset button removed - only available in setup page
-                        # NOTE: "Enter number of outcomes" section removed - belongs in setup page only
-                        # Results Selection Dropdown
-                        html.Div(
-                            dbc.Col(
-                                [
-                                    html.Span(
-                                        "Select results to display:",
-                                        className="selectbox",
-                                        style={
-                                            "display": "inline-block",
-                                            "text-align": "right",
-                                            "margin-left": "0px",
-                                            "font-size": "16px",
-                                            "white-space": "nowrap",
-                                            "color": "#5c7780",
-                                            "font-weight": "bold",
-                                        },
-                                    ),
-                                    dcc.Dropdown(
-                                        id="result_selected",
-                                        options=OPTIONS_results,
-                                        value=0,
-                                        clearable=False,
-                                        searchable=False,
-                                        style={
-                                            "width": "250px",
-                                            "height": "30px",
-                                            "vertical-align": "middle",
-                                            "font-family": "sans-serif",
-                                            "margin-bottom": "2px",
-                                            "display": "inline-block",
-                                            "color": "black",
-                                            "font-size": "14px",
-                                        },
-                                    ),
-                                ],
-                                style={
-                                    "display": "flex",
-                                    "align-items": "center",
-                                    "justify-content": "space-around",
-                                    "width": "450px",
-                                    "gap": "10px",
-                                },
-                            ),
-                            style={
-                                "display": "inline-block",
-                                "margin-left": "20px",
-                                "margin-bottom": "10px",
-                            },
-                        ),
+                        # NOTE: Results Selection Dropdown moved to header section above
                         # Outcome Selection Dropdown
                         html.Div(
                             dbc.Col(
@@ -746,14 +829,14 @@ layout = html.Div(
                                                 },
                                             ),
                                         ),
-                                        # Consistency tab - HIDDEN (not yet implemented)
+                                        # Consistency tab
                                         dcc.Tab(
                                             id="consis_tab",
                                             value="consis_tab",
-                                            disabled=True,  # Disabled until fully implemented
                                             style={
                                                 "color": "grey",
-                                                "display": "none",  # Hidden
+                                                "display": "none",
+                                                "width": "auto",
                                                 "justify-content": "center",
                                                 "align-items": "center",
                                             },
@@ -761,6 +844,8 @@ layout = html.Div(
                                                 "color": "grey",
                                                 "display": "flex",
                                                 "justify-content": "center",
+                                                "font-size": "large",
+                                                "width": "auto",
                                                 "background-color": "#f5c198",
                                                 "align-items": "center",
                                             },
@@ -775,14 +860,13 @@ layout = html.Div(
                                                 },
                                             ),
                                         ),
-                                        # Ranking tab - HIDDEN (not yet implemented)
+                                        # Ranking tab
                                         dcc.Tab(
                                             id="ranking_tab",
                                             value="ranking_tab",
-                                            disabled=True,  # Disabled until fully implemented
                                             style={
                                                 "color": "grey",
-                                                "display": "none",  # Hidden
+                                                "display": "none",
                                                 "justify-content": "center",
                                                 "align-items": "center",
                                             },
@@ -1022,14 +1106,14 @@ layout = html.Div(
                                                 children=[tab_trstvty],
                                             ),
                                         ),
-                                        # Funnel tab - HIDDEN (not yet implemented)
+                                        # Funnel tab
                                         dcc.Tab(
                                             id="funnel_tab",
                                             value="funnel_tab",
-                                            disabled=True,  # Disabled until fully implemented
                                             style={
                                                 "color": "grey",
-                                                "display": "none",  # Hidden
+                                                "display": "none",
+                                                "width": "auto",
                                                 "justify-content": "center",
                                                 "align-items": "center",
                                             },
@@ -1037,6 +1121,8 @@ layout = html.Div(
                                                 "color": "grey",
                                                 "display": "flex",
                                                 "justify-content": "center",
+                                                "font-size": "large",
+                                                "width": "auto",
                                                 "background-color": "#f5c198",
                                                 "align-items": "center",
                                             },
@@ -2192,7 +2278,7 @@ def Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data):
 
 # ############ - Ranking plots  - ###############
 @callback(
-    [Output("tab-rank1", "figure"), Output("tab-rank2", "figure")],
+    [Output("graph-rank1", "figure"), Output("graph-rank2", "figure")],
     Input("ranking_data_STORAGE", "data"),
     Input("number_outcomes_STORAGE", "data"),
     Input("_outcome_select", "value"),
@@ -2202,12 +2288,23 @@ def Tap_funnelplot_normal(edge, outcome_idx, net_data, pw_data):
 )
 def ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_data):
     """Generate ranking heatmap and scatter plots based on outcome selection."""
-    from tools.functions_ranking_plots import __ranking_plot
+    print("[DEBUG ranking_plot] >>> CALLBACK ENTERED <<<")
+    import plotly.express as px
+    import traceback
+
+    # Debug prints
+    print(
+        f"[DEBUG ranking_plot] ranking_data type: {type(ranking_data)}, len: {len(ranking_data) if ranking_data else 'None'}"
+    )
+    print(
+        f"[DEBUG ranking_plot] out_number: {out_number}, out_idx1: {out_idx1}, out_idx2: {out_idx2}"
+    )
+    print(f"[DEBUG ranking_plot] options: {options}")
+    print(f"[DEBUG ranking_plot] net_data type: {type(net_data)}")
 
     # Guard against missing data
     if not ranking_data or not net_data:
-        import plotly.express as px
-
+        print("[DEBUG ranking_plot] Missing data - returning empty figures")
         empty_fig = px.scatter()
         empty_fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
@@ -2221,9 +2318,39 @@ def ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_data
     if out_idx2 is None:
         out_idx2 = 1 if out_number and out_number >= 2 else 0
 
-    return __ranking_plot(
-        ranking_data, out_number, out_idx1, options, out_idx2, net_data
-    )
+    try:
+        from tools.functions_ranking_plots import __ranking_plot
+
+        result = __ranking_plot(
+            ranking_data, out_number, out_idx1, options, out_idx2, net_data
+        )
+        print(f"[DEBUG ranking_plot] SUCCESS - returning figures")
+        return result
+    except Exception as e:
+        print(f"[ERROR ranking_plot] Exception: {e}")
+        traceback.print_exc()
+        empty_fig = px.scatter()
+        empty_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        return empty_fig, empty_fig
+
+
+# ############ - Ranking subtabs visibility  - ###############
+@callback(
+    [
+        Output("ranking-heatmap-container", "style"),
+        Output("ranking-scatter-container", "style"),
+    ],
+    Input("subtabs-rank1", "value"),
+)
+def toggle_ranking_subtabs(selected_tab):
+    """Toggle visibility of ranking subtab content based on selected tab."""
+    if selected_tab == "Tab-rank1":
+        return {"display": "block"}, {"display": "none"}
+    else:  # Tab-rank2
+        return {"display": "none"}, {"display": "block"}
 
 
 ###############################################################################
@@ -2778,39 +2905,62 @@ def generate_csv(n_nlicks, data):
     return dash.dcc.send_data_frame(df.to_csv, filename="data_wide.csv")
 
 
-# UNCOMMENT
-# @callback(Output("download_consistency_all", "data"),
-# [Input('btn-netsplit-all', "n_clicks"),
-# Input('consistency_outcome_select','value'),
-# State("net_split_ALL_data_STORAGE", "data")],
-# prevent_initial_call=True)
-# def generate_csv_consistency(n_nlicks, outcome_idx, consistencydata_all):
-# return __generate_csv_consistency(n_nlicks, outcome_idx, consistencydata_all)
+# Export all consistency/netsplit data
+@callback(
+    Output("download_consistency_all", "data"),
+    [
+        Input("btn-netsplit-all", "n_clicks"),
+        State("net_split_ALL_data_STORAGE", "data"),
+    ],
+    prevent_initial_call=True,
+)
+def generate_csv_consistency(n_clicks, consistencydata_all):
+    return __generate_csv_consistency(n_clicks, 0, consistencydata_all)
 
-# UNCOMMENT
-#### xlsx colors netsplit table
-# @callback(Output("download_consistency", "data"),
-# [Input('consistency-export', "n_clicks"),
-# State("netsplit_table-container", "data")],
-# prevent_initial_call=True)
-# def generate_xlsx_netsplit(n_nlicks, consistencydata):
-# return __generate_xlsx_netsplit(n_nlicks, consistencydata)
 
-# UNCOMMENT
+# Export netsplit table (xlsx with colors)
+@callback(
+    Output("download_consistency", "data"),
+    [
+        Input("consistency-export", "n_clicks"),
+        State("netsplit_table-container", "data"),
+    ],
+    prevent_initial_call=True,
+)
+def generate_xlsx_netsplit(n_clicks, consistencydata):
+    return __generate_xlsx_netsplit(n_clicks, consistencydata)
+
+
 #### xlsx colors league table
-# @callback(Output("download_leaguetable", "data"),
-# [Input('league-export', "n_clicks"),
-# State("league_table", "children")],
-# prevent_initial_call=True)
-# def generate_xlsx_league(n_clicks, leaguedata):
-# return __generate_xlsx_league(n_clicks, leaguedata)
+@callback(
+    Output("download_leaguetable", "data"),
+    [Input("league-export", "n_clicks"), State("league_table", "children")],
+    prevent_initial_call=True,
+)
+def generate_xlsx_league(n_clicks, leaguedata):
+    return __generate_xlsx_league(n_clicks, leaguedata)
 
-# @callback(Output("download_leaguetable_both", "data"),
-# [Input('league-export-both', "n_clicks"),
-# State("league_table_both", "children")],
-# prevent_initial_call=True)
-# def generate_xlsx_league(n_clicks, leaguedata):
-# return __generate_xlsx_league(n_clicks, leaguedata)
+
+@callback(
+    Output("download_leaguetable_both", "data"),
+    [Input("league-export-both", "n_clicks"), State("league_table_both", "children")],
+    prevent_initial_call=True,
+)
+def generate_xlsx_league_both(n_clicks, leaguedata):
+    return __generate_xlsx_league(n_clicks, leaguedata)
+
+
+@callback(
+    Output("download_leaguetable_modal", "data"),
+    [
+        Input("league-export-modal", "n_clicks"),
+        State("modal_league_table_data", "children"),
+    ],
+    prevent_initial_call=True,
+)
+def generate_xlsx_league_modal(n_clicks, leaguedata):
+    return __generate_xlsx_league(n_clicks, leaguedata)
+
 
 #############################################################################
 ############################# TOGGLE SECTION ################################
@@ -2924,8 +3074,12 @@ def infor_overall(data):
         Output("data_tab", "style"),
         Output("trans_tab", "style"),
         Output("forest_tab", "style"),
+        Output("tab2", "style"),  # Pairwise tab in results_tabs2
         Output("league_tab", "style"),
         Output("league_tab_both", "style"),
+        Output("consis_tab", "style"),
+        Output("funnel_tab", "style"),
+        Output("ranking_tab", "style"),
         Output("results_tabs", "value"),
         Output("results_tabs2", "value"),
     ],
@@ -2936,8 +3090,10 @@ def results_display(selected):
 
     Options:
         0 - Data & Transitivity: show data_tab and trans_tab
-        1 - Forest plots: show forest_tab
+        1 - Forest plots: show forest_tab and tab2 (pairwise)
         2 - League tables: show league_tab and league_tab_both
+        3 - Ranking: show ranking_tab only
+        4 - Consistency & Reporting bias: show consis_tab and funnel_tab
     """
     style_display = {
         "color": "grey",
@@ -2958,8 +3114,12 @@ def results_display(selected):
             style_display,  # data_tab
             style_display,  # trans_tab
             style_no_display,  # forest_tab
+            style_no_display,  # tab2 (pairwise)
             style_no_display,  # league_tab
             style_no_display,  # league_tab_both
+            style_no_display,  # consis_tab
+            style_no_display,  # funnel_tab
+            style_no_display,  # ranking_tab
             "data_tab",  # results_tabs value
             "trans_tab",  # results_tabs2 value
         )
@@ -2970,10 +3130,14 @@ def results_display(selected):
             style_no_display,  # data_tab
             style_no_display,  # trans_tab
             style_display,  # forest_tab
+            style_display,  # tab2 (pairwise)
             style_no_display,  # league_tab
             style_no_display,  # league_tab_both
+            style_no_display,  # consis_tab
+            style_no_display,  # funnel_tab
+            style_no_display,  # ranking_tab
             "forest_tab",  # results_tabs value
-            "forest_tab",  # results_tabs2 value
+            "tab2",  # results_tabs2 value
         )
 
     # Option 2: League tables
@@ -2982,16 +3146,56 @@ def results_display(selected):
             style_no_display,  # data_tab
             style_no_display,  # trans_tab
             style_no_display,  # forest_tab
+            style_no_display,  # tab2 (pairwise)
             style_display,  # league_tab
             style_display,  # league_tab_both
+            style_no_display,  # consis_tab
+            style_no_display,  # funnel_tab
+            style_no_display,  # ranking_tab
             "league_tab",  # results_tabs value
             "league_tab_both",  # results_tabs2 value
+        )
+
+    # Option 3: Ranking
+    elif selected == 3:
+        return (
+            style_no_display,  # data_tab
+            style_no_display,  # trans_tab
+            style_no_display,  # forest_tab
+            style_no_display,  # tab2 (pairwise)
+            style_no_display,  # league_tab
+            style_no_display,  # league_tab_both
+            style_no_display,  # consis_tab
+            style_no_display,  # funnel_tab
+            style_display,  # ranking_tab
+            "ranking_tab",  # results_tabs value
+            "",  # results_tabs2 value (empty to hide)
+        )
+
+    # Option 4: Consistency & Reporting bias
+    elif selected == 4:
+        return (
+            style_no_display,  # data_tab
+            style_no_display,  # trans_tab
+            style_no_display,  # forest_tab
+            style_no_display,  # tab2 (pairwise)
+            style_no_display,  # league_tab
+            style_no_display,  # league_tab_both
+            style_display,  # consis_tab
+            style_display,  # funnel_tab
+            style_no_display,  # ranking_tab
+            "consis_tab",  # results_tabs value
+            "funnel_tab",  # results_tabs2 value
         )
 
     # Default: show Data & Transitivity
     return (
         style_display,
         style_display,
+        style_no_display,
+        style_no_display,
+        style_no_display,
+        style_no_display,
         style_no_display,
         style_no_display,
         style_no_display,
@@ -3019,19 +3223,51 @@ def toggle_modal_year(n1, n2, is_open):
 
 
 ### -------------------------------------------- FUNNEL CALLBACKS ----------------------------------------------- ###
-# UNCOMMENT
-# @callback(
-# Output("modal-body-funnel", "is_open"),
-# [
-# Input("open-body-funnel", "n_clicks"),
-# Input("close-body-funnel", "n_clicks"),
-# ],
-# [State("modal-body-funnel", "is_open")],
-# )
-# def toggle_modal_funnel(n1, n2, is_open):
-# if n1 or n2:
-# return not is_open
-# return is_open
+
+
+# Funnel info modal callback for comparison-adjusted funnel plot
+@callback(
+    Output("modal-body-funnel", "is_open"),
+    [
+        Input("open-body-funnel", "n_clicks"),
+        Input("close-body-funnel", "n_clicks"),
+    ],
+    [State("modal-body-funnel", "is_open")],
+)
+def toggle_modal_funnel(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Funnel info modal callback for standard funnel plot
+@callback(
+    Output("modal-body-funnel2", "is_open"),
+    [
+        Input("open-body-funnel2", "n_clicks"),
+        Input("close-body-funnel2", "n_clicks"),
+    ],
+    [State("modal-body-funnel2", "is_open")],
+)
+def toggle_modal_funnel2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+# Inconsistency info modal callback for consistency checks
+@callback(
+    Output("modal-body-incons", "is_open"),
+    [
+        Input("open-body-incons", "n_clicks"),
+        Input("close-body-incons", "n_clicks"),
+    ],
+    [State("modal-body-incons", "is_open")],
+)
+def toggle_modal_incons(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 
 # Scatter info modal callback for transitivity checks
@@ -3152,6 +3388,20 @@ def toggle_modal_cinema(n1, n2, is_open):
     [State("modal-body-league2", "is_open")],
 )
 def toggle_modal_league2(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+@callback(
+    Output("modal-body-rank", "is_open"),
+    [
+        Input("open-body-rank", "n_clicks"),
+        Input("close-body-rank", "n_clicks"),
+    ],
+    [State("modal-body-rank", "is_open")],
+)
+def toggle_modal_rank(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
@@ -3414,3 +3664,15 @@ def disable_cinema_toggle_both(cinema_net_data2):
 
 
 ## -------------------------------------------- END CINEMA UPLOAD CALLBACKS ----------------------------------------------- ##
+
+
+## -------------------------------------------- DOWNLOAD CALLBACKS ----------------------------------------------- ##
+
+
+@callback(
+    Output("download-statistic", "data"),
+    Input("statsettings", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_statsettings(n_clicks):
+    return send_file("Documentation/statistical_settings.pdf")

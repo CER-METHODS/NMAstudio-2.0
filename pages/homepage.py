@@ -44,15 +44,16 @@ layout = html.Div(
         html.Br(),
         html.Br(),
         html.Br(),
-        dcc.Markdown(
-            "Warning: Please, avoid using Firefox because some features might not work well. Preferred browsers are Safari and Chrome.",
-            className="markdown_style_main",
-            style={
-                "fontSize": "20px",
-                "textAlign": "center",
-                "color": "rgb(222 132 83)",
-            },
-        ),
+        # Warning message commented out in main version
+        # dcc.Markdown(
+        #     "Warning: Please, avoid using Firefox because some features might not work well. Preferred browsers are Safari and Chrome.",
+        #     className="markdown_style_main",
+        #     style={
+        #         "fontSize": "20px",
+        #         "textAlign": "center",
+        #         "color": "rgb(222 132 83)",
+        #     },
+        # ),
         html.Br(),
         #  dcc.Markdown('NMAstudio serves as an interactive web application designed to simplifies the whole Network Meta-Analysis (NMA) procedures and enhances the visualization of results.',
         #                 className="markdown_style", style={"color": "black", "marginRight":"10%"}),
@@ -215,30 +216,54 @@ layout = html.Div(
         html.Br(),
         dbc.Row(
             [
-                html.Button(
-                    "Download Tutorial",
-                    id="full-tuto-pdf",
-                    style={
-                        "color": "black",
-                        "display": "inline-block",
-                        "justifySelf": "center",
-                        "padding": "4px",
-                    },
+                html.Div(
+                    [
+                        html.Button(
+                            "Download demonstration data",
+                            id="demodata",
+                            style={"display": "inline-block", "padding": "1px"},
+                        ),
+                        Download(id="download-demodata"),
+                    ]
                 ),
-                Download(id="download-tuto"),
-                # html.Span('or', style={'justifySelf':'center','alignSelf': 'center'}),
-                # dbc.NavLink('See the embeded example', href="/results", external_link=True,
-                # className='go_to_example'),
+                html.Span(
+                    "and",
+                    style={"justifySelf": "center", "alignSelf": "center"},
+                ),
+                html.Div(
+                    [
+                        html.Button(
+                            "See the explanation of the variables",
+                            id="data_explain",
+                            style={"display": "inline-block", "padding": "1px"},
+                        ),
+                        Download(id="download-data-explain"),
+                    ]
+                ),
             ],
             style={
                 "display": "grid",
-                "width": "450px",
+                "width": "40%",
                 "justifySelf": "center",
                 "gridTemplateColumns": "1fr 1fr 1fr",
             },
         ),
         html.Br(),
         html.Br(),
+        dbc.NavLink(
+            "Click to watch the tutorial video",
+            href="https://youtu.be/CGj729iqBOQ",
+            target="_blank",
+            external_link=True,
+            className="tutorial-link",
+            style={
+                "color": "orange",
+                "textDecoration": "unset",
+                "fontSize": "x-large",
+                "display": "block",
+                "marginRight": "20px",
+            },
+        ),
         html.Span(
             "More tutorials coming soon...",
             style={"justifySelf": "center", "alignSelf": "center"},
@@ -355,6 +380,18 @@ layout = html.Div(
                                 "marginRight": "20px",
                             },
                         ),
+                        dbc.NavLink(
+                            "Thodoris Papakonstantinou",
+                            href="https://www.cer-methods.com/team/",
+                            external_link=True,
+                            style={
+                                "color": "#5b7780",
+                                "textDecoration": "unset",
+                                "fontSize": "large",
+                                "display": "block",
+                                "marginRight": "20px",
+                            },
+                        ),
                     ],
                     style={
                         "textAlign": "center",
@@ -401,24 +438,14 @@ layout = html.Div(
                         ),
                         html.Br(),
                         html.Br(),
-                        html.Div(
-                            [
-                                dcc.Markdown(
-                                    "Embedded and demonstration datasets taken from:",
-                                    className="markdown_style",
-                                    style={
-                                        "marginRight": "0px",
-                                        "display": "inline-block",
-                                        "color": "black",
-                                    },
-                                ),
-                                html.Button(
-                                    "Download demonstration data",
-                                    id="demodata",
-                                    style={"display": "inline-block", "padding": "1px"},
-                                ),
-                                Download(id="download-demodata"),
-                            ]
+                        dcc.Markdown(
+                            "Embedded and demonstration datasets taken from:",
+                            className="markdown_style",
+                            style={
+                                "marginRight": "0px",
+                                "display": "inline-block",
+                                "color": "black",
+                            },
                         ),
                         dbc.NavLink(
                             "Sbidian E, Chaimani A, Garcia-Doval I, Doney L, Dressler C, Hua C, et al. Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis. \n Cochrane Database Syst Rev. 2021 Apr 19;4:CD011535.",
@@ -500,16 +527,9 @@ def func(n_clicks):
 
 
 @callback(
-    Output("download-tuto", "data"),
-    Input("full-tuto-pdf", "n_clicks"),
+    Output("download-data-explain", "data"),
+    Input("data_explain", "n_clicks"),
     prevent_initial_call=True,
 )
-def func1(n_clicks):
-    return send_file("Documentation/NMAstudio_tutorial.pdf")
-
-
-# @callback(Output("download-guide", "data"),
-# Input("full-docu-pdf", "n_clicks"),
-# prevent_initial_call=True)
-# def func(n_clicks):
-# return send_file("Documentation/NMAstudio_tutorial.pdf")
+def func_explain(n_clicks):
+    return send_file("Documentation/variables_explain.pdf")

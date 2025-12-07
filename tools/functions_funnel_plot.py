@@ -1,5 +1,6 @@
 import pandas as pd, numpy as np
 import plotly.express as px
+from tools.utils import get_net_data_json
 
 
 def __Tap_funnelplot(node, outcome_idx, funnel_data):

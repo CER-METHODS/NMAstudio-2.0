@@ -587,7 +587,7 @@ modal_league_table = dbc.Modal(
                     [
                         html.Button(
                             "Export",
-                            id="league-export",
+                            id="league-export-modal",
                             n_clicks=0,
                             className="btn-export",
                             style={
@@ -601,7 +601,7 @@ modal_league_table = dbc.Modal(
                                 "verticalAlign": "top",
                             },
                         ),
-                        dcc.Download(id="download_leaguetable"),
+                        dcc.Download(id="download_leaguetable_modal"),
                     ]
                 ),
                 dbc.Button("Close", id="close-league-expanded", className="ml-auto"),

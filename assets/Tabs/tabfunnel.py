@@ -3,123 +3,163 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 from assets.Tabs.saveload_modal_button import saveload_modal
-from assets.Infos.funnelInfo import infoFunnel
+from assets.Infos.funnelInfo import infoFunnel, infoFunnel2
 
 
-tab_funnel = html.Div(
+# Graph configuration shared between both funnel plots
+funnel_graph_config = {
+    "editable": True,
+    "edits": dict(
+        annotationPosition=True,
+        annotationTail=True,
+        colorbarPosition=True,
+        colorbarTitleText=False,
+        titleText=False,
+        legendPosition=True,
+        legendText=True,
+        shapePosition=False,
+    ),
+    "modeBarButtonsToRemove": [
+        "toggleSpikelines",
+        "resetScale2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "autoScale2d",
+        "hoverCompareCartesian",
+    ],
+    "toImageButtonOptions": {
+        "format": "png",
+        "filename": "funnel_plot",
+        "scale": 5,
+    },
+    "displaylogo": False,
+}
+
+funnel_graph_style = {
+    "height": "99%",
+    "max-height": "calc(50vw)",
+    "width": "98%",
+    "margin-top": "1%",
+    "max-width": "calc(52vw)",
+}
+
+# Comparison-adjusted funnel plot (click a node)
+tab_funnel1 = html.Div(
     [
-        # Instructions
         dbc.Row(
             [
                 dbc.Col(
                     html.P(
-                        "Click on a node for comparison-adjusted funnel plot, or click on an edge for comparison-specific funnel plot",
+                        "Click a node to generate the plot",
                         className="graph__title2",
                         style={
                             "display": "inline-block",
                             "verticalAlign": "top",
-                            "font-size": "12px",
+                            "font-size": "18px",
                             "margin-bottom": "-10px",
                         },
                     )
                 ),
+                infoFunnel,
             ]
-        ),
-        # Uncomment to activate info box funnel
-        # infoFunnel,
-        # Node-based funnel plot (click a treatment node)
-        html.H6(
-            "Comparison-Adjusted Funnel Plot (Click Node)",
-            style={"margin-top": "10px", "font-size": "14px", "color": "#5a87c4"},
         ),
         dcc.Loading(
             dcc.Graph(
                 id="funnel-fig",
-                style={
-                    "height": "99%",
-                    "max-height": "calc(45vw)",
-                    "width": "98%",
-                    "margin-top": "1%",
-                    "max-width": "calc(52vw)",
-                },
-                config={
-                    "editable": True,
-                    # 'showEditInChartStudio': True,
-                    # 'plotlyServerURL': "https://chart-studio.plotly.com",
-                    "edits": dict(
-                        annotationPosition=True,
-                        annotationTail=True,
-                        # annotationText=True, axisTitleText=True,
-                        colorbarPosition=True,
-                        colorbarTitleText=False,
-                        titleText=False,
-                        legendPosition=True,
-                        legendText=True,
-                        shapePosition=False,
-                    ),
-                    "modeBarButtonsToRemove": [
-                        "toggleSpikelines",
-                        "resetScale2d",
-                        "pan2d",
-                        "select2d",
-                        "lasso2d",
-                        "autoScale2d",
-                        "hoverCompareCartesian",
-                    ],
-                    "toImageButtonOptions": {
-                        "format": "png",  # one of png, svg,
-                        "filename": "funnel_node_based",
-                        "scale": 5,
-                    },
-                    "displaylogo": False,
-                },
+                style=funnel_graph_style,
+                config=funnel_graph_config,
             )
         ),
-        html.Hr(style={"margin": "20px 0"}),
-        # Edge-based funnel plot (click an edge/connection)
-        html.H6(
-            "Comparison-Specific Funnel Plot (Click Edge)",
-            style={"margin-top": "10px", "font-size": "14px", "color": "#5a87c4"},
+    ]
+)
+
+# Standard funnel plot (click an edge)
+tab_funnel2 = html.Div(
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.P(
+                        "Click on an edge to generate the plot",
+                        className="graph__title2",
+                        style={
+                            "display": "inline-block",
+                            "verticalAlign": "top",
+                            "font-size": "18px",
+                            "margin-bottom": "-10px",
+                        },
+                    )
+                ),
+                infoFunnel2,
+            ]
         ),
         dcc.Loading(
             dcc.Graph(
                 id="funnel-fig-normal",
-                style={
-                    "height": "99%",
-                    "max-height": "calc(45vw)",
-                    "width": "98%",
-                    "margin-top": "1%",
-                    "max-width": "calc(52vw)",
-                },
-                config={
-                    "editable": True,
-                    "edits": dict(
-                        annotationPosition=True,
-                        annotationTail=True,
-                        colorbarPosition=True,
-                        colorbarTitleText=False,
-                        titleText=False,
-                        legendPosition=True,
-                        legendText=True,
-                        shapePosition=False,
-                    ),
-                    "modeBarButtonsToRemove": [
-                        "toggleSpikelines",
-                        "resetScale2d",
-                        "pan2d",
-                        "select2d",
-                        "lasso2d",
-                        "autoScale2d",
-                        "hoverCompareCartesian",
-                    ],
-                    "toImageButtonOptions": {
-                        "format": "png",
-                        "filename": "funnel_edge_based",
-                        "scale": 5,
-                    },
-                    "displaylogo": False,
-                },
+                style=funnel_graph_style,
+                config=funnel_graph_config,
             )
         ),
     ]
+)
+
+# Tab-based funnel view - shows one funnel at a time
+tab_funnel = dcc.Tabs(
+    id="funnel-subtabs",
+    value="tab_funnel",
+    vertical=False,
+    persistence=True,
+    children=[
+        dcc.Tab(
+            label="Comparison-adjusted plot",
+            id="tab_funnel",
+            value="tab_funnel",
+            className="control-tab",
+            style={
+                "height": "30%",
+                "display": "flex",
+                "justify-content": "center",
+                "align-items": "center",
+                "font-size": "medium",
+                "color": "black",
+                "padding": "0",
+            },
+            selected_style={
+                "height": "30%",
+                "display": "flex",
+                "justify-content": "center",
+                "align-items": "center",
+                "background-color": "#f5c198",
+                "font-size": "medium",
+                "padding": "0",
+            },
+            children=[tab_funnel1],
+        ),
+        dcc.Tab(
+            label="Standard plot",
+            id="tab_funnel_2",
+            value="funnel_2",
+            className="control-tab",
+            style={
+                "height": "30%",
+                "display": "flex",
+                "justify-content": "center",
+                "align-items": "center",
+                "font-size": "medium",
+                "color": "black",
+                "padding": "0",
+            },
+            selected_style={
+                "height": "30%",
+                "display": "flex",
+                "justify-content": "center",
+                "align-items": "center",
+                "background-color": "#f5c198",
+                "font-size": "medium",
+                "padding": "0",
+            },
+            children=[tab_funnel2],
+        ),
+    ],
 )

@@ -3,7 +3,9 @@ import plotly.express as px
 import plotly.figure_factory as ff
 from sklearn.cluster import KMeans
 from collections import Counter
+from io import StringIO
 from functools import lru_cache
+from tools.utils import get_net_data_json
 
 
 # @lru_cache(maxsize=None)
@@ -65,85 +67,128 @@ def __ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_da
         out_idx2: Index of secondary outcome (0-based)
         net_data: Network data storage dict
     """
-    df = pd.read_json(ranking_data[0], orient="split")
-    # merged_ranking_data = df
-    for i, json_path in enumerate(ranking_data[1:], start=2):
-        df2 = pd.read_json(json_path, orient="split")
-        # Rename the pscore column to pscorei, where i is the loop index
-        df2 = df2.rename(columns={"pscore": f"pscore{i}"})
-        df = pd.merge(df, df2, on="treatment", how="outer")
-
-    out_number = len(ranking_data)
-
-    df = df.rename(columns={"pscore": "pscore1"})
-    df = df.loc[:, ~df.columns.str.contains("^Unnamed")]  # Remove unnamed columns
-
-    # Use outcome names from options if available
-    if options and len(options) >= out_number:
-        outcomes = tuple(f"{options[i]['label']}" for i in range(out_number))
-    else:
-        outcomes = tuple(f"Outcome {i + 1}" for i in range(out_number))
-
-    net_storage = pd.read_json(get_net_data_json(net_data), orient="split")
-
-    df1 = df.copy(deep=True)
-
-    outcome_direction = [[] for _ in range(out_number)]
-    for i in range(out_number):
-        outcome_direction[i] = net_storage[f"outcome{i + 1}_direction"].iloc[1]
-        outcome_direction[i] = False if outcome_direction[i] == "beneficial" else True
-        if outcome_direction[i]:
-            df1[f"pscore{i + 1}"] = 1 - df1[f"pscore{i + 1}"].values
-
-    df1 = df1.sort_values(by="pscore1", ascending=False)
-    treatments = tuple(df1.treatment)
-    if type(treatments[1]) == int:
-        treatments = tuple([str(c) + "\0" for c in treatments])
-    z_text = (
-        tuple(
-            tuple(df1[f"pscore{i + 1}"].round(2).astype(str).values)
-            for i in range(out_number)
-        )
-        if len(treatments) < 22
-        else tuple(tuple([""] * len(treatments)) for _ in range(out_number))
-    )
-    pscores = tuple(tuple(df1[f"pscore{i + 1}"]) for i in range(out_number))
-
-    # pscores = (pscores[out_idx1], pscores[out_idx2])
-    # z_text = (z_text[out_idx1], z_text[out_idx2])
-    #################### heatmap ####################
-    fig = __ranking_heatmap(treatments, pscores, outcomes, z_text)
-
-    ######################### scatter plot #########################
-    # Get outcome labels for scatter plot axes
-    if options and len(options) > out_idx1:
-        label1 = options[out_idx1]["label"]
-    else:
-        label1 = f"Outcome {out_idx1 + 1}"
-    if options and len(options) > out_idx2:
-        label2 = options[out_idx2]["label"]
-    else:
-        label2 = f"Outcome {out_idx2 + 1}"
-    outcomes2 = (label1, label2)
-
-    if out_number < 2:
-        fig2 = px.scatter()
-        fig2.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
+    # Guard against missing data
+    if not ranking_data or not net_data:
+        empty_fig = px.scatter()
+        empty_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
         )
-    else:
-        fig2 = __ranking_scatter(
-            df,
-            net_data,
-            outcome_direction[out_idx1],
-            outcome_direction[out_idx2],
-            out_idx1,
-            out_idx2,
-            outcomes2,
+        return empty_fig, empty_fig
+
+    try:
+        df = pd.read_json(StringIO(ranking_data[0]), orient="split")
+        # merged_ranking_data = df
+        for i, json_path in enumerate(ranking_data[1:], start=2):
+            df2 = pd.read_json(StringIO(json_path), orient="split")
+            # Rename the pscore column to pscorei, where i is the loop index
+            df2 = df2.rename(columns={"pscore": f"pscore{i}"})
+            df = pd.merge(df, df2, on="treatment", how="outer")
+
+        out_number = len(ranking_data)
+
+        df = df.rename(columns={"pscore": "pscore1"})
+        df = df.loc[:, ~df.columns.str.contains("^Unnamed")]  # Remove unnamed columns
+
+        # Use outcome names from options if available
+        if options and len(options) >= out_number:
+            outcomes = tuple(f"{options[i]['label']}" for i in range(out_number))
+        else:
+            outcomes = tuple(f"Outcome {i + 1}" for i in range(out_number))
+
+        net_storage = pd.read_json(
+            StringIO(get_net_data_json(net_data)), orient="split"
         )
 
-    return fig, fig2
+        df1 = df.copy(deep=True)
+
+        # Only access direction columns that exist in net_storage
+        # The net_storage only has outcome1_direction, outcome2_direction etc. based on setup
+        outcome_direction = [
+            False for _ in range(out_number)
+        ]  # Default to beneficial (False)
+        for i in range(out_number):
+            direction_col = f"outcome{i + 1}_direction"
+            if direction_col in net_storage.columns:
+                outcome_direction[i] = net_storage[direction_col].iloc[1]
+                outcome_direction[i] = (
+                    False if outcome_direction[i] == "beneficial" else True
+                )
+            # else: keep default False (beneficial)
+            if outcome_direction[i]:
+                df1[f"pscore{i + 1}"] = 1 - df1[f"pscore{i + 1}"].values
+
+        df1 = df1.sort_values(by="pscore1", ascending=False)
+        treatments = tuple(df1.treatment)
+        # Check if treatments are integers (need to convert to strings for display)
+        if len(treatments) > 1 and isinstance(treatments[1], (int, np.integer)):
+            treatments = tuple([str(c) + "\0" for c in treatments])
+        elif len(treatments) > 0 and isinstance(treatments[0], (int, np.integer)):
+            treatments = tuple([str(c) + "\0" for c in treatments])
+        z_text = (
+            tuple(
+                tuple(df1[f"pscore{i + 1}"].round(2).astype(str).values)
+                for i in range(out_number)
+            )
+            if len(treatments) < 22
+            else tuple(tuple([""] * len(treatments)) for _ in range(out_number))
+        )
+        pscores = tuple(tuple(df1[f"pscore{i + 1}"]) for i in range(out_number))
+
+        # pscores = (pscores[out_idx1], pscores[out_idx2])
+        # z_text = (z_text[out_idx1], z_text[out_idx2])
+        #################### heatmap ####################
+        fig = __ranking_heatmap(treatments, pscores, outcomes, z_text)
+
+        ######################### scatter plot #########################
+        # Get outcome labels for scatter plot axes
+        if options and len(options) > out_idx1:
+            label1 = options[out_idx1]["label"]
+        else:
+            label1 = f"Outcome {out_idx1 + 1}"
+        if options and len(options) > out_idx2:
+            label2 = options[out_idx2]["label"]
+        else:
+            label2 = f"Outcome {out_idx2 + 1}"
+        outcomes2 = (label1, label2)
+
+        if out_number < 2:
+            fig2 = px.scatter()
+            fig2.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
+                plot_bgcolor="rgba(0,0,0,0)",
+            )
+        else:
+            # Ensure indices are within bounds
+            safe_idx1 = min(out_idx1, out_number - 1) if out_idx1 is not None else 0
+            safe_idx2 = (
+                min(out_idx2, out_number - 1)
+                if out_idx2 is not None
+                else min(1, out_number - 1)
+            )
+
+            fig2 = __ranking_scatter(
+                df,
+                net_data,
+                outcome_direction[safe_idx1],
+                outcome_direction[safe_idx2],
+                safe_idx1,
+                safe_idx2,
+                outcomes2,
+            )
+
+        return fig, fig2
+    except Exception as e:
+        print(f"[ERROR] __ranking_plot failed: {e}")
+        import traceback
+
+        traceback.print_exc()
+        empty_fig = px.scatter()
+        empty_fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        return empty_fig, empty_fig
 
 
 # @lru_cache(maxsize=None)
@@ -267,7 +312,7 @@ def __ranking_heatmap(treatments, pscores, outcomes, z_text):
         hoverongaps=False,
     )
     for annotation in fig.layout.annotations:
-        annotation.font.size = 9
+        annotation.font.size = 12
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
         plot_bgcolor="rgba(0,0,0,0)",
@@ -288,20 +333,28 @@ def __ranking_heatmap(treatments, pscores, outcomes, z_text):
 
 
 def __ranking_scatter(
-    df, net_data, outcome_direction_1, outcome_direction_2, out_idx1, out_idx2, outcomes
+    df,
+    net_data_storage,
+    outcome_direction_1,
+    outcome_direction_2,
+    out_idx1,
+    out_idx2,
+    outcomes,
 ):
     """Generate ranking scatter plot comparing two outcomes.
 
     Args:
         df: DataFrame with pscore columns
-        net_data: Network data storage dict
+        net_data_storage: Network data storage dict with "data" key
         outcome_direction_1: Direction for outcome 1 (True=harmful, False=beneficial)
         outcome_direction_2: Direction for outcome 2 (True=harmful, False=beneficial)
         out_idx1: Index of outcome 1 (0-based)
         out_idx2: Index of outcome 2 (0-based)
         outcomes: Tuple of (label1, label2) for axis labels
     """
-    net_data = pd.read_json(get_net_data_json(net_data), orient="split")
+    net_data = pd.read_json(
+        StringIO(get_net_data_json(net_data_storage)), orient="split"
+    )
 
     if out_idx1 != out_idx2:
         df = df.dropna()
@@ -400,7 +453,7 @@ def __ranking_scatter(
         )
         fig2.update_traces(
             textposition="top center",
-            textfont_size=10,
+            textfont_size=12,
             marker=dict(line=dict(width=1, color="black")),
         )
         fig2.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")
