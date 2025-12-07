@@ -731,3 +731,43 @@ def update_skt_advanced_grid_from_storage(
 
         traceback.print_exc()
         raise PreventUpdate
+
+
+# ================================
+# PROJECT TITLE AND PROTOCOL LINK CALLBACKS
+# ================================
+
+
+@callback(
+    [
+        Output("skt_protocol_link", "href"),
+        Output("skt_protocol_link", "children"),
+    ],
+    Input("protocol_link_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def update_skt_protocol_link(protocol_link):
+    """
+    Update protocol link display in SKT page from STORAGE.
+    """
+    if protocol_link and isinstance(protocol_link, str) and protocol_link.strip():
+        link = protocol_link.strip()
+        display_text = link if len(link) <= 60 else link[:57] + "..."
+        return link, display_text
+    return "#", "Not provided"
+
+
+@callback(
+    Output("skt_project_title", "children"),
+    Input("project_title_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def update_skt_project_title(project_title):
+    """
+    Update project title display in SKT page from STORAGE.
+    """
+    if project_title and isinstance(project_title, str) and project_title.strip():
+        title = project_title.strip()
+        display_title = title if len(title) <= 80 else title[:77] + "..."
+        return display_title
+    return "Not provided"

@@ -1,5 +1,6 @@
 from tools.utils import *
 from dash import html
+import traceback
 
 
 def __modal_submit_checks_DATACHECKS(
@@ -268,6 +269,10 @@ def __modal_submit_checks_LT_new(
             outcome_idx1 = 0
             outcome_idx2 = 0
 
+        # Ensure outcome indices are plain integers (not numpy/pandas types)
+        outcome_idx1 = int(outcome_idx1) if outcome_idx1 is not None else 0
+        outcome_idx2 = int(outcome_idx2) if outcome_idx2 is not None else 0
+
         data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
         num_outcome = int(num_outcome)
 
@@ -325,6 +330,12 @@ def __modal_submit_checks_LT_new(
         except Exception as Rconsole_error_league:
             # Convert exception to string to avoid JSON serialization issues
             error_msg = str(Rconsole_error_league)
+            # Print full traceback for debugging
+            print(f"=== LEAGUE TABLE ERROR ===")
+            print(f"Error type: {type(Rconsole_error_league).__name__}")
+            print(f"Error message: {error_msg}")
+            traceback.print_exc()
+            print(f"=== END ERROR ===")
             return (
                 True,
                 error_msg,

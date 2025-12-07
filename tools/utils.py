@@ -102,79 +102,83 @@ def apply_r_func(func, df):
     """Apply R function with proper conversion context for threading."""
     df = _process_rob_column(df)
 
-    # Use localconverter for thread-safe conversion
+    # Convert DataFrame to R object
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-        func_r_res = func(dat=df_r)
-        r_result = ro.conversion.rpy2py(func_r_res)
 
-        if isinstance(r_result, ro.vectors.ListVector):
-            # Convert all list elements while still in context
-            leaguetable = ro.conversion.rpy2py(r_result[0])
-            pscores = ro.conversion.rpy2py(r_result[1])
-            consist = ro.conversion.rpy2py(r_result[2])
-            netsplit = ro.conversion.rpy2py(r_result[3])
-            netsplit_all = ro.conversion.rpy2py(r_result[4])
-            return leaguetable, pscores, consist, netsplit, netsplit_all
+    # Call R function (outside converter context to avoid recursion issues)
+    func_r_res = func(dat=df_r)
+    r_result = pandas2ri.rpy2py(func_r_res)
+
+    if isinstance(r_result, ro.vectors.ListVector):
+        # Convert list elements with proper converter context
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            leaguetable, pscores, consist, netsplit, netsplit_all = (
+                ro.conversion.rpy2py(rf) for rf in r_result
+            )
+        return leaguetable, pscores, consist, netsplit, netsplit_all
+    else:
+        # r_result should be a pandas DataFrame after conversion
+        if hasattr(r_result, "reset_index"):
+            return r_result.reset_index(drop=True)
         else:
-            # r_result should be a pandas DataFrame after conversion
-            if hasattr(r_result, "reset_index"):
-                return r_result.reset_index(drop=True)
-            else:
-                return r_result
+            return r_result
 
 
 def apply_r_func_new(func, df, i):
     """Apply R function with outcome index and proper conversion context."""
     df = _process_rob_column(df)
 
-    # Use localconverter for thread-safe conversion
+    # Convert DataFrame to R object
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-        func_r_res = func(dat=df_r, i=i)
-        r_result = ro.conversion.rpy2py(func_r_res)
 
-        if isinstance(r_result, ro.vectors.ListVector):
-            # Convert all list elements while still in context
-            leaguetable = ro.conversion.rpy2py(r_result[0])
-            pscores = ro.conversion.rpy2py(r_result[1])
-            consist = ro.conversion.rpy2py(r_result[2])
-            netsplit = ro.conversion.rpy2py(r_result[3])
-            netsplit_all = ro.conversion.rpy2py(r_result[4])
-            return leaguetable, pscores, consist, netsplit, netsplit_all
+    # Call R function (outside converter context to avoid recursion issues)
+    func_r_res = func(dat=df_r, i=i)
+    r_result = pandas2ri.rpy2py(func_r_res)
+
+    if isinstance(r_result, ro.vectors.ListVector):
+        # Convert list elements with proper converter context
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            leaguetable, pscores, consist, netsplit, netsplit_all = (
+                ro.conversion.rpy2py(rf) for rf in r_result
+            )
+        return leaguetable, pscores, consist, netsplit, netsplit_all
+    else:
+        # r_result should be a pandas DataFrame after conversion
+        if hasattr(r_result, "reset_index"):
+            return r_result.reset_index(drop=True)
         else:
-            # r_result should be a pandas DataFrame after conversion
-            # If it has reset_index method, call it; otherwise return as-is
-            if hasattr(r_result, "reset_index"):
-                return r_result.reset_index(drop=True)
-            else:
-                return r_result
+            return r_result
 
 
 def apply_r_func_new_lt(func, df, i, j):
     """Apply R function for league table with proper conversion context."""
     df = _process_rob_column(df)
 
-    # Use localconverter for thread-safe conversion
+    # Convert DataFrame to R object
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-        func_r_res = func(dat=df_r, i=i, j=j)
-        r_result = ro.conversion.rpy2py(func_r_res)
 
-        if isinstance(r_result, ro.vectors.ListVector):
-            # Convert all list elements while still in context
+    # Call R function (outside converter context to avoid recursion issues)
+    func_r_res = func(dat=df_r, i=i, j=j)
+    r_result = pandas2ri.rpy2py(func_r_res)
+
+    if isinstance(r_result, ro.vectors.ListVector):
+        # Convert list elements with proper converter context
+        with localconverter(ro.default_converter + pandas2ri.converter):
             leaguetable = [ro.conversion.rpy2py(rf) for rf in r_result]
-            # If it's a list of DataFrames, ensure they're properly converted
-            if len(leaguetable) > 0 and isinstance(leaguetable[0], pd.DataFrame):
-                # For league table with 2 outcomes, return the combined table (usually the last one)
-                return leaguetable[-1]
-            return leaguetable
+        # If it's a list of DataFrames, ensure they're properly converted
+        if len(leaguetable) > 0 and isinstance(leaguetable[0], pd.DataFrame):
+            # For league table with 2 outcomes, return the combined table (usually the last one)
+            return leaguetable[-1]
+        return leaguetable
+    else:
+        # r_result should be a pandas DataFrame after conversion
+        if hasattr(r_result, "reset_index"):
+            return r_result.reset_index(drop=True)
         else:
-            # r_result should be a pandas DataFrame after conversion
-            if hasattr(r_result, "reset_index"):
-                return r_result.reset_index(drop=True)
-            else:
-                return r_result
+            return r_result
 
 
 # def apply_r_func_two_outcomes(func, df):

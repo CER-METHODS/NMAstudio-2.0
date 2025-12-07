@@ -918,6 +918,60 @@ def switch_table():
                     "color": "#5c7780",
                 },
             ),
+            # Project title row
+            dbc.Row(
+                [
+                    html.Span(
+                        "Project title:   ",
+                        style={
+                            "white-space": "pre",
+                            "font-size": "large",
+                            "color": "chocolate",
+                        },
+                    ),
+                    html.Span(
+                        "Not provided",
+                        style={
+                            "font-size": "large",
+                            "color": "#333",
+                        },
+                        id="skt_project_title",
+                    ),
+                ],
+                style={
+                    "display": "flex",
+                    "justifyContent": "center",
+                    "marginBottom": "5px",
+                },
+            ),
+            # Protocol link row
+            dbc.Row(
+                [
+                    html.Span(
+                        "Protocol link:   ",
+                        style={
+                            "white-space": "pre",
+                            "font-size": "large",
+                            "color": "chocolate",
+                        },
+                    ),
+                    dcc.Link(
+                        children="Not provided",
+                        href="#",
+                        target="_blank",
+                        style={
+                            "color": "#0FA0CE",
+                            "font-size": "large",
+                        },
+                        id="skt_protocol_link",
+                    ),
+                ],
+                style={
+                    "display": "flex",
+                    "justifyContent": "center",
+                    "marginBottom": "10px",
+                },
+            ),
             dbc.Row(
                 dbc.Col(
                     [

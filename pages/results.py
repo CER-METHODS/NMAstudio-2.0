@@ -166,13 +166,11 @@ layout = html.Div(
         html.Div(R_errors_pair, style={"vertical-align": "top"}),
         html.Div(R_errors_league, style={"vertical-align": "top"}),
         html.Div(R_errors_funnel, style={"vertical-align": "top"}),
-        html.Br(),
-        html.Br(),
-        # Protocol link section
+        # Project title row
         dbc.Row(
             [
                 html.Span(
-                    "Project protocol link:   ",
+                    "",
                     style={
                         "justify-self": "center",
                         "align-self": "center",
@@ -180,7 +178,31 @@ layout = html.Div(
                         "font-size": "x-large",
                         "color": "chocolate",
                     },
+                ),
+                html.Span(
+                    "Title not provided",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "font-size": "x-large",
+                        "color": "#333",
+                    },
                     id="link_title",
+                ),
+            ]
+        ),
+        # Protocol link row
+        dbc.Row(
+            [
+                html.Span(
+                    "Protocol link:   ",
+                    style={
+                        "justify-self": "center",
+                        "align-self": "center",
+                        "white-space": "pre",
+                        "font-size": "x-large",
+                        "color": "chocolate",
+                    },
                 ),
                 dcc.Link(
                     children="Not provided",
@@ -1198,15 +1220,14 @@ def update_protocol_link_display(protocol_link):
 def update_project_title_display(project_title):
     """
     Update project title in the results page header.
-    If title is provided, shows "Title: [title] | Protocol:   "
-    Otherwise shows "Project protocol link:   "
+    Shows the project title or "Not provided" if not set.
     """
     if project_title and isinstance(project_title, str) and project_title.strip():
         title = project_title.strip()
         # Truncate if too long
         display_title = title if len(title) <= 80 else title[:77] + "..."
-        return [display_title, html.Br(), "Protocol:   "]
-    return "Project protocol link:   "
+        return display_title
+    return "Not provided"
 
 
 ### -------------------------- ALL CYTOSCAPE CALLBACKS  ------------------------------- ###

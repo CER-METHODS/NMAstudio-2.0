@@ -19,9 +19,8 @@ saveload_modal = html.Div(
             id="open_saveload",
             n_clicks=0,
             style={
-                "marginTop": "-8.5px",
-                "paddingTop": "0px",
                 "backgroundColor": "#00ab9c",
+                "height": "40px",
             },
         ),
         dbc.Modal(

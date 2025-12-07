@@ -87,7 +87,6 @@ layout = html.Div(
                             style={
                                 "color": "black",
                                 "fontSize": 9,
-                                # "marginLeft": "5px",
                                 "letterSpacing": "0.2rem",
                             },
                             placement="top",
@@ -95,9 +94,8 @@ layout = html.Div(
                         ),
                     ],
                     style={
-                        "display": "inline-block",
-                        "marginLeft": "20px",
-                        "marginBottom": "2px",
+                        "display": "flex",
+                        "alignItems": "center",
                     },
                 ),
                 dcc.ConfirmDialog(
@@ -109,9 +107,8 @@ layout = html.Div(
                     id="load_psor",
                     n_clicks=0,
                     style={
-                        "marginTop": "-8.5px",
-                        "paddingTop": "0px",
                         "backgroundColor": "#00ab9c",
+                        "height": "40px",
                     },
                 ),
                 dcc.ConfirmDialog(
@@ -137,10 +134,10 @@ layout = html.Div(
                 saveload_modal,  # saveload_modal_button.py
             ],
             style={
-                "display": "grid",
-                "width": "1000px",
-                "justifySelf": "center",
-                "gridTemplateColumns": "0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr",
+                "display": "flex",
+                "gap": "15px",
+                "justifyContent": "center",
+                "alignItems": "center",
             },
         ),
         dbc.Row(
@@ -187,7 +184,7 @@ layout = html.Div(
                         "backgroundColor": "beige",
                         "width": "600px",
                         "justifyContent": "center",
-                        "height": "100px",
+                        "padding": "15px 20px 20px 20px",
                         "alignItems": "center",
                     },
                 ),
@@ -249,7 +246,7 @@ layout = html.Div(
                         "backgroundColor": "beige",
                         "width": "600px",
                         "justifyContent": "center",
-                        "height": "100px",
+                        "padding": "15px 20px 20px 20px",
                         "alignItems": "center",
                     },
                 ),

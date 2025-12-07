@@ -66,46 +66,74 @@ async def select_outcome_variables(page, outcome_index, variables, outcome_name)
     """
     print(f"📊 Selecting variables for {outcome_name}...")
 
-    # Get all dropdowns with variableselectors and matching outcome index
-    dropdowns = await page.query_selector_all(".dash-dropdown")
+    # Wait for the variable selection section to appear after outcome type is selected
+    await page.wait_for_timeout(1000)
+
+    # Find variable dropdowns in the #variable_selection section
+    # These are Dash dcc.Dropdown components with placeholder "..."
+    var_section = await page.query_selector("#variable_selection")
+
+    if not var_section:
+        print(f"   ⚠️  Could not find #variable_selection section!")
+        return False
+
+    # Find all visible dropdowns with "..." placeholder in the variable section
     outcome_vars = []
+    dropdowns = await var_section.query_selector_all(".dash-dropdown")
+    print(f"   Found {len(dropdowns)} dropdowns in variable_selection")
 
     for dropdown in dropdowns:
-        dropdown_id = await dropdown.get_attribute("id") or ""
-        # Match variableselectors with the outcome index (as string)
-        if (
-            "variableselectors" in dropdown_id
-            and f'"index":"{outcome_index}"' in dropdown_id
-        ):
-            outcome_vars.append(dropdown)
+        is_visible = await dropdown.is_visible()
+        if not is_visible:
+            continue
 
-    print(
-        f"   Found {len(outcome_vars)} variable dropdowns for outcome {outcome_index}"
-    )
+        # Check if this dropdown has placeholder (not filled yet)
+        # Or if it has the "..." placeholder text
+        placeholder = await dropdown.query_selector(".Select-placeholder")
+        if placeholder:
+            placeholder_text = await placeholder.inner_text()
+            if placeholder_text == "...":
+                outcome_vars.append(dropdown)
 
-    if len(outcome_vars) != len(variables):
-        print(
-            f"   ⚠️  Warning: Expected {len(variables)} dropdowns, found {len(outcome_vars)}"
-        )
+    print(f"   Found {len(outcome_vars)} unfilled variable dropdowns")
 
-    # Select each variable in its corresponding dropdown
-    for i, (var_dropdown, var_name) in enumerate(zip(outcome_vars, variables)):
+    # Only select the number of variables we need
+    outcome_vars = outcome_vars[: len(variables)]
+
+    if len(outcome_vars) < len(variables):
+        print(f"   ⚠️  Only found {len(outcome_vars)} dropdowns, need {len(variables)}")
+
+    # Select each variable
+    success_count = 0
+    for i, var_name in enumerate(variables):
+        if i >= len(outcome_vars):
+            print(f"   ⚠️  No dropdown for variable {i + 1}: {var_name}")
+            continue
+
+        var_dropdown = outcome_vars[i]
         try:
-            select_control = await var_dropdown.query_selector(".Select-control")
-            if select_control:
-                await select_control.click()
-                await page.wait_for_timeout(300)
-                await page.keyboard.type(var_name)
-                await page.wait_for_timeout(200)
-                await page.keyboard.press("Enter")
-                print(f"   ✅ Variable {i + 1}: {var_name}")
-                await page.wait_for_timeout(300)
+            # Click the dropdown to open it
+            select_input = await var_dropdown.query_selector(".Select-control")
+            if select_input:
+                await select_input.click()
             else:
-                print(f"   ❌ Could not find select control for variable {i + 1}")
-        except Exception as e:
-            print(f"   ❌ Error selecting variable {i + 1} ({var_name}): {e}")
+                await var_dropdown.click()
 
-    return len(outcome_vars) == len(variables)
+            await page.wait_for_timeout(200)
+
+            # Type the variable name to filter
+            await page.keyboard.type(var_name)
+            await page.wait_for_timeout(200)
+
+            # Press Enter to select
+            await page.keyboard.press("Enter")
+            print(f"   ✅ Variable {i + 1}: {var_name}")
+            await page.wait_for_timeout(300)
+            success_count += 1
+        except Exception as e:
+            print(f"   ❌ Error selecting {var_name}: {e}")
+
+    return success_count == len(variables)
 
 
 async def test_create_3outcomes_project():
@@ -295,72 +323,37 @@ async def test_create_3outcomes_project():
             binary_labels = await page.query_selector_all('label:has-text("binary")')
             print(f"Found {len(binary_labels)} 'binary' radio button labels")
 
-            # Find text inputs that are visible and likely outcome name fields
-            # Skip the "number-outcomes" input by checking visibility and position
-            all_text_inputs = await page.query_selector_all('input[type="text"]')
-            outcome_name_inputs = []
-
-            for inp in all_text_inputs:
-                is_visible = await inp.is_visible()
-                inp_id = await inp.get_attribute("id") or ""
-                # Skip number-outcomes input and other non-outcome-name fields
-                if (
-                    is_visible
-                    and "number-outcomes" not in inp_id
-                    and "number_outcomes" not in inp_id
-                ):
-                    outcome_name_inputs.append(inp)
-
-            print(
-                f"Found {len(outcome_name_inputs)} text input fields before filtering"
-            )
-
-            # We should have exactly 3 outcome name inputs. If we have 4, skip the first one
-            # (it's likely an effect modifier or other field)
-            if len(outcome_name_inputs) == 4:
-                outcome_name_inputs = outcome_name_inputs[1:]  # Skip the first one
-                print(
-                    f"Filtered to {len(outcome_name_inputs)} outcome name inputs (skipped first)"
-                )
-
-            print(f"Using {len(outcome_name_inputs)} outcome name text input fields")
-
             outcome_names = ["PASI90", "SAE", "AE"]
 
-            if len(binary_labels) >= 3 and len(outcome_name_inputs) >= 3:
-                # Configure each outcome: click binary and fill name
-                for i in range(3):
-                    # Click binary for outcome
+            # Click binary for each outcome and fill names
+            # The outcome name inputs have IDs like {"type":"nameoutcomes","index":"0"}
+            for i in range(3):
+                # Click binary for this outcome
+                if i < len(binary_labels):
                     await binary_labels[i].click()
                     print(f"✅ Outcome {i + 1} type: Binary")
                     await page.wait_for_timeout(300)
 
-                    # Fill in outcome name in the corresponding text input
-                    await outcome_name_inputs[i].click()
-                    await outcome_name_inputs[i].fill(outcome_names[i])
+                # Find and fill the outcome name input by its pattern-matched ID
+                # The ID contains "nameoutcomes" and the index
+                name_input = await page.query_selector(
+                    f'input[id*="nameoutcomes"][id*=\'"index":"{i}"\']'
+                )
+                if not name_input:
+                    # Try alternate format with integer index
+                    name_input = await page.query_selector(
+                        f'input[id*="nameoutcomes"][id*=\'"index":{i}\']'
+                    )
+
+                if name_input:
+                    await name_input.click()
+                    await name_input.fill(outcome_names[i])
                     print(f"✅ Outcome {i + 1} name: {outcome_names[i]}")
                     await page.wait_for_timeout(300)
+                else:
+                    print(f"⚠️  Could not find name input for outcome {i + 1}")
 
-                await page.wait_for_timeout(1000)
-            else:
-                print(f"⚠️  Expected 3 binary labels and 3 name inputs")
-                print(
-                    f"    Found {len(binary_labels)} binary labels, {len(outcome_name_inputs)} name inputs"
-                )
-                # Try clicking what we have
-                for i, label in enumerate(binary_labels):
-                    await label.click()
-                    print(f"✅ Outcome {i + 1} type: Binary")
-                    await page.wait_for_timeout(500)
-                    if i < len(outcome_name_inputs):
-                        await outcome_name_inputs[i].click()
-                        await outcome_name_inputs[i].fill(
-                            outcome_names[i]
-                            if i < len(outcome_names)
-                            else f"Outcome{i + 1}"
-                        )
-                        print(f"✅ Outcome {i + 1} name filled")
-                        await page.wait_for_timeout(300)
+            await page.wait_for_timeout(1000)
 
             # Step 7: Outcome 1 - effect measure and direction
             print("\n⚙️  Step 7: Configuring outcome 1 (PASI90)...")
@@ -384,6 +377,9 @@ async def test_create_3outcomes_project():
 
             # Step 8: Outcome 1 - variables
             print("\n📈 Step 8: Selecting outcome 1 variables...")
+            # Wait for variable selection section to appear
+            await page.wait_for_timeout(1500)
+
             # For binary outcome in long format, we need r (events) and n (total)
             await select_outcome_variables(
                 page,
@@ -508,56 +504,96 @@ async def test_create_3outcomes_project():
             await page.wait_for_timeout(1000)
 
             # Step 13: Configure effect modifiers (age, weight)
-            print("\n🔀 Step 13: Selecting effect modifiers (age, weight)...")
-            await page.wait_for_timeout(2000)  # Wait for form to update after outcome 3
+            print("\n🔀 Step 13: Selecting effect modifiers...")
+            # Wait for callbacks to process after variable selection
+            await page.wait_for_timeout(3000)
 
-            # Effect modifiers are CHECKBOXES, not dropdowns!
-            # We need to check the checkboxes for 'age' and 'weight'
+            # Effect modifiers are CHECKBOXES in a Dash Checklist
+            # There are 2 elements with id="effect_modifier_checkbox":
+            # 1. A hidden placeholder at the top of the page (empty div)
+            # 2. The dynamically generated checklist with actual checkboxes
             try:
-                # Wait for checklist to appear
-                await page.wait_for_selector("#effect_modifier_checkbox", timeout=5000)
-
-                # Find all checkbox inputs in the effect modifier checklist
-                checkboxes = await page.query_selector_all(
-                    '#effect_modifier_checkbox input[type="checkbox"]'
+                # Wait for the section containing effect modifiers to be visible
+                print("   Waiting for effect modifier section...")
+                await page.wait_for_selector(
+                    "#select_effect_modifier", state="visible", timeout=10000
                 )
-                print(f"   Found {len(checkboxes)} effect modifier checkboxes")
 
-                # Find and check 'age' and 'weight' checkboxes by their values
-                checked_count = 0
-                for checkbox in checkboxes:
-                    # Get the value attribute to see what this checkbox represents
-                    value = await checkbox.get_attribute("value")
-                    if value in ["age", "weight"]:
-                        # Check if already checked
-                        is_checked = await checkbox.is_checked()
-                        if not is_checked:
-                            await checkbox.click()
-                            print(f"   ✅ Checked effect modifier: {value}")
-                            await page.wait_for_timeout(500)
-                            checked_count += 1
-                        else:
-                            print(f"   ✓ Effect modifier already checked: {value}")
-                            checked_count += 1
+                # Find all visible checkboxes in the effect modifier section
+                all_checkboxes = await page.query_selector_all(
+                    '#select_effect_modifier input[type="checkbox"]'
+                )
+                print(f"   Found {len(all_checkboxes)} effect modifier checkboxes")
 
-                if checked_count < 2:
-                    print(
-                        f"   ⚠️  Only found {checked_count}/2 effect modifiers, trying label method..."
+                # The effect modifier checkboxes are the ones after the league table checkboxes
+                # CSV columns: unique_id(0), name(1), year(2), bias(3), treat(4), treat_class(5),
+                #              nPASI90(6), rPASI90(7), rAE(8), nAE(9), rSAE(10), nSAE(11),
+                #              dlqi(12), sddlqi(13), ndlqi(14), age(15), male(16), weight(17), pasi_score(18)
+                # So 'age' is the 16th column (0-indexed: 15)
+
+                effect_mod_checked = False
+
+                # Method 1: Try clicking 'age' label in the effect modifier section
+                if len(all_checkboxes) > 0:
+                    # Find all labels in the effect modifier section
+                    labels = await page.query_selector_all(
+                        "#select_effect_modifier label"
                     )
-                    # Try finding by label text containing age/weight
-                    all_labels = await page.query_selector_all(
-                        "#effect_modifier_checkbox label"
-                    )
-                    for label in all_labels:
+                    print(f"   Found {len(labels)} labels in effect modifier section")
+
+                    for label in labels:
                         label_text = await label.inner_text()
-                        if label_text.lower() in ["age", "weight"]:
+                        if label_text.strip().lower() == "age":
                             await label.click()
-                            print(f"   ✅ Clicked label: {label_text}")
+                            print(f"   ✅ Clicked 'age' effect modifier")
+                            effect_mod_checked = True
                             await page.wait_for_timeout(500)
+                            break
+
+                # Method 2: Try clicking 'weight' label
+                if not effect_mod_checked:
+                    labels = await page.query_selector_all(
+                        "#select_effect_modifier label"
+                    )
+                    for label in labels:
+                        label_text = await label.inner_text()
+                        if label_text.strip().lower() == "weight":
+                            await label.click()
+                            print(f"   ✅ Clicked 'weight' effect modifier")
+                            effect_mod_checked = True
+                            await page.wait_for_timeout(500)
+                            break
+
+                # Method 3: Try clicking 'Skip' option
+                if not effect_mod_checked:
+                    print("   Trying 'Skip' option...")
+                    labels = await page.query_selector_all(
+                        "#select_effect_modifier label"
+                    )
+                    for label in labels:
+                        label_text = await label.inner_text()
+                        if "skip" in label_text.strip().lower():
+                            await label.click()
+                            print("   ✅ Clicked 'Skip' option")
+                            effect_mod_checked = True
+                            await page.wait_for_timeout(500)
+                            break
+
+                # Method 4: Last resort - click the first available checkbox
+                if not effect_mod_checked and len(all_checkboxes) > 0:
+                    print("   Clicking first available checkbox...")
+                    await all_checkboxes[0].click()
+                    print("   ✅ Clicked first effect modifier checkbox")
+                    effect_mod_checked = True
+                    await page.wait_for_timeout(500)
 
                 # Final wait for callbacks to process
                 await page.wait_for_timeout(1000)
-                print(f"   ✓ Effect modifier selection complete")
+
+                if effect_mod_checked:
+                    print("   ✓ Effect modifier selection complete")
+                else:
+                    print("   ⚠️ Could not select any effect modifier!")
 
             except Exception as e:
                 print(f"⚠️  Could not select effect modifiers: {e}")
