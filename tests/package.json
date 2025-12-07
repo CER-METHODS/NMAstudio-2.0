@@ -1,0 +1,12 @@
+{
+  "name": "nmastudio-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright tests for NMAstudio setup page",
+  "scripts": {
+    "test": "python test_setup_page.py",
+    "test:headed": "python test_setup_page.py --headed"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}

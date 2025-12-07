@@ -17,5 +17,6 @@ __backup/*
 _backup/*
 db_old/*
 *.ipynb
-.*
-!.gitignore
+# Environment variables
+.env
+.DS_Store

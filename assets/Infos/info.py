@@ -1,22 +1,24 @@
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html, dcc
 
-def __info_modal(infoid,infotitle,infotxt, direction="right"):
+
+def __info_modal(infoid, infotitle, infotxt, direction="right"):
     infomodal = html.Div(
         [
             dbc.Button(
-                 html.Img(
+                html.Img(
                     src="/assets/icons/query.png",
                     style={
-                        'display': 'inline-block',
+                        "display": "inline-block",
                         "width": "16px",
                         "margin-top": "0px",
-                        "border-radius": "0px",},
+                        "border-radius": "0px",
+                    },
                 ),
-                id=f'open-body-{infoid}', n_clicks=0,
+                id=f"open-body-{infoid}",
+                n_clicks=0,
                 className="icon-info-sign",
-                style={'display': 'inline-block',
-                       'float': f'{direction}'}
+                style={"display": "inline-block", "float": f"{direction}"},
             ),
             dbc.Modal(
                 [
@@ -25,17 +27,22 @@ def __info_modal(infoid,infotitle,infotxt, direction="right"):
                     dbc.ModalFooter(
                         dbc.Button(
                             "Close",
-                            id=f'close-body-{infoid}',
+                            id=f"close-body-{infoid}",
                             className="ms-auto",
                             n_clicks=0,
                         )
                     ),
                 ],
-                id=f'modal-body-{infoid}',
+                id=f"modal-body-{infoid}",
                 scrollable=True,
                 is_open=False,
             ),
         ],
-        style={'display': 'inline-flex'}
+        style={"display": "inline-flex"},
     )
     return infomodal
+
+
+# Keep the old function name for backward compatibility
+def InfoModal(infoid, infotitle, infotxt):
+    return __info_modal(infoid, infotitle, infotxt)

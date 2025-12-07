@@ -1,205 +1,259 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+
 def __show_boxplot(value):
     if value:
-        net_data = pd.read_csv('db/psoriasis_wide_complete.csv')
+        net_data = pd.read_csv("db/psoriasis_wide_complete.csv")
         try:
-            df = net_data[['treat1', 'treat2', value]].copy()
+            df = net_data[["treat1", "treat2", value]].copy()
         except:
             value = value + "1"
-            df = net_data[['treat1', 'treat2', value]].copy()
+            df = net_data[["treat1", "treat2", value]].copy()
         # df = net_data[['treat1', 'treat2', value]].copy()
         df = df.dropna(subset=[value])
         # df[value] = round((df[f"{value}1"] + df[f"{value}2"])/2, 2)
-        df['Comparison'] = df['treat1'] + ' vs ' + df['treat2']
-        df = df.sort_values(by='Comparison').reset_index()
-        if isinstance(df[value], str): df[value] = pd.to_numeric(df[value], errors='coerce')
-        df[value] = pd.to_numeric(df[value], errors='coerce')
-        margin = (float(df[value].max()) - float(df[value].min())) * .1  # 10%
+        df["Comparison"] = df["treat1"] + " vs " + df["treat2"]
+        df = df.sort_values(by="Comparison").reset_index()
+        if isinstance(df[value], str):
+            df[value] = pd.to_numeric(df[value], errors="coerce")
+        df[value] = pd.to_numeric(df[value], errors="coerce")
+        margin = (float(df[value].max()) - float(df[value].min())) * 0.1  # 10%
         range1 = float(df[value].min()) - margin
         range2 = float(df[value].max()) + margin
         unique_comparisons = df.Comparison.sort_values().unique()
         unique_comparisons = unique_comparisons[~pd.isna(unique_comparisons)]
-        fig = go.Figure(data=[go.Box(y=df[df.Comparison == comp][value],
-                                     visible=True,
-                                     name=comp, # jitter=0.2, # width=0.6,
-                                     marker_color='#313539',
-                                     )
-                              for comp in unique_comparisons]
-                        )
+        fig = go.Figure(
+            data=[
+                go.Box(
+                    y=df[df.Comparison == comp][value],
+                    visible=True,
+                    name=comp,  # jitter=0.2, # width=0.6,
+                    marker_color="#313539",
+                )
+                for comp in unique_comparisons
+            ]
+        )
 
     else:
-        df = pd.DataFrame([[0] * 3], columns=['Comparison', 'value', 'selected'])
-        value = df['value']
+        df = pd.DataFrame([[0] * 3], columns=["Comparison", "value", "selected"])
+        value = df["value"]
         range1 = range2 = 0
-        fig = go.Figure(data=[go.Box(y=df['value'])])
-        fig.update_layout(margin=dict(l=100, r=100, t=12, b=80), xaxis=dict(showgrid=False, tick0=0, title=''),
-                          yaxis=dict(showgrid=False, tick0=0, title=''))
+        fig = go.Figure(data=[go.Box(y=df["value"])])
+        fig.update_layout(
+            margin=dict(l=100, r=100, t=12, b=80),
+            xaxis=dict(showgrid=False, tick0=0, title=""),
+            yaxis=dict(showgrid=False, tick0=0, title=""),
+        )
 
-    fig.update_layout(clickmode='event+select',
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)',
-                      font_color="black",
-                      modebar=dict(orientation='h', bgcolor='rgba(0,0,0,0.5)'),
-                      yaxis_range=[range1, range2],
-                      showlegend=False,
-                      autosize=True,
-                      font=dict(  # family="sans serif", #size=11,
-                          color='black'
-                      ),
-                      xaxis=dict(showgrid=False, tick0=0),
-                      yaxis=dict(showgrid=False)
-                      )
+    fig.update_layout(
+        clickmode="event+select",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="black",
+        modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+        yaxis_range=[range1, range2],
+        showlegend=False,
+        autosize=True,
+        font=dict(  # family="sans serif", #size=11,
+            color="black"
+        ),
+        xaxis=dict(showgrid=False, tick0=0),
+        yaxis=dict(showgrid=False),
+    )
 
-    fig.update_traces(boxpoints='outliers', quartilemethod="inclusive", hoverinfo="x+y",
-                      selector=dict(mode='markers'), showlegend=False, opacity=1,
-                      marker=dict(opacity=1, line=dict(color='black', outlierwidth=2))
-                      )
+    fig.update_traces(
+        boxpoints="outliers",
+        quartilemethod="inclusive",
+        hoverinfo="x+y",
+        selector=dict(mode="markers"),
+        showlegend=False,
+        opacity=1,
+        marker=dict(opacity=1, line=dict(color="black", outlierwidth=2)),
+    )
 
-    fig.update_xaxes(ticks="outside", tickwidth=1, tickcolor='black', ticklen=5, tickmode='linear',
-                     autorange=True,
-                     showline=True, linecolor='black', type="category")  # tickangle=30,
+    fig.update_xaxes(
+        ticks="outside",
+        tickwidth=1,
+        tickcolor="black",
+        ticklen=5,
+        tickmode="linear",
+        autorange=True,
+        showline=True,
+        linecolor="black",
+        type="category",
+    )  # tickangle=30,
 
-    fig.update_yaxes(showgrid=False, ticklen=5, tickwidth=2, tickcolor='black', autorange=True,
-                     showline=True, linecolor='black', zeroline=False)
+    fig.update_yaxes(
+        showgrid=False,
+        ticklen=5,
+        tickwidth=2,
+        tickcolor="black",
+        autorange=True,
+        showline=True,
+        linecolor="black",
+        zeroline=False,
+    )
 
     if not any(value):
-        fig.update_shapes(dict(xref='x', yref='y'))
+        fig.update_shapes(dict(xref="x", yref="y"))
         fig.update_xaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
         fig.update_yaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
-        fig.update_layout(margin=dict(l=100, r=100, t=12, b=80),
-                          xaxis=dict(showgrid=False, tick0=0, title=''),
-                          modebar=dict(orientation='h', bgcolor='rgba(0,0,0,0.5)'),
-                          yaxis=dict(showgrid=False, tick0=0, title=''),
-                          annotations=[{
-                              "text": "Check whether transitivity holds in the network: compare the distributions <br>"
-                                      "of your potential effect modifiers across the different comparisons <br>"
-                                       "by visual inspection of the effect modifiers box plots <br> <br>"
-                                      "Effect modifiers should be similarly distributed across comparisons",
-                              "font": {"size": 15, "color": "black", 'family': 'sans-serif'},
-                              "xref": "paper",
-                              "yref": "y",
-                              #"xshift": -400,
-                              "xanchor": "center",
-                              "showarrow": False},
-                                     ]
-                          ),
+        (
+            fig.update_layout(
+                margin=dict(l=100, r=100, t=12, b=80),
+                xaxis=dict(showgrid=False, tick0=0, title=""),
+                modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+                yaxis=dict(showgrid=False, tick0=0, title=""),
+                annotations=[
+                    {
+                        "text": "Check whether transitivity holds in the network: compare the distributions <br>"
+                        "of your potential effect modifiers across the different comparisons <br>"
+                        "by visual inspection of the effect modifiers box plots <br> <br>"
+                        "Effect modifiers should be similarly distributed across comparisons",
+                        "font": {"size": 15, "color": "black", "family": "sans-serif"},
+                        "xref": "paper",
+                        "yref": "y",
+                        # "xshift": -400,
+                        "xanchor": "center",
+                        "showarrow": False,
+                    },
+                ],
+            ),
+        )
         fig.update_annotations(align="center")
-        fig.update_traces(quartilemethod="exclusive", hoverinfo='skip', hovertemplate=None)
+        fig.update_traces(
+            quartilemethod="exclusive", hoverinfo="skip", hovertemplate=None
+        )
 
     return fig
 
 
-
 def __show_scatter(value):
-    active, non_active = '#1B58E2', '#313539'  # '#4C5353'
+    """Show scatter plot for transitivity check."""
+    active, non_active = "#1B58E2", "#313539"
     if value:
-        net_data = pd.read_csv('db/psoriasis_wide_complete.csv')
+        net_data = pd.read_csv("db/psoriasis_wide_complete.csv")
 
         try:
-            if 'sample_size' in net_data.columns:
-                df = net_data[['treat1', 'treat2', value, 'sample_size']].copy()
+            if "sample_size" in net_data.columns:
+                df = net_data[["treat1", "treat2", value, "sample_size"]].copy()
             else:
-                df = net_data[['treat1', 'treat2', value]].copy()
-                df['sample_size'] = 1  # Default size if missing
+                df = net_data[["treat1", "treat2", value]].copy()
+                df["sample_size"] = 1  # Default size if missing
         except:
             value = value + "1"
-            if 'sample_size' in net_data.columns:
-                df = net_data[['treat1', 'treat2', value, 'sample_size']].copy()
+            if "sample_size" in net_data.columns:
+                df = net_data[["treat1", "treat2", value, "sample_size"]].copy()
             else:
-                df = net_data[['treat1', 'treat2', value]].copy()
-                df['sample_size'] = 1  # Default size if missing
-        # df = net_data[['treat1', 'treat2', value]].copy()
+                df = net_data[["treat1", "treat2", value]].copy()
+                df["sample_size"] = 1  # Default size if missing
+
         df = df.dropna(subset=[value])
-        # df[value] = round((df[f"{value}1"] + df[f"{value}2"])/2, 2)
-        df['Comparison'] = df['treat1'] + ' vs ' + df['treat2']
-        df = df.sort_values(by='Comparison').reset_index()
-        if isinstance(df[value], str): df[value] = pd.to_numeric(df[value], errors='coerce')
-        df[value] = pd.to_numeric(df[value], errors='coerce')
-        margin = (float(df[value].max()) - float(df[value].min())) * .1  # 10%
+        df["Comparison"] = df["treat1"] + " vs " + df["treat2"]
+        df = df.sort_values(by="Comparison").reset_index()
+        if isinstance(df[value], str):
+            df[value] = pd.to_numeric(df[value], errors="coerce")
+        df[value] = pd.to_numeric(df[value], errors="coerce")
+        margin = (float(df[value].max()) - float(df[value].min())) * 0.1  # 10%
         range1 = float(df[value].min()) - margin
         range2 = float(df[value].max()) + margin
-        df['color'] = non_active
-        df['selected'] = 'nonactive'
+        df["color"] = non_active
+        df["selected"] = "nonactive"
 
         unique_comparisons = df.Comparison.sort_values().unique()
         unique_comparisons = unique_comparisons[~pd.isna(unique_comparisons)]
-        fig = go.Figure(data=[
-                        go.Scatter(
-                            x=[comp] * len(group),
-                            y=group[value],
-                            mode='markers',
-                            name=comp,
-                            marker=dict(
-                                color= non_active,
-                                size=group['sample_size'],  # Size based on sample_size column
-                                sizemode='area',
-                                sizeref=2.*df['sample_size'].max()/(30.**2),  # adjust for scaling
-                                sizemin=2  # Minimum size for visibility
-                            )
-                        )
-                        for comp in unique_comparisons
-                        for group in [df[df.Comparison == comp]]
-                    ])
+        fig = go.Figure(
+            data=[
+                go.Scatter(
+                    x=[comp] * len(group),
+                    y=group[value],
+                    mode="markers",
+                    name=comp,
+                    marker=dict(
+                        color=non_active,
+                        size=group["sample_size"],
+                        sizemode="area",
+                        sizeref=2.0 * df["sample_size"].max() / (30.0**2),
+                        sizemin=2,
+                    ),
+                )
+                for comp in unique_comparisons
+                for group in [df[df.Comparison == comp]]
+            ]
+        )
 
     else:
-        df = pd.DataFrame([[0] * 3], columns=['Comparison', 'value', 'selected'])
-        value = df['value']
+        df = pd.DataFrame([[0] * 3], columns=["Comparison", "value", "selected"])
+        value = df["value"]
         range1 = range2 = 0
-        fig = go.Figure(data=[go.Scatter(y=df['value'])])
-        fig.update_layout(margin=dict(l=100, r=100, t=12, b=80), xaxis=dict(showgrid=False, tick0=0, title=''),
-                          yaxis=dict(showgrid=False, tick0=0, title=''))
+        fig = go.Figure(data=[go.Scatter(y=df["value"])])
+        fig.update_layout(
+            margin=dict(l=100, r=100, t=12, b=80),
+            xaxis=dict(showgrid=False, tick0=0, title=""),
+            yaxis=dict(showgrid=False, tick0=0, title=""),
+        )
 
-    fig.update_layout(clickmode='event+select',
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)',
-                      font_color="black",
-                      modebar=dict(orientation='h', bgcolor='rgba(0,0,0,0.5)'),
-                      yaxis_range=[range1, range2],
-                      showlegend=False,
-                      autosize=True,
-                      font=dict(  # family="sans serif", #size=11,
-                          color='black'
-                      ),
-                      xaxis=dict(showgrid=False, tick0=0),
-                      yaxis=dict(showgrid=False)
-                      )
+    fig.update_layout(
+        clickmode="event+select",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="black",
+        modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+        yaxis_range=[range1, range2],
+        showlegend=False,
+        autosize=True,
+        font=dict(color="black"),
+        xaxis=dict(showgrid=False, tick0=0),
+        yaxis=dict(showgrid=False),
+    )
 
-    # fig.update_traces(boxpoints='outliers', quartilemethod="inclusive", hoverinfo="x+y",
-    #                   selector=dict(mode='markers'), showlegend=False, opacity=1,
-    #                   marker=dict(opacity=1, line=dict(color='black', outlierwidth=2))
-    #                   )
+    fig.update_xaxes(
+        ticks="outside",
+        tickwidth=1,
+        tickcolor="black",
+        ticklen=5,
+        tickmode="linear",
+        autorange=True,
+        showline=True,
+        linecolor="black",
+        type="category",
+    )
 
-    fig.update_xaxes(ticks="outside", tickwidth=1, tickcolor='black', ticklen=5, tickmode='linear',
-                     autorange=True,
-                     showline=True, linecolor='black', type="category")  # tickangle=30,
-
-    fig.update_yaxes(showgrid=False, ticklen=5, tickwidth=2, tickcolor='black', autorange=True,
-                     showline=True, linecolor='black', zeroline=False)
+    fig.update_yaxes(
+        showgrid=False,
+        ticklen=5,
+        tickwidth=2,
+        tickcolor="black",
+        autorange=True,
+        showline=True,
+        linecolor="black",
+        zeroline=False,
+    )
 
     if not any(value):
-        fig.update_shapes(dict(xref='x', yref='y'))
+        fig.update_shapes(dict(xref="x", yref="y"))
         fig.update_xaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
         fig.update_yaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
-        fig.update_layout(margin=dict(l=100, r=100, t=12, b=80),
-                          xaxis=dict(showgrid=False, tick0=0, title=''),
-                          modebar=dict(orientation='h', bgcolor='rgba(0,0,0,0.5)'),
-                          yaxis=dict(showgrid=False, tick0=0, title=''),
-                          annotations=[{
-                              "text": "Check whether transitivity holds in the network: compare the distributions <br>"
-                                      "of your potential effect modifiers across the different comparisons <br>"
-                                       "by visual inspection of the effect modifiers scatter plots <br> <br>"
-                                      "Effect modifiers should be similarly distributed across comparisons",
-                              "font": {"size": 20, "color": "black", 'family': 'sans-serif'},
-                              "xref": "paper",
-                              "yref": "y",
-                              #"xshift": -400,
-                              "xanchor": "center",
-                              "showarrow": False},
-                                     ]
-                          ),
+        fig.update_layout(
+            margin=dict(l=100, r=100, t=12, b=80),
+            xaxis=dict(showgrid=False, tick0=0, title=""),
+            modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+            yaxis=dict(showgrid=False, tick0=0, title=""),
+            annotations=[
+                {
+                    "text": "Check whether transitivity holds in the network: compare the distributions <br>"
+                    "of your potential effect modifiers across the different comparisons <br>"
+                    "by visual inspection of the effect modifiers scatter plots <br> <br>"
+                    "Effect modifiers should be similarly distributed across comparisons",
+                    "font": {"size": 20, "color": "black", "family": "sans-serif"},
+                    "xref": "paper",
+                    "yref": "y",
+                    "xanchor": "center",
+                    "showarrow": False,
+                }
+            ],
+        )
         fig.update_annotations(align="center")
-        # fig.update_traces(unselected="exclusive", hoverinfo='skip', hovertemplate=None)
 
     return fig

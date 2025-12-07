@@ -1288,3 +1288,16 @@ max-width: 1500px;
 .Select.has-value.is-clearable.Select--single > .Select-control .Select-value {
     padding-right: 0px;
   }
+
+/* Info modal button styles */
+.icon-info-sign{
+    background-color: transparent !important;
+    border-color: transparent !important;
+    border: none !important
+}
+
+.icon-info-sign.btn-primary:hover {
+    background-color: transparent !important;
+    color: transparent !important; 
+    border: none !important
+}

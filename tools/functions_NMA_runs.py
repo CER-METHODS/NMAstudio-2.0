@@ -1,232 +1,452 @@
 from tools.utils import *
 from dash import html
+import traceback
 
 
-
-def __modal_submit_checks_DATACHECKS(modal_data_checks_is_open, num_outcomes,TEMP_net_data_STORAGE):
+def __modal_submit_checks_DATACHECKS(
+    modal_data_checks_is_open, num_outcomes, net_data_STORAGE
+):
     if modal_data_checks_is_open:
         try:
-            data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+            data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
             passed_checks = data_checks(data, num_outcomes)
-        except:
-            passed_checks = data_checks(data, num_outcomes)
-        if all(passed_checks.values()):
-                return html.P(u"\u2713" + " All data checks passed.", style={"color":"green"}), '__Para_Done__'
-        else:
-            return (html.P(["WARNINGS:"]+sum([[html.Br(), f'{k}']
-                                                     for k,v in passed_checks.items()
-                                                                    if not v], []), style={"color": "orange"}), '__Para_Done__')
+            if all(passed_checks.values()):
+                return html.P(
+                    "\u2713" + " All data checks passed.", style={"color": "green"}
+                ), "__Para_Done__"
+            else:
+                return (
+                    html.P(
+                        ["WARNINGS:"]
+                        + sum(
+                            [
+                                [html.Br(), f"{k}"]
+                                for k, v in passed_checks.items()
+                                if not v
+                            ],
+                            [],
+                        ),
+                        style={"color": "orange"},
+                    ),
+                    "__Para_Done__",
+                )
+        except Exception as e:
+            return html.P(
+                "\u274c" + f" Failed to load or check data: {str(e)}",
+                style={"color": "red"},
+            ), "__Para_Done__"
     else:
-        return None, ''
+        return None, ""
 
 
-
-
-
-def __modal_submit_checks_NMA_new(modal_data_checks_is_open, num_outcome,TEMP_net_data_STORAGE,
-                            TEMP_forest_data_STORAGE):
+def __modal_submit_checks_NMA_new(
+    modal_data_checks_is_open, num_outcome, net_data_STORAGE, forest_data_STORAGE
+):
     if modal_data_checks_is_open:
-        net_data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+        net_data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
         num_outcome = int(num_outcome)
         try:
-            TEMP_user_elements_STORAGE = [[] for _ in range(num_outcome)]
+            user_elements_STORAGE = [[] for _ in range(num_outcome)]
             NMA_data = [[] for _ in range(num_outcome)]
             for i in range(num_outcome):
-                TEMP_user_elements_STORAGE[i] = get_network_new(df=net_data,i=i)
+                user_elements_STORAGE[i] = get_network_new(df=net_data, i=i)
                 # net_data.to_csv('db/test_net_data.csv', encoding='utf-8')
                 NMA_data[i] = run_network_meta_analysis(net_data, i)
-            TEMP_forest_data_STORAGE = [df.to_json(orient='split') for df in NMA_data]
-            # TEMP_user_elements_STORAGE = [df.to_json(orient='split') for df in TEMP_user_elements_STORAGE]
+            forest_data_STORAGE = [df.to_json(orient="split") for df in NMA_data]
+            # user_elements_STORAGE = [df.to_json(orient='split') for df in user_elements_STORAGE]
 
-            return (False, '', html.P(u"\u2713" + " Network meta-analysis run successfully.", style={"color":"green"}),
-                    '__Para_Done__', TEMP_forest_data_STORAGE)
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713" + " Network meta-analysis run successfully.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                forest_data_STORAGE,
+            )
 
         except Exception as Rconsole_error_nma:
-            return (True, str(Rconsole_error_nma), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                        '__Para_Done__', TEMP_forest_data_STORAGE)
+            return (
+                True,
+                str(Rconsole_error_nma),
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                forest_data_STORAGE,
+            )
 
     else:
-        
-        return False, '', None, '', TEMP_forest_data_STORAGE
+        return False, "", None, "", forest_data_STORAGE
 
 
-
-
-def __modal_submit_checks_PAIRWISE_new(nma_data_ts,num_outcome, modal_data_checks_is_open, TEMP_net_data_STORAGE, TEMP_forest_data_prws_STORAGE):
+def __modal_submit_checks_PAIRWISE_new(
+    nma_data_ts,
+    num_outcome,
+    modal_data_checks_is_open,
+    net_data_STORAGE,
+    forest_data_prws_STORAGE,
+):
     if modal_data_checks_is_open:
-
-        data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+        data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
         num_outcome = int(num_outcome)
 
         try:
             PAIRWISE_data = [[] for _ in range(num_outcome)]
 
-            for i in range(num_outcome): 
+            for i in range(num_outcome):
                 PAIRWISE_data[i] = run_pairwise_MA(data, i)
 
-            
-            TEMP_forest_data_prws_STORAGE = [df.to_json(orient='split') for df in PAIRWISE_data]
+            forest_data_prws_STORAGE = [
+                df.to_json(orient="split") for df in PAIRWISE_data
+            ]
 
-
-            return (False, '', html.P(u"\u2713" + " Pairwise meta-analysis run successfully.", style={"color":"green"}),
-                               '__Para_Done__', TEMP_forest_data_prws_STORAGE)
-            
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713" + " Pairwise meta-analysis run successfully.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                forest_data_prws_STORAGE,
+            )
 
         except Exception as Rconsole_error_pw:
-                return (True, str(Rconsole_error_pw), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                              '__Para_Done__', TEMP_forest_data_prws_STORAGE)
+            return (
+                True,
+                str(Rconsole_error_pw),
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                forest_data_prws_STORAGE,
+            )
 
     else:
-        return False, '', None, '', TEMP_forest_data_prws_STORAGE
+        return False, "", None, "", forest_data_prws_STORAGE
 
 
-
-
-def __modal_submit_checks_LT(pw_data_ts, modal_data_checks_is_open,
-                           TEMP_net_data_STORAGE, LEAGUETABLE_data,
-                           ranking_data, consistency_data, net_split_data, net_split_data2,
-                           netsplit_all, netsplit_all2, dataselectors):
-    """ produce new league table from R """
+def __modal_submit_checks_LT(
+    pw_data_ts,
+    modal_data_checks_is_open,
+    net_data_STORAGE,
+    LEAGUETABLE_data,
+    ranking_data,
+    consistency_data,
+    net_split_data,
+    net_split_data2,
+    netsplit_all,
+    netsplit_all2,
+    dataselectors,
+):
+    """produce new league table from R"""
     if modal_data_checks_is_open:
-
-        data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+        data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
 
         try:
-            LEAGUETABLE_OUTS =  generate_league_table(data, outcome2=False) if "TE2" not in data.columns or dataselectors[1] not in ['MD','SMD','OR','RR'] else generate_league_table(data, outcome2=True)
+            LEAGUETABLE_OUTS = (
+                generate_league_table(data, outcome2=False)
+                if "TE2" not in data.columns
+                or dataselectors[1] not in ["MD", "SMD", "OR", "RR"]
+                else generate_league_table(data, outcome2=True)
+            )
 
-            if "TE2" not in data.columns or dataselectors[1] not in ['MD', 'SMD', 'OR', 'RR']:
-                (LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, netsplit_all) = [f.to_json( orient='split') for f in LEAGUETABLE_OUTS]
+            if "TE2" not in data.columns or dataselectors[1] not in [
+                "MD",
+                "SMD",
+                "OR",
+                "RR",
+            ]:
+                (
+                    LEAGUETABLE_data,
+                    ranking_data,
+                    consistency_data,
+                    net_split_data,
+                    netsplit_all,
+                ) = [f.to_json(orient="split") for f in LEAGUETABLE_OUTS]
                 net_split_data2 = {}
                 netsplit_all2 = {}
             else:
+                (
+                    LEAGUETABLE_data,
+                    ranking_data,
+                    consistency_data,
+                    net_split_data,
+                    net_split_data2,
+                    netsplit_all,
+                    netsplit_all2,
+                ) = [f.to_json(orient="split") for f in LEAGUETABLE_OUTS]
 
-                (LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, net_split_data2, netsplit_all, netsplit_all2) = [f.to_json( orient='split') for f in LEAGUETABLE_OUTS]
-
-            return (False, '', html.P(u"\u2713" + " Successfully generated league table, consistency tables, ranking data.", style={"color":"green"}),
-                         '__Para_Done__', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, net_split_data2, netsplit_all, netsplit_all2)
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713"
+                    + " Successfully generated league table, consistency tables, ranking data.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                net_split_data2,
+                netsplit_all,
+                netsplit_all2,
+            )
         except Exception as Rconsole_error_league:
-            return (True, str(Rconsole_error_league), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                    '__Para_Done__', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, netsplit_all) if "TE2" not in data.columns else \
-                                    (False, html.P(u"\u274C" + "An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                    '__Para_Done__', Rconsole_error_league, LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, net_split_data2, netsplit_all, netsplit_all2)
+            # Convert exception to string to avoid JSON serialization issues
+            error_msg = str(Rconsole_error_league)
+            return (
+                True,
+                error_msg,
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                net_split_data2,
+                netsplit_all,
+                netsplit_all2,
+            )
     else:
         net_split_data2 = {}
         netsplit_all2 = {}
-        return False, '', None, '', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, net_split_data2, netsplit_all, netsplit_all2
+        return (
+            False,
+            "",
+            None,
+            "",
+            LEAGUETABLE_data,
+            ranking_data,
+            consistency_data,
+            net_split_data,
+            net_split_data2,
+            netsplit_all,
+            netsplit_all2,
+        )
 
 
-
-
-
-def __modal_submit_checks_LT_new(pw_data_ts, num_outcome, modal_data_checks_is_open,
-                           TEMP_net_data_STORAGE, LEAGUETABLE_data,
-                           ranking_data, consistency_data, net_split_data,
-                           netsplit_all, outcome_idx):
-    """ produce new league table from R """
+def __modal_submit_checks_LT_new(
+    pw_data_ts,
+    num_outcome,
+    modal_data_checks_is_open,
+    net_data_STORAGE,
+    LEAGUETABLE_data,
+    ranking_data,
+    consistency_data,
+    net_split_data,
+    netsplit_all,
+    outcome_idx,
+):
+    """produce new league table from R"""
     if modal_data_checks_is_open:
-
-        if len(outcome_idx)==0:
-        # If outcome_idx is None, set default values
+        if len(outcome_idx) == 0:
+            # If outcome_idx is None, set default values
             outcome_idx1 = 0
             outcome_idx2 = 1
-        elif len(outcome_idx) > 0 and outcome_idx[0] is not None and len(outcome_idx[0]) == 2:
+        elif (
+            len(outcome_idx) > 0
+            and outcome_idx[0] is not None
+            and len(outcome_idx[0]) == 2
+        ):
             # If outcome_idx exists, is non-empty, and contains two values in its first element
             outcome_idx1 = outcome_idx[0][0]
             outcome_idx2 = outcome_idx[0][1]
         else:
             outcome_idx1 = 0
             outcome_idx2 = 0
-        
-        data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+
+        # Ensure outcome indices are plain integers (not numpy/pandas types)
+        outcome_idx1 = int(outcome_idx1) if outcome_idx1 is not None else 0
+        outcome_idx2 = int(outcome_idx2) if outcome_idx2 is not None else 0
+
+        data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
         num_outcome = int(num_outcome)
 
         try:
             LEAGUETABLE_OUTS = [[] for _ in range(num_outcome)]
-            LEAGUETABLE_data = [[] for _ in range(num_outcome+1)]
+            LEAGUETABLE_data = [[] for _ in range(num_outcome + 1)]
             ranking_data = [[] for _ in range(num_outcome)]
             consistency_data = [[] for _ in range(num_outcome)]
-            net_split_data=[[] for _ in range(num_outcome)]
-            netsplit_all=[[] for _ in range(num_outcome)]
-            
-           
+            net_split_data = [[] for _ in range(num_outcome)]
+            netsplit_all = [[] for _ in range(num_outcome)]
 
-            for i in range(num_outcome): 
+            for i in range(num_outcome):
                 LEAGUETABLE_OUTS[i] = generate_league_table(data, i)
-                LEAGUETABLE_data[i],ranking_data[i],consistency_data[i],net_split_data[i],netsplit_all[i] = [f.to_json( orient='split') for f in LEAGUETABLE_OUTS[i]]
+                (
+                    LEAGUETABLE_data[i],
+                    ranking_data[i],
+                    consistency_data[i],
+                    net_split_data[i],
+                    netsplit_all[i],
+                ) = [f.to_json(orient="split") for f in LEAGUETABLE_OUTS[i]]
 
-            
-            LEAGUETABLE_both = generate_league_table_both(data, outcome_idx1, outcome_idx2) if outcome_idx1 != outcome_idx2 else pd.DataFrame()
-            # LEAGUETABLE_both.to_csv('db/league_test.csv')
-            LEAGUETABLE_data[-1] = LEAGUETABLE_both.to_json( orient='split')
+            LEAGUETABLE_both = (
+                generate_league_table_both(data, outcome_idx1, outcome_idx2)
+                if outcome_idx1 != outcome_idx2
+                else pd.DataFrame()
+            )
+            # LEAGUETABLE_both.to_csv('leaguw_test.csv')
+            LEAGUETABLE_data[-1] = LEAGUETABLE_both.to_json(orient="split")
+
             # merged_ranking_data = pd.read_json(ranking_data[0], orient='split')
             # for i, json_path in enumerate(ranking_data[1:], start=2):
             #     df = pd.read_json(json_path, orient='split')
             #     # Rename the pscore column to pscorei, where i is the loop index
             #     df = df.rename(columns={'pscore': f'pscore{i+1}'})
             #     merged_ranking_data = pd.merge(merged_ranking_data, df, on='treatment', how='outer')
-            
+
             # merged_ranking_data = merged_ranking_data.rename(columns={'pscore': 'pscore1'})
             # merged_ranking_data = merged_ranking_data.to_json(orient='split')
 
-            return (False, '', html.P(u"\u2713" + " Successfully generated league table, consistency tables, ranking data.", style={"color":"green"}),
-                         '__Para_Done__', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, netsplit_all)
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713"
+                    + " Successfully generated league table, consistency tables, ranking data.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                netsplit_all,
+            )
         except Exception as Rconsole_error_league:
-            return (True, str(Rconsole_error_league), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                    '__Para_Done__', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, netsplit_all) if "TE2" not in data.columns else \
-                                    (False, html.P(u"\u274C" + "An error occurred when computing analyses in R: check your data", style={"color":"red"}),
-                    '__Para_Done__', Rconsole_error_league, LEAGUETABLE_data, ranking_data, consistency_data, net_split_data, netsplit_all)
+            # Convert exception to string to avoid JSON serialization issues
+            error_msg = str(Rconsole_error_league)
+            # Print full traceback for debugging
+            print(f"=== LEAGUE TABLE ERROR ===")
+            print(f"Error type: {type(Rconsole_error_league).__name__}")
+            print(f"Error message: {error_msg}")
+            traceback.print_exc()
+            print(f"=== END ERROR ===")
+            return (
+                True,
+                error_msg,
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                LEAGUETABLE_data,
+                ranking_data,
+                consistency_data,
+                net_split_data,
+                netsplit_all,
+            )
     else:
-        return False, '', None, '', LEAGUETABLE_data, ranking_data, consistency_data, net_split_data,  netsplit_all
+        return (
+            False,
+            "",
+            None,
+            "",
+            LEAGUETABLE_data,
+            ranking_data,
+            consistency_data,
+            net_split_data,
+            netsplit_all,
+        )
 
 
-
-
-
-def __modal_submit_checks_FUNNEL(lt_data_ts, modal_data_checks_is_open, TEMP_net_data_STORAGE, FUNNEL_data, FUNNEL_data2):
+def __modal_submit_checks_FUNNEL(
+    lt_data_ts, modal_data_checks_is_open, net_data_STORAGE, FUNNEL_data, FUNNEL_data2
+):
     if modal_data_checks_is_open:
-        
         try:
-            data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
+            data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
             FUNNEL_data = generate_funnel_data(data)
-            FUNNEL_data = FUNNEL_data.to_json(orient='split')
+            FUNNEL_data = FUNNEL_data.to_json(orient="split")
 
             if "TE2" in data.columns:
-                data_out2 = data.drop(["TE", "seTE",  "n1",  "n2"], axis=1)
-                data_out2 = data_out2.rename(columns={"TE2": "TE", "seTE2": "seTE", "n2.1": "n1", "n2.2": "n2"})
+                data_out2 = data.drop(["TE", "seTE", "n1", "n2"], axis=1)
+                data_out2 = data_out2.rename(
+                    columns={"TE2": "TE", "seTE2": "seTE", "n2.1": "n1", "n2.2": "n2"}
+                )
                 FUNNEL_data2 = generate_funnel_data(data_out2)
-                FUNNEL_data2 = FUNNEL_data2.to_json(orient='split')
+                FUNNEL_data2 = FUNNEL_data2.to_json(orient="split")
 
-            return (False, '', html.P(u"\u2713" + " Successfully generated funnel plot data.", style={"color": "green"}),
-            '__Para_Done__', FUNNEL_data, FUNNEL_data2)
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713" + " Successfully generated funnel plot data.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                FUNNEL_data,
+                FUNNEL_data2,
+            )
         except Exception as Rconsole_error_funnel:
-            return (True, str(Rconsole_error_funnel), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color": "red"}),
-                    '__Para_Done__', FUNNEL_data, FUNNEL_data2)
+            return (
+                True,
+                str(Rconsole_error_funnel),
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                FUNNEL_data,
+                FUNNEL_data2,
+            )
 
     else:
-        return False, '', None, '', FUNNEL_data, FUNNEL_data2
+        return False, "", None, "", FUNNEL_data, FUNNEL_data2
 
 
-
-
-def __modal_submit_checks_FUNNEL_new(lt_data_ts, num_outcome,modal_data_checks_is_open, TEMP_net_data_STORAGE, FUNNEL_data):
+def __modal_submit_checks_FUNNEL_new(
+    lt_data_ts, num_outcome, modal_data_checks_is_open, net_data_STORAGE, FUNNEL_data
+):
     if modal_data_checks_is_open:
         num_outcome = int(num_outcome)
         try:
             FUNNEL_data = [[] for _ in range(num_outcome)]
-            data = pd.read_json(TEMP_net_data_STORAGE[0], orient='split')
-            
-            for i in range(num_outcome): 
+            data = pd.read_json(get_net_data_json(net_data_STORAGE), orient="split")
+
+            for i in range(num_outcome):
                 FUNNEL_data[i] = generate_funnel_data(data, i)
 
-            FUNNEL_data = [df.to_json(orient='split') for df in FUNNEL_data]
-            
+            FUNNEL_data = [df.to_json(orient="split") for df in FUNNEL_data]
 
-            return (False, '', html.P(u"\u2713" + " Successfully generated funnel plot data.", style={"color": "green"}),
-            '__Para_Done__', FUNNEL_data)
-        
+            return (
+                False,
+                "",
+                html.P(
+                    "\u2713" + " Successfully generated funnel plot data.",
+                    style={"color": "green"},
+                ),
+                "__Para_Done__",
+                FUNNEL_data,
+            )
+
         except Exception as Rconsole_error_funnel:
-            return (True, str(Rconsole_error_funnel), html.P(u"\u274C" + " An error occurred when computing analyses in R: check your data", style={"color": "red"}),
-                    '__Para_Done__', FUNNEL_data)
+            return (
+                True,
+                str(Rconsole_error_funnel),
+                html.P(
+                    "\u274c"
+                    + " An error occurred when computing analyses in R: check your data",
+                    style={"color": "red"},
+                ),
+                "__Para_Done__",
+                FUNNEL_data,
+            )
 
     else:
-        return False, '', None, '', FUNNEL_data
+        return False, "", None, "", FUNNEL_data

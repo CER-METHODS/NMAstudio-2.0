@@ -712,14 +712,6 @@ h6 {margin-top: 0;}
     justify-content:center !important;
 } */
 
-/* .ag-theme-alpine {
-    --ag-header-foreground-color: white!important;
-    --ag-header-background-color: #B85042 !important;
-    --ag-header-column-resize-handle-color: #933f34!important;
-    --ag-font-size: 15px!important;
-    --ag-header-cell-hover-background-color: #d55f4f!important;
-} */
-
 .ag-theme-alpine {
     --ag-header-foreground-color: black!important;
     --ag-header-background-color: #fbebd7 !important;
