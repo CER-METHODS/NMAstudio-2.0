@@ -918,32 +918,6 @@ def switch_table():
                     "color": "#5c7780",
                 },
             ),
-            # Project title row
-            dbc.Row(
-                [
-                    html.Span(
-                        "Project title:   ",
-                        style={
-                            "white-space": "pre",
-                            "font-size": "large",
-                            "color": "chocolate",
-                        },
-                    ),
-                    html.Span(
-                        "Not provided",
-                        style={
-                            "font-size": "large",
-                            "color": "#333",
-                        },
-                        id="skt_project_title",
-                    ),
-                ],
-                style={
-                    "display": "flex",
-                    "justifyContent": "center",
-                    "marginBottom": "5px",
-                },
-            ),
             # Protocol link row
             dbc.Row(
                 [
@@ -1033,8 +1007,41 @@ def switch_table():
 
 
 def skt_layout():
+    # Placeholder components for Standard version IDs
+    # These are needed to prevent callback errors when Advanced version is active
+    # (callbacks reference these IDs but they don't exist in Advanced layout)
+    standard_placeholders = html.Div(
+        [
+            # Standard cytoscape placeholder
+            html.Div(id="cytoscape_skt2", style={"display": "none"}),
+            # Standard comparison grid placeholder
+            html.Div(id="grid_treat_compare", style={"display": "none"}),
+            # Standard layout dropdown placeholder
+            html.Div(id="kt-graph-layout-dropdown", style={"display": "none"}),
+        ],
+        style={"display": "none"},
+    )
+    # Placeholder components for Advanced network configuration dropdowns
+    # These components (kt2_nclr, kt2_eclr, etc.) are used by callbacks but the full
+    # dropdown menus (KT2_Dropdown_nodecolor, etc.) haven't been ported yet.
+    # Adding placeholders with default children values to prevent callback errors.
+    advanced_network_config_placeholders = html.Div(
+        [
+            html.Div(id="kt2_nclr", children="Default", style={"display": "none"}),
+            html.Div(id="kt2_eclr", children="Default", style={"display": "none"}),
+            dcc.Input(id="kt2_nclr_custom", value="", style={"display": "none"}),
+            dcc.Input(id="kt2_eclr_custom", value="", style={"display": "none"}),
+            html.Div(id="kt2_nds", children="Default", style={"display": "none"}),
+            html.Div(
+                id="kt2_egs", children="Number of studies", style={"display": "none"}
+            ),
+        ],
+        style={"display": "none"},
+    )
     return html.Div(
         [
+            standard_placeholders,
+            advanced_network_config_placeholders,
             html.Div(
                 id="skt_all",
                 children=[
@@ -1151,7 +1158,8 @@ def skt_layout():
                                     dbc.Col(
                                         dcc.Input(
                                             id="title_skt",
-                                            value="Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis",
+                                            value="",
+                                            placeholder="Project title (loaded from STORAGE)",
                                             style={"width": "800px"},
                                         ),
                                         className="title_col2",
@@ -1674,8 +1682,35 @@ from tools.yada import yada_stand
 
 
 def skt_nonexpert():
+    # Placeholder components for Advanced version IDs
+    # These are needed to prevent callback errors when Standard version is active
+    # (callbacks reference these IDs but they don't exist in Standard layout)
+    advanced_placeholders = html.Div(
+        [
+            # Advanced AG Grid placeholder
+            html.Div(id="quickstart-grid", style={"display": "none"}),
+            # Advanced cytoscape placeholder (minimal structure)
+            html.Div(id="cytoscape_skt", style={"display": "none"}),
+            # Advanced dropdown styling controls placeholders
+            html.Div(id="kt2_nclr", style={"display": "none"}),
+            html.Div(id="kt2_eclr", style={"display": "none"}),
+            dcc.Input(id="kt2_nclr_custom", style={"display": "none"}),
+            dcc.Input(id="kt2_eclr_custom", style={"display": "none"}),
+            html.Div(id="kt2_nds", style={"display": "none"}),
+            html.Div(id="kt2_egs", style={"display": "none"}),
+            # Advanced forest plot options placeholders
+            dcc.Checklist(
+                id="checklist_effects", options=[], style={"display": "none"}
+            ),
+            dcc.Input(id="range_lower", style={"display": "none"}),
+            # Advanced layout dropdown placeholder
+            html.Div(id="kt2-graph-layout-dropdown", style={"display": "none"}),
+        ],
+        style={"display": "none"},
+    )
     return html.Div(
         [
+            advanced_placeholders,
             yada_stand,
             html.Div(
                 id="skt_all",
@@ -1732,7 +1767,8 @@ def skt_nonexpert():
                                     dbc.Col(
                                         dcc.Input(
                                             id="title_skt",
-                                            value="Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis",
+                                            value="",
+                                            placeholder="Project title (loaded from STORAGE)",
                                             style={"width": "800px"},
                                         ),
                                         className="title_col2",

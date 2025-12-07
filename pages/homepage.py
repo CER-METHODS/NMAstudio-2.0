@@ -45,16 +45,6 @@ layout = html.Div(
         html.Br(),
         html.Br(),
         html.Br(),
-        # Warning message commented out in main version
-        # dcc.Markdown(
-        #     "Warning: Please, avoid using Firefox because some features might not work well. Preferred browsers are Safari and Chrome.",
-        #     className="markdown_style_main",
-        #     style={
-        #         "fontSize": "20px",
-        #         "textAlign": "center",
-        #         "color": "rgb(222 132 83)",
-        #     },
-        # ),
         html.Br(),
         #  dcc.Markdown('NMAstudio serves as an interactive web application designed to simplifies the whole Network Meta-Analysis (NMA) procedures and enhances the visualization of results.',
         #                 className="markdown_style", style={"color": "black", "marginRight":"10%"}),

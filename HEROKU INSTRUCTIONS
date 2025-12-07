@@ -1,9 +1,21 @@
+# Generate requirements.txt from conda environment
 pip list --format=freeze > requirements.txt
 
-
+# Install Heroku builds plugin (first time only)
 heroku plugins:install heroku-builds
 
+# Clear build cache if dependencies changed
 heroku builds:cache:purge
 
-
+# Deploy to Heroku
 git push heroku main
+
+# Required files for Heroku:
+# - Procfile: gunicorn app:server
+# - runtime.txt: python-3.11.1
+# - Aptfile: system packages for R graphics
+# - requirements.txt: Python dependencies
+
+# Set environment variables:
+# heroku config:set DEBUG_MODE=False
+# heroku config:set AG_GRID_KEY=your-license-key

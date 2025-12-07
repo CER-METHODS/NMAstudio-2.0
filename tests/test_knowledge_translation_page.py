@@ -357,9 +357,9 @@ async def test_knowledge_translation_page():
             else:
                 print("\n❌ SOME TESTS FAILED")
 
-            # Keep browser open briefly
-            print("\nKeeping browser open for 3 seconds...")
-            await page.wait_for_timeout(3000)
+            # Keep browser open for manual inspection
+            print("\nKeeping browser open for 10 minutes...")
+            await page.wait_for_timeout(600000)  # 10 minutes
 
             await browser.close()
 

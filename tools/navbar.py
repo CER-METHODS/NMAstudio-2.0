@@ -101,6 +101,33 @@ def Navbar():
                     # 'backgroundColor':'#304569'
                 },
             ),
+        # Browser compatibility warning - shown to non-Chrome users
+        # The browser-warning.js script in assets/ will show this for non-Chrome browsers
+        html.Div(
+            [
+                html.Span(
+                    "Warning: ",
+                    style={"fontWeight": "bold"},
+                ),
+                html.Span(
+                    "For the best experience, please use Google Chrome. "
+                    "Some features may not work properly in other browsers (Firefox, Safari, Edge)."
+                ),
+            ],
+            id="browser-warning",
+            className="browser-warning",
+            style={
+                "fontSize": "18px",
+                "textAlign": "center",
+                "color": "white",
+                "backgroundColor": "rgb(222, 132, 83)",
+                "padding": "12px 20px",
+                "borderRadius": "8px",
+                "margin": "0 auto",
+                "maxWidth": "800px",
+                "display": "none",  # Hidden by default, shown by browser-warning.js
+            },
+        ),
             html.Div(
                 [
                     dbc.Col(
@@ -116,7 +143,7 @@ def Navbar():
                                 style={
                                     "textAlign": "center",
                                     "paddingRight": "5%",
-                                    "paddingTop": "2.5%",
+                                    "paddingTop": "0.5%",
                                     "marginLeft": "50px",
                                     "justifyContent": "end",
                                 },

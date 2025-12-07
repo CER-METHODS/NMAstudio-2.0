@@ -3701,3 +3701,73 @@ def disable_cinema_toggle_both(cinema_net_data2):
 )
 def download_statsettings(n_clicks):
     return send_file("Documentation/statistical_settings.pdf")
+
+
+## -------------------------------------------- WARNING MESSAGE CALLBACKS ----------------------------------------------- ##
+
+
+@callback(
+    Output("warning_message", "children"),
+    [
+        Input("results_ready_STORAGE", "data"),
+    ],
+    [
+        State("R_errors_STORAGE", "data"),
+        State("protocol_link_STORAGE", "data"),
+        State("effect_modifiers_STORAGE", "data"),
+    ],
+    prevent_initial_call=True,
+)
+def display_warnings_on_results(
+    results_ready,
+    r_errors,
+    protocol_value,
+    effect_modifiers,
+):
+    """Display warnings on results page for missing data and R errors."""
+    if not results_ready:
+        return ""
+
+    style = {
+        "justify-self": "center",
+        "align-self": "center",
+        "white-space": "pre-wrap",
+        "font-size": "medium",
+        "color": "red",
+        "padding": "10px",
+        "background-color": "#fff3cd",
+        "border": "1px solid #ffc107",
+        "border-radius": "5px",
+        "margin": "10px 0",
+    }
+
+    messages = []
+
+    # Check for missing protocol link
+    if not protocol_value:
+        messages.append("⚠️ Protocol link is not provided.")
+
+    # Check for missing effect modifiers
+    if not effect_modifiers or len(effect_modifiers) == 0:
+        messages.append(
+            "⚠️ Effect modifiers are not provided. Boxplots cannot be generated for transitivity check."
+        )
+
+    # Check for R errors from analysis
+    if r_errors:
+        if r_errors.get("nma"):
+            messages.append(f"❌ NMA Error: {r_errors['nma']}")
+        if r_errors.get("pairwise"):
+            messages.append(f"❌ Pairwise Error: {r_errors['pairwise']}")
+        if r_errors.get("league"):
+            messages.append(f"❌ League Table Error: {r_errors['league']}")
+        if r_errors.get("funnel"):
+            messages.append(f"❌ Funnel Plot Error: {r_errors['funnel']}")
+
+    if messages:
+        return html.Div(
+            [html.Span("Warnings:\n" + "\n".join(messages), style=style)],
+            style={"display": "flex", "justify-content": "center", "width": "100%"},
+        )
+
+    return ""

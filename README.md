@@ -1,39 +1,85 @@
-# NMAstudio web-application
+# NMAstudio Web Application
 
-## About this app
+## About
 
-This is an interactive app to produce and perform network meta-analysis. 
+NMAstudio is an interactive web application to produce and visualize network meta-analyses. It provides:
 
-The app is currently deployed here: www.nmastudioapp.com
+- Interactive network graphs
+- Forest plots (NMA, pairwise, bidimensional)
+- League tables with RoB/CINeMA coloring
+- Ranking plots (P-scores)
+- Consistency and transitivity assessment
+- Funnel plots
+- Knowledge Translation (SKT) module for clinicians
 
-## How to run this app locally
+The app is deployed at: **www.nmastudioapp.com**
 
-(The following instructions apply to Posix/bash. Windows users should check
-[here](https://docs.python.org/3/library/venv.html).)
+## Requirements
 
-First, clone this repository and open a terminal inside the root folder.
+- Python 3.11+
+- R with `netmeta`, `dplyr`, `metafor` packages
+- Conda (recommended) or pip
 
-Make sure you have installed (mini)conda on your machine.
+## Local Development
 
-Create and activate a new conda environment by running
-the following:
+### 1. Clone and setup environment
 
-Create nmastudio environment and install requirements:
 ```bash
+git clone <repository-url>
+cd NMAstudio-app
+
+# Create conda environment
 conda env create -f requirements.yml
+conda activate nmastudio
+
+# Install R dependencies
+Rscript init.R
 ```
 
-Activate environment
+### 2. Configure environment (optional)
+
+Create a `.env` file:
 ```bash
-conda activate nmastudio
+DEBUG_MODE=True
+AG_GRID_KEY=your-ag-grid-license-key
 ```
-Run the app:
+
+### 3. Run the app
 
 ```bash
 python app.py
 ```
-Open a browser at http://127.0.0.1:8080
 
+Open browser at: **http://localhost:8050**
 
- ![demo.gif](assets/favicon.ico) 
+## Testing
 
+```bash
+python tests/test_homepage_console_errors.py
+```
+
+## Project Structure
+
+```
+NMAstudio-app/
+  app.py              # Main application entry
+  pages/              # Dash pages (homepage, setup, results, knowledge_translation)
+  tools/              # Core functions and SKT module
+  assets/             # CSS, JS, storage schemas
+  R_Codes/            # R functions for NMA
+  tests/              # Playwright tests
+  docs/               # Developer documentation
+```
+
+## Documentation
+
+- [SKT Developer Guide](docs/SKT_DEVELOPER_GUIDE.md) - Knowledge Translation module
+- [Refactoring Changelog](docs/CHANGELOG_REFACTORING.md) - Architecture changes
+
+## Deployment
+
+See `HEROKU INSTRUCTIONS` for Heroku deployment.
+
+## License
+
+See [LICENSE.txt](LICENSE.txt)

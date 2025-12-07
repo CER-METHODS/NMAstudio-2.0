@@ -756,18 +756,15 @@ def update_skt_protocol_link(protocol_link):
         return link, display_text
     return "#", "Not provided"
 
-
 @callback(
-    Output("skt_project_title", "children"),
+    Output("title_skt", "value"),
     Input("project_title_STORAGE", "data"),
     prevent_initial_call=False,
 )
-def update_skt_project_title(project_title):
+def update_skt_title_input(project_title):
     """
-    Update project title display in SKT page from STORAGE.
+    Update the editable project title input in SKT page from STORAGE.
     """
     if project_title and isinstance(project_title, str) and project_title.strip():
-        title = project_title.strip()
-        display_title = title if len(title) <= 80 else title[:77] + "..."
-        return display_title
-    return "Not provided"
+        return project_title.strip()
+    return ""

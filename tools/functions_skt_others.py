@@ -210,44 +210,80 @@ def skt_stylesheet(
     return default_stylesheet
 
 
-def __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata):
-    nodes_color = "#50a37c"
-    edges_color = "grey"
+def __generate_skt_stylesheet(
+    node,
+    slct_nodesdata,
+    elements,
+    slct_edgedata,
+    dd_nclr=None,
+    dd_eclr=None,
+    custom_nd_clr=None,
+    custom_edg_clr=None,
+    dd_nds=None,
+    dd_egs=None,
+):
+    """Generate stylesheet for Advanced SKT cytoscape network.
 
-    label_size = None
+    Args:
+        node: Tapped node data
+        slct_nodesdata: Selected nodes data
+        elements: Cytoscape elements
+        slct_edgedata: Selected edges data
+        dd_nclr: Node color dropdown value (Default, Risk of Bias, By class, etc.)
+        dd_eclr: Edge color dropdown value
+        custom_nd_clr: Custom node color input
+        custom_edg_clr: Custom edge color input
+        dd_nds: Node size dropdown value (Default, Tot randomized)
+        dd_egs: Edge size dropdown value (Number of studies, No size)
 
-    FOLLOWER_COLOR, FOLLOWING_COLOR = "#50a37c", "#50a37c"
-    stylesheet = skt_stylesheet()
+    Returns:
+        stylesheet: Cytoscape stylesheet
+    """
+    # Default node color
+    DFLT_ND_CLR = "#50a37c"
+
+    # Apply custom colors if set
+    nodes_color = (
+        (custom_nd_clr or DFLT_ND_CLR)
+        if dd_nclr and dd_nclr != "Default"
+        else DFLT_ND_CLR
+    )
+    edges_color = (
+        (custom_edg_clr or "grey") if dd_eclr and dd_eclr != "Default" else "grey"
+    )
+
+    # Node and edge size settings
+    node_size = dd_nds or "Default"
+    node_size = node_size == "Tot randomized"
+    edge_size = dd_egs or "Number of studies"
+    edge_size = edge_size == "No size"
+
+    # Special display modes
+    pie = dd_nclr == "Risk of Bias" if dd_nclr else False
+    cls = dd_nclr == "By class" if dd_nclr else False
+    edg_lbl = dd_eclr == "Add label" if dd_eclr else False
+
+    FOLLOWER_COLOR, FOLLOWING_COLOR = DFLT_ND_CLR, DFLT_ND_CLR
+
+    # Build stylesheet using skt_stylesheet helper
+    stylesheet = skt_stylesheet(
+        node_size=node_size,
+        edge_size=edge_size,
+        pie=pie,
+        classes=cls,
+        edg_lbl=edg_lbl,
+        edg_col=edges_color,
+        nd_col=nodes_color,
+        label_size=None,
+    )
+
     edgedata = [el["data"] for el in elements if "target" in el["data"].keys()]
     all_nodes_id = [
         el["data"]["id"] for el in elements if "target" not in el["data"].keys()
     ]
-    text = dbc.Toast(
-        [
-            html.Span(
-                "Click a node to get the information of the corresponding treatment"
-            )
-        ],
-        style={
-            "justify-items": "center",
-            "aligin-items": "center",
-            "text-align": "center",
-            "font-weight": "bold",
-        },
-    )
 
     if slct_nodesdata:
         selected_nodes_id = [d["id"] for d in slct_nodesdata]
-        treat_select = selected_nodes_id[0]
-        treat_info = html.Span(
-            treat_select,
-            style={"display": "grid", "text-align": "center", "font-weight": "bold"},
-        )
-        treat_describ = html.Span(
-            "ETA (Efalizumab) was a medication for moderate to severe plaque psoriasis, withdrawn in 2009 due to risks like progressive multifocal leukoencephalopathy (PML). It was contraindicated for patients with weakened immune systems or active infections and was administered via weekly injections. ETA is no longer prescribed due to these severe risks.",
-            style={"display": "grid", "margin": "2%"},
-        )
-        text = dbc.Toast([treat_info, treat_describ])
         all_slct_src_trgt = list(
             {
                 e["source"]
@@ -263,10 +299,16 @@ def __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata):
 
         stylesheet = (
             skt_stylesheet(
+                node_size=node_size,
+                edge_size=edge_size,
+                pie=pie,
+                classes=cls,
+                edg_lbl=edg_lbl,
                 edg_col=edges_color,
                 nd_col=nodes_color,
                 nodes_opacity=0.2,
                 edges_opacity=0.1,
+                label_size=None,
             )
             + [
                 {
@@ -300,7 +342,14 @@ def __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata):
         selected_edge_id = [d["id"] for d in slct_edgedata]
 
         stylesheet = skt_stylesheet(
-            edg_col=edges_color, nd_col=nodes_color, label_size=label_size
+            node_size=node_size,
+            edge_size=edge_size,
+            pie=pie,
+            classes=cls,
+            edg_lbl=edg_lbl,
+            edg_col=edges_color,
+            nd_col=nodes_color,
+            label_size=None,
         ) + [
             {
                 "selector": 'edge[id= "{}"]'.format(id),
@@ -313,7 +362,7 @@ def __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata):
             for id in selected_edge_id
         ]
 
-    return stylesheet, text
+    return stylesheet
 
 
 def __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata):
