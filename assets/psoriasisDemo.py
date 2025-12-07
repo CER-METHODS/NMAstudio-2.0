@@ -57,6 +57,7 @@ LEAGUE_TABLE_DATA2 = pd.DataFrame(
     columns=LEAGUE_TABLE_DATA2.columns,
     index=LEAGUE_TABLE_DATA2.index,
 )
+LEAGUE_TABLE_DATA_BOTH = LEAGUE_TABLE_DATA_BOTH.fillna("")
 LEAGUE_TABLE_DATA_BOTH = pd.DataFrame(
     [
         [replace_and_strip(col) for col in list(row)]
