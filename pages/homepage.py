@@ -16,6 +16,7 @@ TABLE = "/assets/logos/table.gif"
 CONS = "/assets/logos/consist.gif"
 RANK = "/assets/logos/rank.gif"
 FUNEL = "/assets/logos/funel.gif"
+OSLO_LOGO = "/assets/logos/oslo_logo.png"
 UP_LOGO = "/assets/logos/universite.jpeg"
 CRESS_LOGO = "/assets/logos/cress_logo2.jpeg"
 inserm_logo = "/assets/logos/inserm_logo.png"
@@ -98,20 +99,6 @@ layout = html.Div(
                         dbc.Col(
                             [
                                 html.Img(
-                                    src=BOXPLOT,
-                                    width="70px",
-                                    style={"justifySelf": "center"},
-                                ),
-                                html.Span(
-                                    "Boxplots for transitivity checks",
-                                    className="main_results",
-                                ),
-                            ],
-                            className="col_results",
-                        ),
-                        dbc.Col(
-                            [
-                                html.Img(
                                     src=NETPLOT,
                                     width="70px",
                                     style={"justifySelf": "center"},
@@ -126,12 +113,26 @@ layout = html.Div(
                         dbc.Col(
                             [
                                 html.Img(
+                                    src=BOXPLOT,
+                                    width="70px",
+                                    style={"justifySelf": "center"},
+                                ),
+                                html.Span(
+                                    "Boxplots for transitivity assessment",
+                                    className="main_results",
+                                ),
+                            ],
+                            className="col_results",
+                        ),
+                        dbc.Col(
+                            [
+                                html.Img(
                                     src=FOREST,
                                     width="70px",
                                     style={"justifySelf": "center"},
                                 ),
                                 html.Span(
-                                    "Forest plots for NMA & PWMA",
+                                    "Forest plots for direct and network estimates",
                                     className="main_results",
                                 ),
                             ],
@@ -154,12 +155,12 @@ layout = html.Div(
                         dbc.Col(
                             [
                                 html.Img(
-                                    src=CONS,
+                                    src=RANK,
                                     width="70px",
                                     style={"justifySelf": "center"},
                                 ),
                                 html.Span(
-                                    "Global & Local consistency checks",
+                                    "Ranking plots for interventions",
                                     className="main_results",
                                 ),
                             ],
@@ -168,12 +169,12 @@ layout = html.Div(
                         dbc.Col(
                             [
                                 html.Img(
-                                    src=RANK,
+                                    src=CONS,
                                     width="70px",
                                     style={"justifySelf": "center"},
                                 ),
                                 html.Span(
-                                    "Ranking plots for interventions",
+                                    "Global & Local consistency assessment",
                                     className="main_results",
                                 ),
                             ],
@@ -474,7 +475,7 @@ layout = html.Div(
         html.Footer(
             [
                 html.P(
-                    "Copyright © 2020. All rights reserved.",
+                    "Copyright © 2025. All rights reserved.",
                     style={"color": "white", "marginLeft": "45px", "marginTop": "2%"},
                 ),
                 dcc.Markdown(
@@ -491,6 +492,7 @@ layout = html.Div(
                 #  className="markdown_style",style={"color": "white", "fontWeight": "330", "fontSize":"14px", 'whiteSpace': 'pre'}),
                 dbc.Col(
                     [
+                        html.Img(src=OSLO_LOGO, height="57px"),
                         html.Img(src=UP_LOGO, height="57px"),
                         html.Img(src=CRESS_LOGO, height="57px"),
                         html.Img(src=inserm_logo, height="57px"),
@@ -503,7 +505,7 @@ layout = html.Div(
                         "display": "flex",
                         "marginLeft": "10px",
                         "justifyContent": "space-between",
-                        "width": "500px",
+                        "width": "700px",
                         "marginLeft": "43px",
                     },
                     width="auto",

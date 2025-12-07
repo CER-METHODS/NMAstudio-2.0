@@ -23,6 +23,7 @@ from dash import dash, html, dcc, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 from tools.navbar import Navbar
 from assets.storage import TODAY, SESSION_TYPE, get_new_session_id, STORAGE
+from assets.skt_storage import SKT_STORAGE
 from assets.alerts import (
     R_errors_data,
     R_errors_nma,
@@ -54,6 +55,8 @@ def get_new_layout():
             ),
             # Global STORAGE - shared across all pages (localStorage persistence)
             html.Div(STORAGE, style={"display": "none"}),
+            # SKT-specific STORAGE - for Knowledge Translation page
+            html.Div(SKT_STORAGE, style={"display": "none"}),
             # Global Alert modals - available on all pages for callbacks
             html.Div(
                 [

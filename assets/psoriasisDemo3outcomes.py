@@ -186,4 +186,6 @@ PSORIASIS_3OUTCOMES_DATA = {
     "R_errors_STORAGE": {},
     "cinema_net_data_STORAGE": [],  # CINeMA data not loaded for 3-outcome demo
     "cinema_net_data_STORAGE2": [],  # CINeMA data not loaded for 3-outcome demo
+    "protocol_link_STORAGE": "https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535.pub4/full",
+    "project_title_STORAGE": "Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis",
 }

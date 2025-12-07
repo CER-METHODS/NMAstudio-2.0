@@ -3,6 +3,8 @@
 import dash
 import json
 import os
+import re
+from urllib.parse import urlparse
 from dash import Input, Output, State, callback, html, dcc, ALL
 import dash_bootstrap_components as dbc
 
@@ -116,6 +118,22 @@ layout = html.Div(
                     id="confirm-psor",
                     message="All changes will be lost! Are you sure you want to load demo?",
                 ),
+                dcc.ConfirmDialog(
+                    id="confirm-project-title",
+                    message="Project title saved successfully!",
+                ),
+                dcc.ConfirmDialog(
+                    id="error-project-title",
+                    message="Invalid project title. Please enter a valid title (3-200 characters, no special characters).",
+                ),
+                dcc.ConfirmDialog(
+                    id="confirm-protocol-link",
+                    message="Protocol link saved successfully!",
+                ),
+                dcc.ConfirmDialog(
+                    id="error-protocol-link",
+                    message="Invalid URL. Please enter a valid protocol link (e.g., https://example.com/protocol).",
+                ),
                 saveload_modal,  # saveload_modal_button.py
             ],
             style={
@@ -130,7 +148,70 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.P(
-                            "Provide the link of the protocol of your study:",
+                            "Project title:",
+                            id="project-title-label",
+                            className="selcect_title",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Input(
+                                    id="project-title",
+                                    className="upload_radio",
+                                    style={"width": "500px"},
+                                    placeholder="Enter your project title",
+                                ),
+                                dbc.Button(
+                                    "OK",
+                                    n_clicks=0,
+                                    id="project_title_button",
+                                    disabled=True,
+                                    style={
+                                        "color": "white",
+                                        "backgroundColor": "orange",
+                                        "display": "inline-block",
+                                        "justifySelf": "center",
+                                        "border": "unset",
+                                        "padding": "4px",
+                                    },
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "gap": "10px",
+                                "justifySelf": "center",
+                            },
+                        ),
+                    ],
+                    style={
+                        "display": "grid",
+                        "backgroundColor": "beige",
+                        "width": "600px",
+                        "justifyContent": "center",
+                        "height": "100px",
+                        "alignItems": "center",
+                    },
+                ),
+                dbc.Col(
+                    html.Div(
+                        html.Span(
+                            "*Enter a descriptive title for your network meta-analysis project.",
+                            className="upload_instuspan",
+                        )
+                    ),
+                    className="upload_instrucol",
+                ),
+            ],
+            id="project-title-input",
+            className="upload_row",
+        ),
+        html.Br(),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.P(
+                            "Protocol link:",
+                            id="protocol-link-label",
                             className="selcect_title",
                         ),
                         html.Div(
@@ -138,7 +219,8 @@ layout = html.Div(
                                 dcc.Input(
                                     id="protocol-link",
                                     className="upload_radio",
-                                    style={"width": "200px"},
+                                    style={"width": "500px"},
+                                    placeholder="Enter protocol URL or DOI",
                                 ),
                                 dbc.Button(
                                     "OK",
@@ -157,8 +239,7 @@ layout = html.Div(
                             ],
                             style={
                                 "display": "flex",
-                                "justifyContent": "space-evenly",
-                                "width": "250px",
+                                "gap": "10px",
                                 "justifySelf": "center",
                             },
                         ),
@@ -166,7 +247,7 @@ layout = html.Div(
                     style={
                         "display": "grid",
                         "backgroundColor": "beige",
-                        "width": "500px",
+                        "width": "600px",
                         "justifyContent": "center",
                         "height": "100px",
                         "alignItems": "center",
@@ -175,7 +256,7 @@ layout = html.Div(
                 dbc.Col(
                     html.Div(
                         html.Span(
-                            "*NMAStudio resuires users to provide protocol links before runing analysis.",
+                            "*NMAStudio requires users to provide protocol links or DOI.",
                             className="upload_instuspan",
                         )
                     ),
@@ -350,6 +431,8 @@ layout = html.Div(
                                             id="number-outcomes",
                                             className="upload_radio",
                                             style={"width": "100px"},
+                                            type="number",
+                                            min=1,
                                         ),
                                         dbc.Button(
                                             "OK",
@@ -386,7 +469,7 @@ layout = html.Div(
                         dbc.Col(
                             html.Div(
                                 html.Span(
-                                    "*NMAStudio now support any number of outcomes.",
+                                    "*NMAStudio now supports any number of outcomes.",
                                     className="upload_instuspan",
                                 )
                             ),
@@ -1547,6 +1630,198 @@ def hide_uploader_when_results_ready(results_ready_STORAGE, pathname):
     if results_ready_STORAGE:
         return {"display": "none"}  # Hide completely
     return base_style  # Show with full styling
+
+
+# Populate project title input and label from STORAGE on page load
+@callback(
+    [
+        Output("project-title", "value"),
+        Output("project-title-label", "children"),
+    ],
+    Input("project_title_STORAGE", "modified_timestamp"),
+    State("project_title_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def populate_project_title_input(_ts, stored_title):
+    """Populate project title input and update label from STORAGE if value exists"""
+    if stored_title and isinstance(stored_title, str) and stored_title.strip():
+        title = stored_title.strip()
+        # Truncate label if too long
+        display_title = title if len(title) <= 50 else title[:47] + "..."
+        return title, f"Project title: {display_title}"
+    return "", "Project title:"
+
+
+# Populate protocol link input and label from STORAGE on page load
+@callback(
+    [
+        Output("protocol-link", "value"),
+        Output("protocol-link-label", "children"),
+    ],
+    Input("protocol_link_STORAGE", "modified_timestamp"),
+    State("protocol_link_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def populate_protocol_link_input(_ts, stored_link):
+    """Populate protocol link input and update label from STORAGE if value exists"""
+    if stored_link and isinstance(stored_link, str) and stored_link.strip():
+        link = stored_link.strip()
+        # Truncate label if too long
+        display_link = link if len(link) <= 40 else link[:37] + "..."
+        return link, f"Protocol link: {display_link}"
+    return "", "Protocol link:"
+
+
+# Enable project title button when input has value
+@callback(
+    Output("project_title_button", "disabled"),
+    Input("project-title", "value"),
+)
+def enable_project_title_button(value):
+    """Enable project title button when input has value"""
+    return not bool(value)
+
+
+# Sanitize and validate project title
+def __sanitize_project_title(value):
+    """
+    Sanitize and validate project title.
+    Returns (sanitized_value, is_valid, error_message)
+    """
+    if not value:
+        return None, False, "Title cannot be empty"
+
+    # Strip whitespace
+    sanitized = value.strip()
+
+    # Check length (3-200 characters)
+    if len(sanitized) < 3:
+        return None, False, "Title must be at least 3 characters"
+    if len(sanitized) > 200:
+        return None, False, "Title must be less than 200 characters"
+
+    # Remove potentially dangerous characters (HTML/script injection)
+    # Allow letters, numbers, spaces, and common punctuation
+    sanitized = re.sub(r"[<>{}[\]\\]", "", sanitized)
+
+    # Collapse multiple spaces
+    sanitized = re.sub(r"\s+", " ", sanitized)
+
+    return sanitized, True, None
+
+
+# Save project title to STORAGE when OK button is clicked
+@callback(
+    [
+        Output("project_title_STORAGE", "data"),
+        Output("confirm-project-title", "displayed"),
+        Output("error-project-title", "displayed"),
+    ],
+    Input("project_title_button", "n_clicks"),
+    State("project-title", "value"),
+    prevent_initial_call=True,
+)
+def save_project_title(n_clicks, value):
+    """Save project title to STORAGE when OK button is clicked, with validation"""
+    if not n_clicks:
+        return dash.no_update, False, False
+
+    sanitized, is_valid, error = __sanitize_project_title(value)
+
+    if is_valid:
+        return sanitized, True, False  # Save and show success
+    else:
+        return dash.no_update, False, True  # Show error dialog
+
+
+# Enable protocol link button when input has value
+@callback(
+    Output("protocol_link_button", "disabled"),
+    Input("protocol-link", "value"),
+)
+def enable_protocol_link_button(value):
+    """Enable protocol link button when input has value"""
+    return not bool(value)
+
+
+# Validate and sanitize protocol link URL
+def __validate_protocol_link(value):
+    """
+    Validate and sanitize protocol link URL.
+    Accepts: http/https URLs, DOI formats (doi:10.xxx or 10.xxx/yyy)
+    Returns (sanitized_url, is_valid, error_message)
+    """
+    if not value:
+        return None, False, "URL cannot be empty"
+
+    # Strip whitespace
+    url = value.strip()
+
+    # Basic length check
+    if len(url) < 5:
+        return None, False, "URL/DOI is too short"
+    if len(url) > 2000:
+        return None, False, "URL/DOI is too long"
+
+    # Check for DOI format (doi:10.xxxx/yyyy or just 10.xxxx/yyyy)
+    # DOI pattern: 10.prefix/suffix where prefix is 4+ digits
+    doi_pattern = r"^(doi:)?(10\.\d{4,}(?:\.\d+)*/\S+)$"
+    doi_match = re.match(doi_pattern, url, re.IGNORECASE)
+    if doi_match:
+        # Convert DOI to https://doi.org/ URL
+        doi_id = doi_match.group(2)
+        url = f"https://doi.org/{doi_id}"
+        return url, True, None
+
+    # Parse URL
+    try:
+        parsed = urlparse(url)
+
+        # If no scheme, auto-prefix https://
+        if not parsed.scheme:
+            url = "https://" + url
+            parsed = urlparse(url)
+        # If scheme exists but is not http/https, reject
+        elif parsed.scheme not in ("http", "https"):
+            return None, False, "URL must use http or https (or DOI format)"
+
+        # Check netloc (domain)
+        if not parsed.netloc:
+            return None, False, "Invalid URL format"
+
+        # Basic domain validation
+        domain_pattern = r"^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}(:\d+)?$"
+        if not re.match(domain_pattern, parsed.netloc):
+            return None, False, "Invalid domain in URL"
+
+        return url, True, None
+
+    except Exception:
+        return None, False, "Invalid URL format"
+
+
+# Save protocol link to STORAGE when OK button is clicked
+@callback(
+    [
+        Output("protocol_link_STORAGE", "data"),
+        Output("confirm-protocol-link", "displayed"),
+        Output("error-protocol-link", "displayed"),
+    ],
+    Input("protocol_link_button", "n_clicks"),
+    State("protocol-link", "value"),
+    prevent_initial_call=True,
+)
+def save_protocol_link(n_clicks, value):
+    """Save protocol link to STORAGE when OK button is clicked, with URL validation"""
+    if not n_clicks:
+        return dash.no_update, False, False
+
+    sanitized_url, is_valid, error = __validate_protocol_link(value)
+
+    if is_valid:
+        return sanitized_url, True, False  # Save and show success
+    else:
+        return dash.no_update, False, True  # Show error dialog
 
 
 # ---------- clientside console logger for _STORAGE stores only ----------

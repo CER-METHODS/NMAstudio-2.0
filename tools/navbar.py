@@ -31,8 +31,8 @@ def Navbar():
     )
     skt_button = dbc.NavItem(
         dbc.NavLink(
-            "Knowledge Translation (under construction)",
-            href="/skt",
+            "Knowledge Translation",
+            href="/knowledge-translation",
             external_link=True,
             style={
                 "color": "#white",

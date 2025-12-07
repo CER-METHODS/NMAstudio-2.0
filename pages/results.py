@@ -183,7 +183,8 @@ layout = html.Div(
                     id="link_title",
                 ),
                 dcc.Link(
-                    href="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535/full",
+                    children="Not provided",
+                    href="#",
                     target="_blank",
                     style={
                         "justify-self": "center",
@@ -223,46 +224,6 @@ layout = html.Div(
                     },
                     id="result_selected",
                 ),
-                html.Span(
-                    "or",
-                    style={
-                        "justify-self": "center",
-                        "align-self": "center",
-                        "font-size": "large",
-                    },
-                ),
-                dcc.Link(
-                    html.Button("Setup Analysis", id="test_upload", n_clicks=0),
-                    href="/setup",
-                ),
-                html.Div(
-                    [
-                        html.A(
-                            html.Img(
-                                src="/assets/icons/reset.png",
-                                style={"width": "40px", "filter": "invert()"},
-                            ),
-                            id="reset_project",
-                            style={"display": "grid", "justify-items": "center"},
-                        ),
-                        dbc.Tooltip(
-                            "Reset project - uploaded data will be lost",
-                            style={
-                                "color": "black",
-                                "font-size": 15,
-                                "letter-spacing": "0.2rem",
-                            },
-                            placement="top",
-                            target="reset_project",
-                        ),
-                    ],
-                    style={
-                        "display": "inline-block",
-                        "margin-left": "20px",
-                        "margin-bottom": "2px",
-                    },
-                ),
-                saveload_modal,
             ],
             style={
                 "display": "grid",
@@ -1203,6 +1164,49 @@ def redirect_on_reset(current_path, results_ready):
         )
         return "/setup"
     return no_update
+
+
+### -------------------------- PROTOCOL LINK AND PROJECT TITLE  ------------------------------- ###
+
+
+@callback(
+    [
+        Output("show_protocol_link", "href"),
+        Output("show_protocol_link", "children"),
+    ],
+    Input("protocol_link_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def update_protocol_link_display(protocol_link):
+    """
+    Update protocol link display from STORAGE.
+    Shows the link URL as both href and display text.
+    """
+    if protocol_link and isinstance(protocol_link, str) and protocol_link.strip():
+        link = protocol_link.strip()
+        # Truncate display text if too long
+        display_text = link if len(link) <= 60 else link[:57] + "..."
+        return link, display_text
+    return "#", "Not provided"
+
+
+@callback(
+    Output("link_title", "children"),
+    Input("project_title_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def update_project_title_display(project_title):
+    """
+    Update project title in the results page header.
+    If title is provided, shows "Title: [title] | Protocol:   "
+    Otherwise shows "Project protocol link:   "
+    """
+    if project_title and isinstance(project_title, str) and project_title.strip():
+        title = project_title.strip()
+        # Truncate if too long
+        display_title = title if len(title) <= 80 else title[:77] + "..."
+        return [display_title, html.Br(), "Protocol:   "]
+    return "Project protocol link:   "
 
 
 ### -------------------------- ALL CYTOSCAPE CALLBACKS  ------------------------------- ###

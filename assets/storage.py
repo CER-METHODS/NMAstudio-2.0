@@ -82,6 +82,8 @@ STORAGE_SCHEMA = {
     "outcome_names_STORAGE": "list",  # List of outcome names (e.g., ["PASI90", "SAE", "AE"])
     "cinema_net_data_STORAGE": "list",  # List of CINeMA data JSON strings (one per outcome)
     "cinema_net_data_STORAGE2": "list",  # CINeMA data for "both outcomes" league table [outcome1_json, outcome2_json]
+    "protocol_link_STORAGE": "strng",  # Protocol link URL
+    "project_title_STORAGE": "strng",  # Project title
 }
 
 EMPTY_STORAGE = {
@@ -104,6 +106,8 @@ EMPTY_STORAGE = {
     "outcome_names_STORAGE": [],  # List of outcome names
     "cinema_net_data_STORAGE": [],  # List of CINeMA data JSON strings (one per outcome)
     "cinema_net_data_STORAGE2": [],  # CINeMA data for "both outcomes" league table
+    "protocol_link_STORAGE": "",  # Protocol link URL
+    "project_title_STORAGE": "",  # Project title
 }
 
 
@@ -174,6 +178,8 @@ def __empty_project():
         dcc.Store(id="outcome_names_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="cinema_net_data_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="cinema_net_data_STORAGE2", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="protocol_link_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="project_title_STORAGE", data=None, storage_type=SESSION_TYPE),
     ]
 
 

@@ -1,7 +1,17 @@
 import numpy as np, pandas as pd
 import plotly.express as px
 import plotly.figure_factory as ff
-from sklearn.cluster import KMeans
+
+# Conditional sklearn import to handle scipy compatibility issues
+try:
+    from sklearn.cluster import KMeans
+
+    SKLEARN_AVAILABLE = True
+except (ImportError, TypeError) as e:
+    SKLEARN_AVAILABLE = False
+    KMeans = None
+    print(f"Warning: sklearn not available: {e}")
+
 from collections import Counter
 from io import StringIO
 from functools import lru_cache
@@ -363,15 +373,19 @@ def __ranking_scatter(
         if outcome_direction_2:
             df[f"pscore{out_idx2 + 1}"] = 1 - df[f"pscore{out_idx2 + 1}"]
 
-        kmeans = KMeans(
-            n_clusters=int(round(len(df.treatment) / float(5.0), 0)),
-            init="k-means++",
-            max_iter=300,
-            n_init=10,
-            random_state=0,
-        )
-        labels = kmeans.fit(df[[f"pscore{out_idx1 + 1}", f"pscore{out_idx2 + 1}"]])
-        df["Trt groups"] = labels.labels_.astype(str)
+        if SKLEARN_AVAILABLE and KMeans is not None:
+            kmeans = KMeans(
+                n_clusters=int(round(len(df.treatment) / float(5.0), 0)),
+                init="k-means++",
+                max_iter=300,
+                n_init=10,
+                random_state=0,
+            )
+            labels = kmeans.fit(df[[f"pscore{out_idx1 + 1}", f"pscore{out_idx2 + 1}"]])
+            df["Trt groups"] = labels.labels_.astype(str)
+        else:
+            # Fallback: assign all to same group if sklearn unavailable
+            df["Trt groups"] = "0"
         df_full = (
             net_data.groupby(["treat1", "treat2"])[f"TE{out_idx1 + 1}"]
             .count()
@@ -489,3 +503,4 @@ def __ranking_scatter(
         )
         fig2.update_annotations(align="center")
     return fig2
+
