@@ -748,6 +748,7 @@ pairwise_forest_new <- function(dat,i){
 
 get_pairwise_data_long_new <- function(dat, num_outcome=1){
    pairwise_dat <- list()
+   extra_cols_list <- list()
    for (i in 1:num_outcome){
     sm <- dat[[paste0("effect_size", i)]][1] 
     if(sm %in% c('RR','OR')) {
@@ -784,14 +785,21 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'n1'] <- paste0("n1", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'n2'] <- paste0("n2", i)
         }
+      ## extract extra columns (everything after column 9) and store in a list
+    add_columns <- names(pair_dat)[10:length(pair_dat)]
+    extra_cols_list[[i]] <- pair_dat[, add_columns, drop = FALSE]
     }
+    # pick the longest (max rows)
+    new_cols <- extra_cols_list[[ which.max(sapply(extra_cols_list, nrow)) ]]
     final_dat = reduce(pairwise_dat, full_join, by = c("studlab","treat1","treat2"))
-    add_columns <- names(pair_dat)[10:length(names(pair_dat))]
+    # add_columns <- names(pair_dat)[10:length(names(pair_dat))]
     
-    new_cols <- pair_dat %>%
-    dplyr::select(add_columns)
-
-    final_dat1 <- cbind.data.frame(final_dat,new_cols)
+    # new_cols <- pair_dat %>%
+    # dplyr::select(add_columns)
+    # combine safely
+    final_dat1 <- cbind(final_dat, new_cols)
+   
+    # final_dat1 <- cbind.data.frame(final_dat,new_cols)
 
     names(final_dat1) <- c(names(final_dat),names(new_cols))
 
