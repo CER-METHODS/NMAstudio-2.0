@@ -86,6 +86,71 @@ modal_edges = dbc.Modal(
     },
 )
 
+Input_color_kt = dcc.Input(id="node_color_input_kt",
+                type="text",
+                style={
+              #       'background-color':'#40515e',
+                       'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'},
+                placeholder="Type color name / Hex")
+
+Input_color_edge_kt = dcc.Input(id="edge_color_input_kt",
+                type="text",
+                style={
+              #       'background-color':'#40515e',
+                       'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'},
+                placeholder="Type color name / Hex")
+
+
+modal_kt = dbc.Modal([dbc.ModalHeader("Node color selection"),
+                   dbc.ModalBody(Input_color_kt),
+                   dbc.ModalFooter(dbc.Button("Close", id="close_modal_kt_nclr_input", n_clicks=0, className="ml-auto"))
+                  ],
+            id="modal_kt",style={
+              #   'background-color':'#40515e',
+                'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'})
+
+modal_edges_kt = dbc.Modal([dbc.ModalHeader("Edge color selection"),
+                   dbc.ModalBody(Input_color_edge_kt),
+                   dbc.ModalFooter(dbc.Button("Close", id="close_modal_kt_eclr_input", n_clicks=0, className="ml-auto"))
+                  ],
+            id="modal_edge_kt",style={
+              #   'background-color':'#40515e',
+                'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'})
+
+
+Input_color_kt2 = dcc.Input(id="node_color_input_kt2",
+                type="text",
+                style={
+              #       'background-color':'#40515e',
+                       'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'},
+                placeholder="Type color name / Hex")
+
+Input_color_edge_kt2 = dcc.Input(id="edge_color_input_kt2",
+                type="text",
+                style={
+              #       'background-color':'#40515e',
+                       'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'},
+                placeholder="Type color name / Hex")
+
+
+modal_kt2 = dbc.Modal([dbc.ModalHeader("Node color selection"),
+                   dbc.ModalBody(Input_color_kt2),
+                   dbc.ModalFooter(dbc.Button("Close", id="close_modal_kt2_nclr_input", n_clicks=0, className="ml-auto"))
+                  ],
+            id="modal_kt2",style={
+              #   'background-color':'#40515e',
+                'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'})
+
+modal_edges_kt2 = dbc.Modal([dbc.ModalHeader("Edge color selection"),
+                   dbc.ModalBody(Input_color_edge_kt2),
+                   dbc.ModalFooter(dbc.Button("Close", id="close_modal_kt2_eclr_input", n_clicks=0, className="ml-auto"))
+                  ],
+            id="modal_edge_kt2",style={
+              #   'background-color':'#40515e',
+                'margin-left':'-px', 'font-size':'10.5px', 'padding-left':'-2px'})
+
+
+
 file_upload_controls = [
     html.Br(),
     dbc.Col(

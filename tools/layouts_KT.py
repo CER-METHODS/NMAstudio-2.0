@@ -1,6 +1,7 @@
 
 import dash_bootstrap_components as dbc, dash_html_components as html
 from tools.navbar import Navbar
+from dash_extensions import Download
 from dash import dcc
 import dash_daq as daq
 import dash_cytoscape as cyto
@@ -41,7 +42,7 @@ FAQ_total = html.Div([
 
 def Sktpage():
     return html.Div([
-                     Navbar(),switch_table(),
+                     switch_table(),
                      html.Button(
                                 [
                                     html.Img(src="/assets/icons/question-talk.png", className="icon-faq"),
