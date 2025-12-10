@@ -43,6 +43,8 @@ from tools.skt_data_helpers import (
     build_skt_advanced_row_data,
     get_skt_network_data,
     get_effect_modifier_data,
+    Generate_kt_standad_data,
+    Generate_kt_standad_columnDefs,
 )
 import pandas as pd
 import numpy as np
@@ -126,340 +128,6 @@ def toggle_skt_version(toggle_value):
         return skt_nonexpert()
 
 
-# # Transitivity modal toggle
-# @callback(
-#     Output("modal_transitivity", "is_open"),
-#     [Input("trans_button", "n_clicks"), Input("close_trans", "n_clicks")],
-#     [State("modal_transitivity", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_transitivity(n1, n2, is_open):
-#     if n1 or n2:
-#         return not is_open
-#     return is_open
-
-
-# # Transitivity boxplot/scatter update
-# @callback(
-#     Output("boxplot_skt", "figure"),
-#     [Input("ddskt-trans", "value"), Input("box_kt_scatter", "value")],
-#     prevent_initial_call=True,
-# )
-# def update_transitivity_plot(effect_modifier, scatter_toggle):
-#     """Update the transitivity check boxplot/scatter plot."""
-#     if scatter_toggle:
-#         return __show_scatter(effect_modifier)
-#     else:
-#         return __show_boxplot(effect_modifier)
-
-
-# # Pairwise forest plot modal toggle
-# @callback(
-#     Output("modal_forest", "is_open"),
-#     [Input("close_forest", "n_clicks")],
-#     [State("modal_forest", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_forest(n_close, is_open):
-#     if n_close:
-#         return False
-#     return is_open
-
-
-# # Detail comparison modal toggle (Advanced version)
-# @callback(
-#     Output("skt_modal_copareinfo", "is_open"),
-#     [Input("close_compare", "n_clicks")],
-#     [State("skt_modal_copareinfo", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_compare(n_close, is_open):
-#     if n_close:
-#         return False
-#     return is_open
-
-
-# # Simple comparison modal toggle (Standard version)
-# @callback(
-#     Output("skt_modal_compare_simple", "is_open"),
-#     [
-#         Input("close_compare_simple", "n_clicks"),
-#         Input("grid_treat_compare", "cellClicked"),
-#     ],
-#     [State("skt_modal_compare_simple", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_compare_simple(n_close, cell_clicked, is_open):
-#     triggered_id = ctx.triggered_id
-#     if triggered_id == "close_compare_simple":
-#         return False
-#     elif triggered_id == "grid_treat_compare" and cell_clicked:
-#         # Open modal when clicking on RR or Certainty columns
-#         col_id = cell_clicked.get("colId", "")
-#         if col_id in ["RR", "RR_out2", "Certainty_out1", "Certainty_out2"]:
-#             return True
-#     return is_open
-
-
-
-
-# # Cytoscape stylesheet update for Standard version (cytoscape_skt2)
-# @callback(
-#     Output("cytoscape_skt2", "stylesheet"),
-#     [
-#         Input("cytoscape_skt2", "tapNode"),
-#         Input("cytoscape_skt2", "selectedNodeData"),
-#         Input("cytoscape_skt2", "selectedEdgeData"),
-#     ],
-#     [State("cytoscape_skt2", "elements")],
-#     prevent_initial_call=True,
-# )
-# def update_stylesheet_skt2(node, slct_nodesdata, slct_edgedata, elements):
-#     """Update cytoscape stylesheet when nodes/edges are selected."""
-#     if not elements:
-#         raise PreventUpdate
-#     return __generate_skt_stylesheet2(node, slct_nodesdata, elements, slct_edgedata)
-
-
-# # Filter grid based on selected nodes/edges in Standard version
-# @callback(
-#     Output("grid_treat_compare", "rowData", allow_duplicate=True),
-#     [
-#         Input("cytoscape_skt2", "selectedNodeData"),
-#         Input("cytoscape_skt2", "selectedEdgeData"),
-#     ],
-#     [
-#         State("grid_treat_compare", "rowData"),
-#         State("forest_data_STORAGE", "data"),
-#         State("cinema_net_data_STORAGE", "data"),
-#         State("outcome_names_STORAGE", "data"),
-#     ],
-#     prevent_initial_call=True,
-# )
-# def filter_grid_by_network(
-#     slct_nodesdata,
-#     slct_edgedata,
-#     current_row_data,
-#     forest_storage,
-#     cinema_storage,
-#     outcome_names,
-# ):
-#     """Filter the treatment comparison grid based on network selection."""
-#     # Get full data from STORAGE (instead of df_origin which is now empty)
-#     if not forest_storage:
-#         raise PreventUpdate
-
-#     try:
-#         df_full = get_skt_two_outcome_data(
-#             forest_storage, cinema_storage, outcome_names
-#         )
-#         if df_full.empty:
-#             raise PreventUpdate
-#     except Exception:
-#         raise PreventUpdate
-
-#     df = df_full.copy()
-
-#     if slct_nodesdata and len(slct_nodesdata) > 0:
-#         selected_nodes = [d["id"] for d in slct_nodesdata]
-#         # Filter rows where Treatment or Reference is in selected nodes
-#         mask = df["Treatment"].isin(selected_nodes) | df["Reference"].isin(
-#             selected_nodes
-#         )
-#         df = df[mask]
-
-#     if slct_edgedata and len(slct_edgedata) > 0:
-#         # Filter based on selected edges
-#         filtered_rows = []
-#         for edge in slct_edgedata:
-#             source = edge.get("source")
-#             target = edge.get("target")
-#             if source and target:
-#                 mask = ((df["Treatment"] == source) & (df["Reference"] == target)) | (
-#                     (df["Treatment"] == target) & (df["Reference"] == source)
-#                 )
-#                 filtered_rows.append(df[mask])
-#         if filtered_rows:
-#             df = pd.concat(filtered_rows).drop_duplicates()
-
-#     if df.empty:
-#         # Return full data if no filter matches
-#         return df_full.to_dict("records")
-
-#     return df.to_dict("records")
-
-
-# # Advanced version callbacks (when expert toggle is on)
-
-
-# # Update quickstart-grid based on effect options and risk values
-# @callback(
-#     Output("quickstart-grid", "rowData", allow_duplicate=True),
-#     [
-#         Input("checklist_effects", "value"),
-#         Input("range_lower", "value"),
-#         Input("quickstart-grid", "cellValueChanged"),
-#     ],
-#     [State("quickstart-grid", "rowData")],
-#     prevent_initial_call=True,
-# )
-# def update_advanced_grid(value_effect, lower, value_change, rowData):
-#     """Update the advanced grid with forest plots and absolute values."""
-#     if not rowData:
-#         raise PreventUpdate
-
-#     try:
-#         lower = float(lower) if lower else 0.2
-#     except ValueError:
-#         lower = 0.2
-
-#     if not value_effect:
-#         value_effect = []
-
-#     return __Change_Abs(value_effect, value_change, lower, rowData)
-
-
-# # Cytoscape stylesheet update for Advanced version (cytoscape_skt)
-# @callback(
-#     Output("cytoscape_skt", "stylesheet"),
-#     [
-#         Input("cytoscape_skt", "tapNode"),
-#         Input("cytoscape_skt", "selectedNodeData"),
-#         Input("cytoscape_skt", "selectedEdgeData"),
-#         Input("kt2_nclr", "children"),
-#         Input("kt2_eclr", "children"),
-#         Input("kt2_nclr_custom", "value"),
-#         Input("kt2_eclr_custom", "value"),
-#         Input("kt2_nds", "children"),
-#         Input("kt2_egs", "children"),
-#     ],
-#     [State("cytoscape_skt", "elements")],
-#     prevent_initial_call=True,
-# )
-# def update_stylesheet_skt(
-#     node,
-#     slct_nodesdata,
-#     slct_edgedata,
-#     dd_nclr,
-#     dd_eclr,
-#     custom_nd_clr,
-#     custom_edg_clr,
-#     dd_nds,
-#     dd_egs,
-#     elements,
-# ):
-#     """Update cytoscape stylesheet for advanced version."""
-#     if not elements:
-#         raise PreventUpdate
-
-#     # Use default values if dropdowns not set
-#     dd_nclr = dd_nclr or "Default"
-#     dd_eclr = dd_eclr or "Default"
-#     dd_nds = dd_nds or "Default"
-#     dd_egs = dd_egs or "Number of studies"
-
-#     return __generate_skt_stylesheet(
-#         node,
-#         slct_nodesdata,
-#         elements,
-#         slct_edgedata,
-#         dd_nclr,
-#         dd_eclr,
-#         custom_nd_clr,
-#         custom_edg_clr,
-#         dd_nds,
-#         dd_egs,
-#     )
-
-
-# # Cytoscape layout change for Standard version
-# @callback(
-#     Output("cytoscape_skt2", "layout"),
-#     Input("kt-graph-layout-dropdown", "children"),
-#     prevent_initial_call=True,
-# )
-# def update_cytoscape_layout_skt2(layout_name):
-#     if not layout_name:
-#         raise PreventUpdate
-#     return {"name": layout_name.lower(), "animate": False, "fit": True}
-
-
-# # Cytoscape layout change for Advanced version
-# @callback(
-#     Output("cytoscape_skt", "layout"),
-#     Input("kt2-graph-layout-dropdown", "children"),
-#     prevent_initial_call=True,
-# )
-# def update_cytoscape_layout_skt(layout_name):
-#     if not layout_name:
-#         raise PreventUpdate
-#     return {"name": layout_name.lower(), "animate": False, "fit": True}
-
-
-# # FAQ toggle callbacks
-# @callback(
-#     Output("faq_toast", "is_open"),
-#     [Input("faq_button", "n_clicks"), Input("close_faq", "n_clicks")],
-#     [State("faq_toast", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_faq_toast(n_open, n_close, is_open):
-#     if n_open or n_close:
-#         return not is_open
-#     return is_open
-
-
-# # FAQ collapse callbacks
-# @callback(
-#     Output("faq_ans1", "is_open"),
-#     Input("faq_ques1", "n_clicks"),
-#     State("faq_ans1", "is_open"),
-#     prevent_initial_call=True,
-# )
-# def toggle_faq1(n_clicks, is_open):
-#     if n_clicks:
-#         return not is_open
-#     return is_open
-
-
-# @callback(
-#     Output("faq_ans2", "is_open"),
-#     Input("faq_ques2", "n_clicks"),
-#     State("faq_ans2", "is_open"),
-#     prevent_initial_call=True,
-# )
-# def toggle_faq2(n_clicks, is_open):
-#     if n_clicks:
-#         return not is_open
-#     return is_open
-
-
-# # Fullname modal toggle
-# @callback(
-#     Output("skt_modal_fullname_simple", "is_open"),
-#     [Input("fullname_button", "n_clicks"), Input("close_fullname_simple", "n_clicks")],
-#     [State("skt_modal_fullname_simple", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_fullname(n_open, n_close, is_open):
-#     if n_open or n_close:
-#         return not is_open
-#     return is_open
-
-
-# # Ranking modal toggle
-# @callback(
-#     Output("modal_ranking", "is_open"),
-#     [Input("ranking_button", "n_clicks"), Input("close_rank", "n_clicks")],
-#     [State("modal_ranking", "is_open")],
-#     prevent_initial_call=True,
-# )
-# def toggle_modal_ranking(n_open, n_close, is_open):
-#     if n_open or n_close:
-#         return not is_open
-#     return is_open
-
-
 
 from tools.functions_skt_abs_forest import __Change_Abs
 
@@ -499,7 +167,18 @@ clientside_callback(
 )
 
 
+@callback(
+    Output("modal_forest", "is_open"), 
+    Input("quickstart-grid", "cellClicked"),
+    Input("close_forest", "n_clicks"),
+)
 
+def display_forestplot2(cell, _):
+    if ctx.triggered_id == "close_forest":
+        return False
+    if cell is not None and len(cell) != 0 and 'colId' in cell and cell['colId'] == "direct" and cell['value'] is not None and cell['value']!= '':
+        return True
+    return no_update
 
 from tools.functions_show_forest_plot import __show_forest_plot
 
@@ -511,7 +190,6 @@ from tools.functions_show_forest_plot import __show_forest_plot
 )
 
 def show_forest_plot(cell, style_pair):
-    # print(cell)
     return __show_forest_plot(cell, style_pair)
 
 
@@ -524,7 +202,7 @@ def show_forest_plot(cell, style_pair):
     Input("quickstart-grid", "cellClicked"),
 )
 
-def display_sktinfo2(cell):
+def display_sktinfo3(cell):
     treat_comp, num_RCT, num_sample, mean_modif = '','','',''
     if  cell is not None and len(cell) != 0 and 'colId' in cell and cell['colId'] == "Treatment" and cell['value'] is not None and cell['value']!= '':
         df_n_rct = pd.read_csv('db/skt/final_all.csv')
@@ -567,7 +245,7 @@ def display_sktinfo2(cell):
     Input("close_trans", "n_clicks"),
 )
 
-def display_forestplot(cell, _):
+def display_transitivity(cell, _):
     if ctx.triggered_id == "close_trans":
         return False
     if ctx.triggered_id == "trans_button":
@@ -674,16 +352,18 @@ def display_sktinfo1(cell, _):
     return no_update
 
 
-from tools.kt_table_standard import df_origin
+# from tools.kt_table_standard import df_origin
 
-@callback(Output("grid_treat_compare", "rowData"),
-              [Input('cytoscape_skt2', 'selectedNodeData'),
-              Input('cytoscape_skt2', 'selectedEdgeData')
-               ],
-            #   State("grid_treat_compare", "rowData")
-              )
-def filter_data(node_data, edge_data):
-    rowdata = df_origin
+@callback(
+        Output("grid_treat_compare", "rowData", allow_duplicate=True),
+        [Input('cytoscape_skt2', 'selectedNodeData'), 
+         Input('cytoscape_skt2', 'selectedEdgeData')],
+        State("grid_treat_compare", "rowData"),
+        State("KT_standard_data_STORAGE", "data"),
+        prevent_initial_call=True
+)
+def filter_data(node_data, edge_data, rowdata, kt_data):
+    rowdata = pd.DataFrame(kt_data)
 
     if node_data or edge_data:
         slctd_nods = {n['id'] for n in node_data} if node_data else set()
@@ -691,23 +371,28 @@ def filter_data(node_data, edge_data):
         rowdata = rowdata[(rowdata.Treatment.isin(slctd_nods) & rowdata.Reference.isin(slctd_nods))
                     | ((rowdata.Treatment + rowdata.Reference).isin(slctd_edgs) | (rowdata.Reference + rowdata.Treatment).isin(slctd_edgs))]
 
-    return rowdata.to_dict("records")
+    return rowdata.to_dict('records')
 
 
-
+import re
 @callback(
     Output("skt_modal_compare_simple", "is_open"), 
     Input("grid_treat_compare", "cellClicked"),
     Input("close_compare_simple", "n_clicks"),
 )
 
-def display_sktinfo(cell, _):
+def display_sktinfo2(cell, _):
+
     if ctx.triggered_id == "close_compare_simple":
         return False
     if cell is None or len(cell) == 0:  
         return False
     else:
-        if ('colId' in cell and (cell['colId'] == "RR"or cell['colId'] == "RR_out2") and cell['value']is not None):
+        if (
+            'colId' in cell
+            and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+            and cell.get('value') is not None
+        ):
             return True
     return no_update
 
@@ -732,7 +417,7 @@ def display_forestplot1(cell, _):
     Input("close_rank", "n_clicks"),
 )
 
-def display_forestplot2(cell, _):
+def display_ranking(cell, _):
     if ctx.triggered_id == "close_rank":
         return False
     if ctx.triggered_id == "ranking_button":
@@ -892,6 +577,7 @@ from tools.functions_modal_info import display_modal_barplot
 )
 
 def display_sktinfo(cell,value,rowdata):
+    # print(cell)
     return display_modal_barplot(cell,value,rowdata)
 
 
@@ -902,11 +588,12 @@ from tools.functions_modal_info import display_modal_text
     Output("text_info_col", "children"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
-    State('grid_treat_compare','rowData')
+    State('grid_treat_compare','rowData'),
+    State("outcome_names_STORAGE", "data")
 )
 
-def display_textinfo(cell,value,rowdata):
-    return display_modal_text(cell,value,rowdata)
+def display_textinfo(cell,value,rowdata, outcome_names):
+    return display_modal_text(cell,value,rowdata, outcome_names)
 
 from tools.functions_modal_info import display_modal_data
 
@@ -1166,26 +853,77 @@ def redirect_kt_on_reset(current_path, results_ready):
 # ================================
 # DATA LOADING FROM STORAGE CALLBACKS
 # ================================
-
-
 @callback(
-    Output("cytoscape_skt2", "elements", allow_duplicate=True),
-    [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
+    Output("KT_standard_data_STORAGE", "data"),
+    Output("grid_treat_compare", "rowData"),
+    Output("grid_treat_compare", "columnDefs"),
+    Input("kt_page_location", "pathname"), 
+    State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
+    State("forest_data_STORAGE", "data"),
+    State("number_outcomes_STORAGE", "data"),
+    State("outcome_names_STORAGE", "data"),
+    State("KT_standard_data_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def update_skt_network_from_storage(results_ready, pathname, net_data_storage):
-    """
-    Update the Standard KT network graph with data from STORAGE.
-    """
-    if not results_ready or not net_data_storage:
+def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
+    if not results_ready or not net_data or not forest_data_STORAGE:
         raise PreventUpdate
+    
+    from tools.utils import get_net_data_json
 
-    elements = get_skt_network_elements(net_data_storage, outcome_idx=0)
-    if not elements:
-        raise PreventUpdate
+    net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
-    return elements
+    num_outcomes = int(num_outcomes or 0)
+    effect_sizes = [
+        net_df[f"effect_size{i+1}"].iloc[0]
+        for i in range(num_outcomes)
+        if f"effect_size{i+1}" in net_df.columns
+    ]
+    data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
+    data["index"] = data.index
+    
+
+    ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
+
+    return (
+        data.to_dict("records"),
+        data.to_dict("records"),
+        ColumnDefs_treat_compare,
+    )
+
+
+
+# @callback(
+#     Output("KT_standard_data_STORAGE", "data"),
+#     # Input("KT_standard_data_STORAGE", "data"),
+#     State("KT_standard_data_STORAGE", "data"),
+#     prevent_initial_call="initial_duplicate",
+# )
+# def generate_kt_standad_data(kt_standard_data2):
+#     print(kt_standard_data2)
+#     kt_standard_data = {}
+#     return {}
+
+
+# @callback(
+#     Output("cytoscape_skt2", "elements", allow_duplicate=True),
+#     [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
+#     State("net_data_STORAGE", "data"),
+#     prevent_initial_call="initial_duplicate",
+# )
+# def update_skt_network_from_storage(results_ready, pathname, net_data_storage):
+#     """
+#     Update the Standard KT network graph with data from STORAGE.
+#     """
+#     if not results_ready or not net_data_storage:
+#         raise PreventUpdate
+
+#     elements = get_skt_network_elements(net_data_storage, outcome_idx=0)
+#     if not elements:
+#         raise PreventUpdate
+
+#     return elements
 
 
 @callback(
@@ -1208,63 +946,7 @@ def update_skt_advanced_network_from_storage(results_ready, pathname, net_data_s
     return elements
 
 
-@callback(
-    Output("grid_treat_compare", "rowData", allow_duplicate=True),
-    [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
-    [
-        State("forest_data_STORAGE", "data"),
-        State("cinema_net_data_STORAGE", "data"),
-        State("outcome_names_STORAGE", "data"),
-    ],
-    prevent_initial_call="initial_duplicate",
-)
-def update_skt_standard_grid_from_storage(
-    results_ready, pathname, forest_data_storage, cinema_storage, outcome_names
-):
-    """
-    Update the Standard KT comparison grid with data from STORAGE.
-    """
-    if not results_ready or not forest_data_storage:
-        raise PreventUpdate
 
-    try:
-        df = get_skt_two_outcome_data(
-            forest_data_storage, cinema_storage, outcome_names
-        )
-        if df.empty:
-            print("[DEBUG] update_skt_standard_grid: df is empty")
-            raise PreventUpdate
-
-        # Format RR columns for display
-        if "RR" in df.columns and "CI_lower" in df.columns and "CI_upper" in df.columns:
-            df["RR"] = df.apply(
-                lambda row: f"{row['RR']:.2f}\n({row['CI_lower']:.2f} to {row['CI_upper']:.2f})"
-                if pd.notna(row["RR"])
-                else "",
-                axis=1,
-            )
-        if (
-            "RR_out2" in df.columns
-            and "CI_lower_out2" in df.columns
-            and "CI_upper_out2" in df.columns
-        ):
-            df["RR_out2"] = df.apply(
-                lambda row: f"{row['RR_out2']:.2f}\n({row['CI_lower_out2']:.2f} to {row['CI_upper_out2']:.2f})"
-                if pd.notna(row.get("RR_out2"))
-                else "",
-                axis=1,
-            )
-
-        df["index"] = range(len(df))
-        df["switch"] = np.nan
-        print(f"[DEBUG] update_skt_standard_grid: returning {len(df)} rows")
-        return df.to_dict("records")
-    except Exception as e:
-        print(f"[ERROR] update_skt_standard_grid: {e}")
-        import traceback
-
-        traceback.print_exc()
-        raise PreventUpdate
 
 
 @callback(

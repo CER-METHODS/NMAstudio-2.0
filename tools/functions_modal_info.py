@@ -3,7 +3,7 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from dash import html
 import numpy as np
-
+import re
 
 def display_modal_barplot(cell, value, rowdata):
     # print(cell)
@@ -13,7 +13,11 @@ def display_modal_barplot(cell, value, rowdata):
         return fig, header
 
     rowdata = pd.DataFrame(rowdata)
-    if "colId" in cell and (cell["colId"] == "RR" or cell["colId"] == "RR_out2"):
+    if (
+            'colId' in cell
+            and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+            and cell.get('value') is not None
+        ):
         first_part = cell["value"].split("\n")[0]
         rr = float(first_part)
         row_idx = cell["rowIndex"]
@@ -103,14 +107,18 @@ def display_modal_barplot(cell, value, rowdata):
     return fig, header
 
 
-def display_modal_text(cell, value, rowdata):
+def display_modal_text(cell, value, rowdata, outcome_names):
     if cell is None or len(cell) == 0:
         # risk_range = html.P("")
         info_col = html.Span("")
         return info_col
 
     rowdata = pd.DataFrame(rowdata)
-    if "colId" in cell and (cell["colId"] == "RR" or cell["colId"] == "RR_out2"):
+    if (
+        'colId' in cell
+        and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+        and cell.get('value') is not None
+    ):
         row_idx = cell["rowIndex"]
 
         if value:
@@ -118,14 +126,26 @@ def display_modal_text(cell, value, rowdata):
         else:
             value = 20
 
-        if cell["colId"] == "RR":
-            out = "PASI90"
-            rr_low = rowdata.loc[row_idx, "CI_lower"]
-            rr_up = rowdata.loc[row_idx, "CI_upper"]
-        else:
-            out = "SAE"
-            rr_low = rowdata.loc[row_idx, "CI_lower_out2"]
-            rr_up = rowdata.loc[row_idx, "CI_upper_out2"]
+        colid = str(cell.get("colId"))
+        # Determine outcome index from column id (expects RR_outN_label)
+        m = re.search(r"RR_out(\d+)", colid)
+        idx = int(m.group(1)) if m else 1
+
+        # Resolve outcome display name from outcome_names if provided
+        try:
+            if outcome_names and len(outcome_names) >= idx and outcome_names[idx - 1]:
+                out = outcome_names[idx - 1]
+            else:
+                out = f"Outcome {idx}"
+        except Exception:
+            out = f"Outcome {idx}"
+
+        # Outcome-specific CI columns
+        rr_low_col = f"CI_lower_out{idx}"
+        rr_up_col = f"CI_upper_out{idx}"
+
+        rr_low = rowdata.loc[row_idx, rr_low_col] if rr_low_col in rowdata.columns else None
+        rr_up = rowdata.loc[row_idx, rr_up_col] if rr_up_col in rowdata.columns else None
 
         first_part = cell["value"].split("\n")[0]
         rr = float(first_part)
@@ -133,7 +153,7 @@ def display_modal_text(cell, value, rowdata):
         treatment = rowdata.loc[row_idx, "Treatment"]
         compare = rowdata.loc[row_idx, "Reference"]
 
-        ab_treat = int(rr * value)
+        ab_treat = int(rr * value) if rr is not None else 0
         ab_diff = ab_treat - value
         span_diff = (
             f"{ab_diff} more per 1000"
@@ -141,14 +161,14 @@ def display_modal_text(cell, value, rowdata):
             else f"{abs(ab_diff)} less per 1000"
         )
 
-        ab_diff_low = int(rr_low * value) - value
+        ab_diff_low = int(rr_low * value) - value if rr_low is not None else 0
         span_diff_low = (
             f"{ab_diff_low} more per 1000"
             if ab_diff_low > 0
             else f"{abs(ab_diff_low)} less per 1000"
         )
 
-        ab_diff_up = int(rr_up * value) - value
+        ab_diff_up = int(rr_up * value) - value if rr_up is not None else 0
         span_diff_up = (
             f"{ab_diff_up} more per 1000"
             if ab_diff_up > 0
@@ -188,7 +208,7 @@ def display_modal_data(cell, rowdata, rowdata_modal):
         return rowdata_modal.to_dict("records")
 
     # Load modal data
-    df_modal = pd.read_csv("db/psoriasis_wide_complete1.csv")
+    df_modal = pd.read_csv("db/psoriasis_wide_complete.csv")
 
     # Check if the column is 'RR'
     if cell.get("colId") == "RR" or cell.get("colId") == "RR_out2":
@@ -260,8 +280,8 @@ def display_modal_data(cell, rowdata, rowdata_modal):
         # Add an empty column 'RR_ci' since the DataFrame is empty
         filtered_df["RR_ci"] = pd.Series(dtype="str")
     # Replace 'bias' values with descriptive terms
-    filtered_df["bias"] = filtered_df["bias"].replace(
-        {"L": "Low", "M": "Moderate", "H": "High"}
+    filtered_df["rob"] = filtered_df["rob"].replace(
+        {1: "Low", 2: "Moderate", 3: "High"}
     )
 
     # Add 'ntc' and 'link' columns

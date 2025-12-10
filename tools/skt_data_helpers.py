@@ -10,6 +10,373 @@ import numpy as np
 from io import StringIO
 from tools.utils import get_net_data_json, get_league_table_data_list
 
+# def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes):
+#     """
+#     Generate standard KT data structure from forest_data_STORAGE.
+
+#     Args:
+#         forest_data_STORAGE: List of JSON strings for forest data
+#         num_outcomes: Number of outcomes in the project
+
+#     Returns:
+#         Dict with keys 'skt_df_outcome_1', 'skt_df_outcome_2', ..., each containing
+#         the corresponding DataFrame for that outcome.
+#     """
+#     # Expecting `forest_data_STORAGE` to be a list-like of JSON strings (orient='split')
+#     if not forest_data_STORAGE:
+#         return pd.DataFrame()
+
+#     dfs = []
+#     for idx in range(num_outcomes):
+#         if idx >= len(forest_data_STORAGE):
+#             break
+#         item = forest_data_STORAGE[idx]
+#         if not item:
+#             continue
+
+#         # parse into DataFrame
+#         if isinstance(item, str):
+#             try:
+#                 df = pd.read_json(StringIO(item), orient="split")
+#             except Exception:
+#                 # fallback: try direct json parsing
+#                 try:
+#                     df = pd.read_json(item)
+#                 except Exception:
+#                     continue
+#         elif isinstance(item, pd.DataFrame):
+#             df = item.copy()
+#         else:
+#             # unsupported type
+#             continue
+
+#         # require Treatment/Reference columns
+#         if "Treatment" not in df.columns or "Reference" not in df.columns:
+#             # skip datasets without the required key columns
+#             continue
+
+#         # prepare outcome-specific column names
+#         out_idx = idx + 1
+#         suffix = f"_out{out_idx}"
+#         col_map = {}
+#         if "RR" in df.columns:
+#             col_map["RR"] = f"RR{suffix}"
+#         if "CI_lower" in df.columns:
+#             col_map["CI_lower"] = f"CI_lower{suffix}"
+#         if "CI_upper" in df.columns:
+#             col_map["CI_upper"] = f"CI_upper{suffix}"
+
+#         # build subset with Treatment/Reference and renamed outcome cols
+#         keep_cols = ["Treatment", "Reference"] + list(col_map.keys())
+#         subset = df.loc[:, [c for c in keep_cols if c in df.columns]].copy()
+#         if col_map:
+#             subset = subset.rename(columns=col_map)
+
+#         dfs.append(subset)
+
+#     if not dfs:
+#         return pd.DataFrame()
+
+#     # Merge all outcomes on Treatment & Reference (outer to keep all pairs)
+#     merged = dfs[0]
+#     for df in dfs[1:]:
+#         merged = pd.merge(merged, df, on=["Treatment", "Reference"], how="outer")
+
+#     # Remove duplicate unordered pairs (A vs B and B vs A)
+#     # Option B behaviour: when both orientations present, keep the row where Treatment < Reference (lexicographic).
+#     # If only one orientation exists, keep it as-is.
+#     def _pair_key_vals(a, b):
+#         try:
+#             return "::".join(sorted([str(a), str(b)]))
+#         except Exception:
+#             return None
+
+#     merged["_pair_key"] = merged.apply(lambda r: _pair_key_vals(r["Treatment"], r["Reference"]), axis=1)
+
+#     keep_idx = []
+#     for key, grp in merged.groupby("_pair_key"):
+#         if key is None:
+#             # keep rows with no valid key
+#             keep_idx.extend(list(grp.index))
+#             continue
+#         if len(grp) == 1:
+#             keep_idx.append(grp.index[0])
+#             continue
+
+#         # if any row already has Treatment < Reference, pick the first such row
+#         try:
+#             comp = grp["Treatment"].astype(str) < grp["Reference"].astype(str)
+#             if comp.any():
+#                 keep_idx.append(grp.index[comp.values.argmax()])
+#             else:
+#                 # otherwise keep the first row
+#                 keep_idx.append(grp.index[0])
+#         except Exception:
+#             keep_idx.append(grp.index[0])
+
+#     merged = merged.loc[keep_idx].copy()
+#     merged = merged.drop(columns=["_pair_key"]).reset_index(drop=True)
+
+#     # Drop self-comparisons where Treatment == Reference
+#     merged = merged.loc[merged["Treatment"] != merged["Reference"]].reset_index(drop=True)
+
+#     # Create formatted RR label columns while preserving numeric RR and CI columns.
+#     # This keeps compatibility with other code that expects numeric fields,
+#     # and also provides a display-friendly string field named e.g. `RR_out1_label`.
+#     import re
+
+#     for i in range(1, int(num_outcomes or 1) + 1):
+#         rr_col = f"RR_out{i}"
+#         low_col = f"CI_lower_out{i}"
+#         up_col = f"CI_upper_out{i}"
+#         label_col = f"{rr_col}_label"
+
+#         if rr_col in merged.columns:
+#             # Build formatted label and attempt to preserve numeric columns.
+#             def _build_label_and_values(row):
+#                 rr = row.get(rr_col)
+#                 low = row.get(low_col) if low_col in row.index else None
+#                 up = row.get(up_col) if up_col in row.index else None
+
+#                 label = ""
+#                 try:
+#                     if pd.notna(rr) and pd.notna(low) and pd.notna(up):
+#                         label = f"{float(rr):.2f} \n({float(low):.2f}, {float(up):.2f})"
+#                     elif pd.notna(rr):
+#                         label = f"{float(rr):.2f}"
+#                     else:
+#                         label = ""
+#                 except Exception:
+#                     # non-numeric fallback
+#                     try:
+#                         label = "" if rr is None else str(rr)
+#                     except Exception:
+#                         label = ""
+
+#                 # Try to parse numeric values back from label if original numeric cols missing
+#                 rr_val = None
+#                 low_val = None
+#                 up_val = None
+#                 try:
+#                     # regex to extract numeric parts: allow decimals and scientific
+#                     m = re.search(r"([\-\d\.eE]+)\s*\(?\s*([\-\d\.eE]+)[,\s]+([\-\d\.eE]+)\)?", label)
+#                     if m:
+#                         rr_val = float(m.group(1))
+#                         low_val = float(m.group(2))
+#                         up_val = float(m.group(3))
+#                     else:
+#                         # single numeric value
+#                         m2 = re.search(r"([\-\d\.eE]+)", label)
+#                         if m2:
+#                             rr_val = float(m2.group(1))
+#                 except Exception:
+#                     rr_val = None
+#                     low_val = None
+#                     up_val = None
+
+#                 return pd.Series({label_col: label, rr_col: rr_val if rr_val is not None else rr, low_col: low_val if low_val is not None else low, up_col: up_val if up_val is not None else up})
+
+#             # Apply and merge results back
+#             filled = merged.apply(_build_label_and_values, axis=1)
+#             merged[label_col] = filled[label_col]
+#             # Update numeric columns only if they weren't present or we parsed values
+#             if rr_col not in merged.columns or True:
+#                 merged[rr_col] = filled[rr_col]
+#             if low_col in filled.columns:
+#                 merged[low_col] = filled[low_col]
+#             if up_col in filled.columns:
+#                 merged[up_col] = filled[up_col]
+
+#     return merged
+
+
+
+def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
+    if not forest_data_STORAGE:
+        return pd.DataFrame()
+
+    def to_df(item):
+        if isinstance(item, pd.DataFrame):
+            return item.copy()
+        if isinstance(item, str):
+            for orient in ("split", None):
+                try:
+                    return pd.read_json(StringIO(item), orient=orient) if orient else pd.read_json(item)
+                except Exception:
+                    pass
+        return None
+
+    dfs = []
+
+    for i in range(min(num_outcomes, len(forest_data_STORAGE))):
+        df = to_df(forest_data_STORAGE[i])
+        if df is None or not {"Treatment", "Reference"}.issubset(df.columns):
+            continue
+        effect_s = effect_sizes[i]
+        suf = f"_out{i+1}"
+        col_map = {
+            f"{effect_s}": f"{effect_s}{suf}",
+            "CI_lower": f"CI_lower{suf}",
+            "CI_upper": f"CI_upper{suf}",
+        }
+
+        keep = ["Treatment", "Reference"] + [c for c in col_map if c in df.columns]
+        
+        dfs.append(df[keep].rename(columns=col_map))
+
+    if not dfs:
+        return pd.DataFrame()
+
+    merged = dfs[0]
+    for df in dfs[1:]:
+        merged = merged.merge(df, on=["Treatment", "Reference"], how="outer")
+
+    # remove duplicate unordered pairs + self comparisons
+    merged["_k"] = merged.apply(
+        lambda r: "::".join(sorted(map(str, [r["Treatment"], r["Reference"]]))),
+        axis=1,
+    )
+
+    merged = (
+        merged[merged["Treatment"] != merged["Reference"]]
+        .sort_values(["_k"])
+        .drop_duplicates("_k")
+        .drop(columns="_k")
+        .reset_index(drop=True)
+    )
+
+    # build display labels
+    for i in range(1, int(num_outcomes or 1) + 1):
+        effect_s = effect_sizes[i-1]
+        rr, lo, hi = f"{effect_s}_out{i}", f"CI_lower_out{i}", f"CI_upper_out{i}"
+        lbl = f"{rr}_label"
+
+        if rr not in merged.columns:
+            continue
+
+        def fmt(r):
+            try:
+                if pd.notna(r[rr]) and pd.notna(r.get(lo)) and pd.notna(r.get(hi)):
+                    return f"{float(r[rr]):.2f} \n({float(r[lo]):.2f}, {float(r[hi]):.2f})"
+                if pd.notna(r[rr]):
+                    return f"{float(r[rr]):.2f}"
+            except Exception:
+                pass
+            return ""
+
+        merged[lbl] = merged.apply(fmt, axis=1)
+
+    return merged
+
+
+def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
+    """
+    Generate column definitions for standard KT data grid.
+
+    Args:
+        num_outcomes: Number of outcomes in the project
+        outcome_names: List of outcome names (e.g., ["PASI90", "SAE"]) 
+    Returns:
+        List of column definition dicts for AG Grid.
+    """
+    style_certainty = {
+        "white-space": "pre",
+        "display": "grid",
+        "text-align": "center",
+        "alignItems": "center",
+        "border-left": "solid 0.8px",
+    }
+
+    cols = []
+
+    # Treatment column
+    cols.append(
+        {
+            "headerName": "Treatment",
+            "field": "Treatment",
+            "suppressHeaderMenuButton": True,
+            "editable": False,
+            "resizable": False,
+            "cellStyle": {"font-weight": "bold"},
+        }
+    )
+
+    # Switch column (button)
+    cols.append(
+        {
+            "headerName": "Switch",
+            "suppressHeaderMenuButton": True,
+            "field": "switch",
+            "editable": False,
+            "resizable": False,
+            "headerComponent": "HeaderWithIcon",
+            "cellRenderer": "DMC_Button",
+            "cellRendererParams": {"icon": "subway:round-arrow-3", "color": "#ffc000"},
+            "cellStyle": {"background-color": "white", "white-space": "pre"},
+        }
+    )
+
+    # Comparator column
+    cols.append(
+        {
+            "headerName": "Comparator",
+            "field": "Reference",
+            "suppressHeaderMenuButton": True,
+            "editable": False,
+            "resizable": False,
+            "cellStyle": {"white-space": "pre", "font-weight": "bold", "border-right": "solid 0.8px"},
+        }
+    )
+
+    # Add grouped columns per outcome
+    for i in range(1, max(1, int(num_outcomes or 1)) + 1):
+        effect_s = effect_sizes[i-1]
+        header_name = None
+        try:
+            if outcome_names and len(outcome_names) >= i and outcome_names[i - 1]:
+                header_name = outcome_names[i - 1]
+        except Exception:
+            header_name = None
+        if not header_name:
+            header_name = f"Outcome {i}"
+
+        # display the formatted label column created by Generate_kt_standad_data
+        rr_field = f"{effect_s}_out{i}_label"
+        cert_field = f"Certainty_out{i}"
+
+        children = [
+            {"field": rr_field, "headerName": f"{effect_s}", "headerComponent": "HeaderWithIcon", "suppressHeaderMenuButton": True},
+            {
+                "field": cert_field,
+                "suppressHeaderMenuButton": True,
+                "headerName": "Certainty",
+                "resizable": False,
+                "headerComponent": "HeaderWithIcon",
+                "tooltipField": cert_field,
+                "tooltipComponentParams": {"color": "#d8f0d3"},
+                "tooltipComponent": "CustomTooltip",
+                "cellStyle": {
+                    "styleConditions": [
+                        {"condition": "params.value == 'High'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
+                        {"condition": "params.value == 'Low'", "style": {"backgroundColor": "#B85042", **style_certainty}},
+                        {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},
+                    ]
+                },
+            },
+        ]
+
+        cols.append(
+            {
+                "headerName": header_name,
+                "headerClass": "center-aligned-group-header",
+                "resizable": False,
+                "suppressStickyLabel": True,
+                "children": children,
+            }
+        )
+
+    return cols
+
 
 def get_skt_final_data(forest_data_storage, net_split_data_storage, outcome_idx=0):
     """

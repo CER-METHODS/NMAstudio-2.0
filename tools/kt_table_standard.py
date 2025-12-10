@@ -13,26 +13,26 @@ AG_GRID_KEY = os.environ.get("AG_GRID_KEY", "")
 
 # Empty placeholder DataFrames for initial layout
 # Real data will be populated from STORAGE via callbacks
-# df = pd.DataFrame(
-#     {
-#         "Treatment": [],
-#         "Reference": [],
-#         "RR": [],
-#         "CI_lower": [],
-#         "CI_upper": [],
-#         "RR_out2": [],
-#         "CI_lower_out2": [],
-#         "CI_upper_out2": [],
-#         "Certainty_out1": [],
-#         "Certainty_out2": [],
-#         "switch": [],
-#         "index": [],
-#     }
-# )
+df = pd.DataFrame(
+    {
+        "Treatment": [],
+        "Reference": [],
+        "RR": [],
+        "CI_lower": [],
+        "CI_upper": [],
+        "RR_out2": [],
+        "CI_lower_out2": [],
+        "CI_upper_out2": [],
+        "Certainty_out1": [],
+        "Certainty_out2": [],
+        "switch": [],
+        "index": [],
+    }
+)
 
-data = pd.read_csv('db/skt/skt_df_two.csv')
-df = pd.DataFrame(data)
-df["index"] = df.index
+# data = pd.read_csv('db/skt/skt_df_two.csv')
+# df = pd.DataFrame(data)
+# df["index"] = df.index
 # treat_list = np.unique(df.Treatment).tolist()
 
 # combinations = list(itertools.combinations(treat_list, 2))
@@ -51,12 +51,12 @@ df["index"] = df.index
 
 
 
-df['switch']=np.nan
-df = np.round(df,2)
+# df['switch']=np.nan
+# df = np.round(df,2)
 
-df['RR'] = df.apply(lambda row: f"{row['RR']}\n({row['CI_lower']} to {row['CI_upper']})", axis=1)
+# df['RR'] = df.apply(lambda row: f"{row['RR']}\n({row['CI_lower']} to {row['CI_upper']})", axis=1)
 
-df['RR_out2'] = df.apply(lambda row: f"{row['RR_out2']}\n({row['CI_lower_out2']} to {row['CI_upper_out2']})", axis=1)
+# df['RR_out2'] = df.apply(lambda row: f"{row['RR_out2']}\n({row['CI_lower_out2']} to {row['CI_upper_out2']})", axis=1)
 
 
 df_origin = df.copy()
