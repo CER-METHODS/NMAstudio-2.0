@@ -2,9 +2,10 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-def __show_boxplot(value):
+def __show_boxplot(value, net_data):
     if value:
-        net_data = pd.read_csv("db/psoriasis_wide_complete.csv")
+        from tools.utils import get_net_data_json
+        net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
         try:
             df = net_data[["treat1", "treat2", value]].copy()
         except:
@@ -129,11 +130,12 @@ def __show_boxplot(value):
     return fig
 
 
-def __show_scatter(value):
+def __show_scatter(value, net_data):
     """Show scatter plot for transitivity check."""
     active, non_active = "#1B58E2", "#313539"
     if value:
-        net_data = pd.read_csv("db/psoriasis_wide_complete.csv")
+        from tools.utils import get_net_data_json
+        net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
         try:
             if "sample_size" in net_data.columns:

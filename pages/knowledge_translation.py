@@ -255,11 +255,13 @@ def display_transitivity(cell, _):
 
 @callback(Output('boxplot_skt', 'figure'),
               Input('box_kt_scatter', 'value'),
-              Input('ddskt-trans', 'value'),)
-def update_boxplot(scatter, value):
+              Input('ddskt-trans', 'value'),
+              State('net_data_STORAGE', 'data'),
+              )
+def update_boxplot(scatter, value, net_data):
     if scatter:
-        return __show_scatter(value)
-    return __show_boxplot(value)
+        return __show_scatter(value, net_data)
+    return __show_boxplot(value, net_data)
 
 
 
@@ -422,6 +424,17 @@ def display_ranking(cell, _):
     if ctx.triggered_id == "ranking_button":
         return True
     return no_update
+
+
+from tools.functions_ranking_plots import __ranking_plot_skt
+@callback(Output('tab-rank1', 'figure'),
+              Input("ranking_button", "n_clicks"),
+              State('ranking_data_STORAGE', 'data'),
+              State('net_data_STORAGE', 'data'),
+              State('outcome_names_STORAGE', 'data'),
+              )
+def update_boxplot(cell, ranking_data, net_data, outcome_names):
+    return __ranking_plot_skt(ranking_data, net_data, outcome_names)
 
 
 # --- Helper to pick the latest clicked button ---
@@ -864,6 +877,7 @@ def redirect_kt_on_reset(current_path, results_ready):
     Output("KT_standard_data_STORAGE", "data"),
     Output("grid_treat_compare", "rowData"),
     Output("grid_treat_compare", "columnDefs"),
+    Output('cytoscape_skt2', 'elements'),
     Input("kt_page_location", "pathname"), 
     State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
@@ -892,12 +906,86 @@ def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STO
     
 
     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
-
+    element = get_skt_elements(net_df)
     return (
         data.to_dict("records"),
         data.to_dict("records"),
         ColumnDefs_treat_compare,
+        element
     )
+
+
+
+@callback(
+    [
+        Output("kt_numstudies", "children"),
+        Output("kt_int", "children"),
+        Output("kt_par", "children"),
+        Output("kt_com", "children"),
+    ],
+    Input("kt_page_location", "pathname"),
+    State("net_data_STORAGE", "data"),
+    prevent_initial_call= True,
+)
+def infor_overall(curr_path, net_data):
+    if not net_data:
+        raise PreventUpdate
+    
+    from tools.utils import get_net_data_json
+    import itertools
+    net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    n_studies = len(net_data.studlab.unique())
+    num_study = f"Number of studies: {n_studies}"
+
+    combined_treats = pd.concat([net_data["treat1"], net_data["treat2"]])
+    n_treat = combined_treats.nunique()
+    num_treat = f"Number of interventions: {n_treat}"
+    
+    unique_combinations = list(itertools.combinations(combined_treats.unique(), 2))
+    num_unique_combinations = len(unique_combinations)
+
+    num_com = f"Number of comparisons: {num_unique_combinations}"
+    if "sample_size" in net_data.columns:
+        # Drop duplicate study labels so each study counts once
+        unique_studies =  net_data[["studlab", "sample_size"]].drop_duplicates("studlab")
+        # Sum sample sizes (ignore NaN)
+        total_sample_size = unique_studies["sample_size"].dropna().sum()
+        # Only show if > 0
+        num_par = f"Number of participants: {int(total_sample_size)}" if total_sample_size > 0 else ""
+    else:
+        num_par = ""
+    
+    return [num_study], [num_treat], [num_com], [num_par]
+
+
+@callback(
+    Output("kt_modifiers_info", "children"),
+    Output("ddskt-trans", "options"),
+    Output("stand-sktdropdown-out", "options"),
+    Input("kt_page_location", "pathname"),
+    State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data"),
+    State("outcome_names_STORAGE", "data"),
+    prevent_initial_call= True,
+)
+def infor_effectmodifier(curr_path, net_data, effect_modifiers, out_names):
+    if not net_data:
+        raise PreventUpdate
+    
+    from tools.utils import get_net_data_json
+    net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    n_effect_modifiers = len(effect_modifiers) if effect_modifiers else 0
+    children = []
+    for i in range(n_effect_modifiers):
+        modifier_name = effect_modifiers[i]
+        if modifier_name in net_data.columns:
+            unique_studies =  net_data[["studlab", f"{modifier_name}"]].drop_duplicates("studlab")
+            # Sum sample sizes (ignore NaN)
+            median_modifier = unique_studies[f"{modifier_name}"].dropna().median()
+            children.append(html.Span(f"Median {modifier_name}: {median_modifier}",className='skt_span1'))
+    options = [{'label': '{}'.format(col), 'value': col} for col in effect_modifiers]
+    options_out = [{'label': '{}'.format(col), 'value': i} for i, col in enumerate(out_names)]
+    return children, options, options_out
 
 
 

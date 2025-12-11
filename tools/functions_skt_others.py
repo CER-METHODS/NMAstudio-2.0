@@ -470,8 +470,8 @@ import dash
 from assets.COLORS import *
 from assets.cytoscape_styleesheeet import get_stylesheet
 
-def get_skt_elements():
-    df = pd.read_csv('db/psoriasis_wide_complete1.csv')
+def get_skt_elements(net_data):
+    df = net_data.copy()
     num_classes = None
     i=0
     df = df.dropna(subset=[f'TE{i+1}', f'seTE{i+1}'])

@@ -353,10 +353,9 @@ def __ranking_scatter(
 
 
 
-def __ranking_plot_skt():
+def __ranking_plot_skt(ranking_list, net_data, outcomes):
     # Load ranking CSVs
-    ranking_files = ["db/ranking/rank.csv", "db/ranking/rank2.csv"]
-    ranking_data = [pd.read_csv(path) for path in ranking_files]
+    ranking_data = [pd.read_json(StringIO(r), orient="split") for r in ranking_list]
 
     # Start with the first ranking file
     df = ranking_data[0].copy()
@@ -373,8 +372,8 @@ def __ranking_plot_skt():
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
 
     # Outcomes and additional data
-    outcomes = ["PASI90", "SAE"]
-    net_storage = pd.read_csv("db/psoriasis_wide_complete.csv", encoding="iso-8859-1")
+    from tools.utils import get_net_data_json
+    net_storage = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
     # Adjust scores based on outcome direction
     df1 = df.copy(deep=True)

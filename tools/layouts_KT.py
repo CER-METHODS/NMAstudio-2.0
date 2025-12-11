@@ -168,16 +168,19 @@ def skt_nonexpert():
                                                                               ],className='tab1_col2'),
                                                            dbc.Col(dbc.Toast(
                                                                               [html.Span('Overall Info', className='study_design'),
-                                                                              html.Span('Number of studies: 96',className='skt_span1'),
-                                                                              html.Span('Number of interventions: 20', className='skt_span1'),
-                                                                              html.Span('Number of participants: 1020',className='skt_span1'), 
-                                                                              html.Span('Number of comparisons: 190', className='skt_span1'),
+                                                                              html.Span(className='skt_span1', id="kt_numstudies"),
+                                                                              html.Span(className='skt_span1', id="kt_int"),
+                                                                              html.Span(className='skt_span1',id="kt_par"), 
+                                                                              html.Span(className='skt_span1',id="kt_com"),
                                                                               ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'25%'}),
                                                             dbc.Col(dbc.Toast(
                                                                               [
                                                                               html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                              html.Span('Mean age: 45.3',className='skt_span1'),
-                                                                              html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                               dbc.Col(
+                                                                                #    [
+                                                                                #    html.Span('Mean age: 45.3',className='skt_span1'),
+                                                                                #    html.Span('Mean male percentage: 43.4%',className='skt_span1')],
+                                                                                   id = 'kt_modifiers_info'),
                                                                               html.Button('Distribution of modifiers', id='trans_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
                                                                                                                    'background-color':'#dedecf',
@@ -213,7 +216,7 @@ def skt_nonexpert():
                                                                                                 'align-items': 'center',
                                                                                                 'font-weight':'bold',
                                                                                                 'color':'rgb(184, 80, 66)', 'font-size': 'small'}),
-                                                                                    dcc.Dropdown(id='stand-sktdropdown-out', options=[{'label': 'PASI90', 'value': 0}, {'label': 'SAE', 'value': 1}],
+                                                                                    dcc.Dropdown(id='stand-sktdropdown-out',
                                                                                         clearable=False, placeholder="",value = 0)], style={'display': 'flex', 
                                                                                                                             'align-items': 'center',
                                                                                                                             'justify-content': 'space-evenly'}
@@ -232,7 +235,7 @@ def skt_nonexpert():
                                                                         dbc.Row([
                                                                             dbc.Col([cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
                                                                                     minZoom=0.6,  maxZoom=1.5,  panningEnabled=True,   
-                                                                                    elements=get_skt_elements(),
+                                                                                    # elements=get_skt_elements(),
                                                                                     style={ 
                                                                                         'height': '94%', 
                                                                                         'width': '100%', 
@@ -628,7 +631,8 @@ model_transitivity = dbc.Modal(
                                                 'verticalAlign':"top",
                                                 'font-size': '12px',
                                                 'margin-bottom': '-10px'}),
-                                  dcc.Dropdown(id='ddskt-trans', options=OPTIONS,
+                                  dcc.Dropdown(id='ddskt-trans', 
+                                            #    options=OPTIONS,
                                                clearable=True, placeholder="",
                                                className="tapEdgeData-fig-class",
                                                style={'width': '150px', 'height': '30px',
@@ -717,7 +721,7 @@ model_ranking = dbc.Modal(
                                   html.Div([dcc.Loading(
                                          dcc.Graph(
                                              id='tab-rank1',
-                                             figure = __ranking_plot_skt(),
+                                            #  figure = __ranking_plot_skt(),
                                              style={'height': '99%',
                                                     'max-height': 'calc(51vh)',
                                                     'width': '100%',
