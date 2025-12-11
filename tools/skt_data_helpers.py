@@ -345,7 +345,9 @@ def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
         cert_field = f"Certainty_out{i}"
 
         children = [
-            {"field": rr_field, "headerName": f"{effect_s}", "headerComponent": "HeaderWithIcon", "suppressHeaderMenuButton": True},
+            {"field": rr_field, 
+             "headerName": f"{effect_s}", 
+             "headerComponent": "HeaderWithIcon", "suppressHeaderMenuButton": True},
             {
                 "field": cert_field,
                 "suppressHeaderMenuButton": True,

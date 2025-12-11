@@ -5,6 +5,23 @@ from dash import html
 import numpy as np
 import re
 
+
+def _parse_first_numeric(val):
+    """
+    Extract the first numeric token from `val` and return as float, or None.
+    Accepts formats like "1.23 (0.45, 2.34)", "1.23", "-0.5e-1".
+    """
+    if val is None:
+        return None
+    s = str(val)
+    m = re.search(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", s)
+    if not m:
+        return None
+    try:
+        return float(m.group(0))
+    except Exception:
+        return None
+
 def display_modal_barplot(cell, value, rowdata):
     # print(cell)
     if cell is None or len(cell) == 0:
@@ -15,11 +32,11 @@ def display_modal_barplot(cell, value, rowdata):
     rowdata = pd.DataFrame(rowdata)
     if (
             'colId' in cell
-            and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+            and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
             and cell.get('value') is not None
         ):
         first_part = cell["value"].split("\n")[0]
-        rr = float(first_part)
+        rr = _parse_first_numeric(first_part)
         row_idx = cell["rowIndex"]
         treatment = rowdata.loc[row_idx, "Treatment"]
         compare = rowdata.loc[row_idx, "Reference"]
@@ -116,7 +133,7 @@ def display_modal_text(cell, value, rowdata, outcome_names):
     rowdata = pd.DataFrame(rowdata)
     if (
         'colId' in cell
-        and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+        and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
         and cell.get('value') is not None
     ):
         row_idx = cell["rowIndex"]
@@ -128,8 +145,8 @@ def display_modal_text(cell, value, rowdata, outcome_names):
 
         colid = str(cell.get("colId"))
         # Determine outcome index from column id (expects RR_outN_label)
-        m = re.search(r"RR_out(\d+)", colid)
-        idx = int(m.group(1)) if m else 1
+        m = re.search(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+        idx = int(m.group(2)) if m else 1
 
         # Resolve outcome display name from outcome_names if provided
         try:
@@ -148,7 +165,7 @@ def display_modal_text(cell, value, rowdata, outcome_names):
         rr_up = rowdata.loc[row_idx, rr_up_col] if rr_up_col in rowdata.columns else None
 
         first_part = cell["value"].split("\n")[0]
-        rr = float(first_part)
+        rr = _parse_first_numeric(first_part)
 
         treatment = rowdata.loc[row_idx, "Treatment"]
         compare = rowdata.loc[row_idx, "Reference"]
@@ -198,7 +215,7 @@ def display_modal_text(cell, value, rowdata, outcome_names):
     return children
 
 
-def display_modal_data(cell, rowdata, rowdata_modal):
+def display_modal_data(cell, rowdata, rowdata_modal, net_data):
     # Convert rowdata to DataFrame
     rowdata = pd.DataFrame(rowdata)
     rowdata_modal = pd.DataFrame(rowdata_modal)
@@ -206,89 +223,211 @@ def display_modal_data(cell, rowdata, rowdata_modal):
     # Return original rowdata if no cell or invalid cell
     if not cell or len(cell) == 0:
         return rowdata_modal.to_dict("records")
-
+    
+    from tools.utils import get_net_data_json
     # Load modal data
-    df_modal = pd.read_csv("db/psoriasis_wide_complete.csv")
+    df_modal = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
-    # Check if the column is 'RR'
-    if cell.get("colId") == "RR" or cell.get("colId") == "RR_out2":
-        # Extract relative risk (RR) value from the cell's value
-        rr = float(cell["value"].split("\n")[0])
-        row_idx = cell["rowIndex"]
-        treatment = rowdata.loc[row_idx, "Treatment"]
-        compare = rowdata.loc[row_idx, "Reference"]
+    # Accept outcome-specific metric columns, e.g. 'RR_out1_label', 'OR_out2_label', 'MD_out1_label', 'SMD_out1_label'
+    colid = str(cell.get("colId"))
+    m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+    if not m:
+        # not an outcome metric column we handle
+        return rowdata_modal.to_dict("records")
 
-        # Filter df_modal based on selected treatments and comparisons
-        filtered_df = df_modal[
-            ((df_modal["treat1"] == treatment) & (df_modal["treat2"] == compare))
-            | ((df_modal["treat1"] == compare) & (df_modal["treat2"] == treatment))
-        ]
+    metric = m.group(1)
+    idx = int(m.group(2))
 
-        if cell.get("colId") == "RR":
-            # Filter out rows with missing TE1 values
-            filtered_df = filtered_df[filtered_df["TE1"].notna()]
+    # Parse the numeric value from the clicked cell (if needed)
+    rr_clicked = _parse_first_numeric(cell.get("value"))
 
-            # Calculate TE1 and RR values
-            filtered_df["TE_up"] = filtered_df["TE1"] + 1.96 * filtered_df["seTE1"]
-            filtered_df["TE_low"] = (
-                filtered_df["TE1"] - 1.96 * filtered_df["seTE1"]
-            )  # Correction for low bound
-            filtered_df["RR"] = np.exp(filtered_df["TE1"])
+    row_idx = cell["rowIndex"]
+    treatment = rowdata.loc[row_idx, "Treatment"]
+    compare = rowdata.loc[row_idx, "Reference"]
 
-        else:
-            filtered_df = filtered_df[filtered_df["TE2"].notna()]
+    # Filter df_modal based on selected treatments and comparisons
+    filtered_df = df_modal[
+        ((df_modal["treat1"] == treatment) & (df_modal["treat2"] == compare))
+        | ((df_modal["treat1"] == compare) & (df_modal["treat2"] == treatment))
+    ]
 
-            # Calculate TE1 and RR values
-            filtered_df["TE_up"] = filtered_df["TE2"] + 1.96 * filtered_df["seTE2"]
-            filtered_df["TE_low"] = (
-                filtered_df["TE2"] - 1.96 * filtered_df["seTE2"]
-            )  # Correction for low bound
-            filtered_df["RR"] = np.exp(filtered_df["TE2"])
+    # Determine TE and seTE column names for this outcome index
+    te_col = f"TE{idx}"
+    se_col = f"seTE{idx}"
 
-        filtered_df["RR_up"] = np.exp(filtered_df["TE_up"])
-        filtered_df["RR_low"] = np.exp(filtered_df["TE_low"])
+    if te_col not in filtered_df.columns or se_col not in filtered_df.columns:
+        # nothing to compute
+        return filtered_df.to_dict("records")
 
-        # Adjust rows where 'treat1' and 'treat2' need to be swapped
-        mask = (filtered_df["treat1"] == compare) & (filtered_df["treat2"] == treatment)
+    # compute point estimate and CI depending on metric
+    filtered_df = filtered_df[filtered_df[te_col].notna()].copy()
+    filtered_df["TE_up"] = filtered_df[te_col] + 1.96 * filtered_df[se_col]
+    filtered_df["TE_low"] = filtered_df[te_col] - 1.96 * filtered_df[se_col]
+
+    # Use metric-specific column names (e.g., 'OR', 'OR_up', 'OR_low' or 'MD', 'MD_up', 'MD_low')
+    eff = metric
+    eff_up = f"{metric}_up"
+    eff_low = f"{metric}_low"
+
+    if metric in ("RR", "OR"):
+        # TE is log-scale -> exponentiate
+        filtered_df[eff] = np.exp(filtered_df[te_col])
+        filtered_df[eff_up] = np.exp(filtered_df["TE_up"])
+        filtered_df[eff_low] = np.exp(filtered_df["TE_low"])
+    else:
+        # MD / SMD: leave on original scale
+        filtered_df[eff] = filtered_df[te_col]
+        filtered_df[eff_up] = filtered_df["TE_up"]
+        filtered_df[eff_low] = filtered_df["TE_low"]
+
+    # Adjust rows where 'treat1' and 'treat2' need to be swapped
+    mask = (filtered_df["treat1"] == compare) & (filtered_df["treat2"] == treatment)
+    if mask.any():
         filtered_df.loc[mask, ["treat1", "treat2"]] = filtered_df.loc[
             mask, ["treat2", "treat1"]
         ].values
-        # Invert the RR and associated values for swapped treatments
-        for col in ["TE1", "TE_up", "TE_low", "RR", "RR_up", "RR_low"]:
-            filtered_df.loc[mask, col] = 1 / filtered_df.loc[mask, col]
-        filtered_df.loc[mask, ["RR_up", "RR_low"]] = filtered_df.loc[
-            mask, ["RR_low", "RR_up"]
-        ].values
-        # if value:
-        #     value = int(value)
-        #     abrisk = (value * filtered_df['RR'] - value).astype(int)
-        # else:
-        #     abrisk = (20 * filtered_df['RR'] - 20).astype(int)
 
-    else:
-        # If not the 'RR' column, return original rowdata
-        return rowdata_modal.to_dict("records")
+        # For RR/OR (log scale): negate log-TE values for swapped arms, then
+        # recompute metric-specific effect columns on the appropriate scale.
+        if metric in ("RR", "OR"):
+            for col in [te_col, "TE_up", "TE_low"]:
+                filtered_df.loc[mask, col] = -filtered_df.loc[mask, col]
 
-    # filtered_df['ab_diff'] = abrisk.apply(lambda x: f"{x} more per 1000" if x > 0 else f"{abs(x)} less per 1000")
+            # Recompute effects for masked rows
+            filtered_df.loc[mask, eff] = np.exp(filtered_df.loc[mask, te_col])
+            filtered_df.loc[mask, eff_up] = np.exp(filtered_df.loc[mask, "TE_up"])
+            filtered_df.loc[mask, eff_low] = np.exp(filtered_df.loc[mask, "TE_low"])
+        else:
+            # MD / SMD: invert sign for swapped arms
+            for col in [te_col, "TE_up", "TE_low", eff, eff_up, eff_low]:
+                filtered_df.loc[mask, col] = -filtered_df.loc[mask, col]
+
+    # Create a display CI column `RR_ci` for compatibility with the UI,
+    ci_col = f"{metric}_ci"
 
     if not filtered_df.empty:
-        filtered_df["RR_ci"] = filtered_df.apply(
-            lambda row: f"{round(row['RR'], 2)}\n({round(row['RR_low'], 2)} to {round(row['RR_up'], 2)})",
-            axis=1,
-        )
+        def _format_ci(row):
+            try:
+                val = row.get(eff)
+                lo = row.get(eff_low)
+                hi = row.get(eff_up)
+                return f"{round(val,2)}\n({round(lo,2)} to {round(hi,2)})"
+            except Exception:
+                return ""
+
+        filtered_df[ci_col] = filtered_df.apply(_format_ci, axis=1)
     else:
-        # Add an empty column 'RR_ci' since the DataFrame is empty
-        filtered_df["RR_ci"] = pd.Series(dtype="str")
+        filtered_df[ci_col] = pd.Series(dtype="str")
+
     # Replace 'bias' values with descriptive terms
     filtered_df["rob"] = filtered_df["rob"].replace(
         {1: "Low", 2: "Moderate", 3: "High"}
     )
 
     # Add 'ntc' and 'link' columns
-    filtered_df["ntc"] = "NTC00001"
+    # filtered_df["ntc"] = "NTC00001"
     filtered_df["link"] = (
         "https://www.nejm.org/doi/10.1056/NEJMoa1314258?url_ver=Z39.88-2003&rfr_id=ori:rid:crossref.org&rfr_dat=cr_pub%20%200www.ncbi.nlm.nih.gov"
     )
-
+    # filtered_df.to_csv("db/skt/modal_debug.csv", index=False)
     # Return the filtered DataFrame as a dictionary
     return filtered_df.to_dict("records")
+
+
+
+def display_modal_column(cell):
+    colid = str(cell.get("colId"))
+    m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+    if not m:
+        # not an outcome metric column we handle
+        return []
+
+    metric = m.group(1)
+    ci_col = f"{metric}_ci"
+    style_certainty = {
+        "white-space": "pre",
+        "display": "grid",
+        "text-align": "center",
+        "alignItems": "center",
+        "border-left": "solid 0.8px",
+    }
+    modal_treat_compare = [
+   
+        {"headerName": "Study", 
+        "field": "studlab",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            },
+        "cellRenderer": "StudyLink",
+        },
+        
+
+        {"headerName": f"{metric}", 
+        "field": f"{ci_col}",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            }
+        },
+        
+        {"headerName": "Study size", 
+        "field": "sample_size",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            }
+        },
+
+        {"headerName": "Age", 
+        "field": "age",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            }
+        },
+
+        {"headerName": "BMI", 
+        "field": "bmi",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            }
+        },
+
+        {"headerName": "Weight", 
+        "field": "weight",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle': {
+            'background-color': '#ffecb3',
+            }
+        },
+        
+        {"headerName": "Risk of bias", 
+        "field": "rob",
+        "suppressHeaderMenuButton": True,
+        "editable": False,
+        "resizable": False,
+        'cellStyle':{
+                    "styleConditions": [
+                    {"condition": "params.value == 'High'", "style": {"backgroundColor": "#B85042", **style_certainty}},   
+                    {"condition": "params.value == 'Low'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
+                    {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},       
+                        ]}
+        },
+    ]
+
+
+    return modal_treat_compare

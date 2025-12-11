@@ -181,6 +181,9 @@ treat_compare_grid = dag.AgGrid(
         "filter": False,
         "floatingFilter": False,
         "resizable": False,
+        # Use flex so columns distribute available width and avoid empty space
+        "flex": 1,
+        "minWidth": 80,
         "wrapText": True,
         # 'autoHeight': True,
         "enableRowGroup": False,
@@ -196,7 +199,7 @@ treat_compare_grid = dag.AgGrid(
         "animateRows": False,
         # "tooltipComponent": "CustomTooltip"
     },
-    columnSize="sizeToFit",
+    # Use flex-based column sizing; do not force sizeToFit
     getRowId="params.data.index",
     style={"width": "100%", "height": f"{45.5 * 30}px"},
 )

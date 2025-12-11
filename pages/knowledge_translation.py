@@ -341,7 +341,7 @@ def generate_text_info(nodedata, edgedata):
     Input("close_compare", "n_clicks"),
 )
 def display_sktinfo1(cell, _):
-    print(cell)
+    # print(cell)
     if ctx.triggered_id == "close_compare":
         return False
     if cell is None or len(cell) == 0:  
@@ -382,7 +382,6 @@ import re
 )
 
 def display_sktinfo2(cell, _):
-
     if ctx.triggered_id == "close_compare_simple":
         return False
     if cell is None or len(cell) == 0:  
@@ -390,7 +389,7 @@ def display_sktinfo2(cell, _):
     else:
         if (
             'colId' in cell
-            and re.fullmatch(r"RR_out\d+(?:_label)?", str(cell['colId']))
+            and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
             and cell.get('value') is not None
         ):
             return True
@@ -573,11 +572,12 @@ from tools.functions_modal_info import display_modal_barplot
     Output("modal_info_head", "children"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
-    State('grid_treat_compare','rowData')
+    State('grid_treat_compare','rowData'),
+    prevent_initial_call=True
 )
 
 def display_sktinfo(cell,value,rowdata):
-    # print(cell)
+    
     return display_modal_barplot(cell,value,rowdata)
 
 
@@ -589,24 +589,31 @@ from tools.functions_modal_info import display_modal_text
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
-    State("outcome_names_STORAGE", "data")
+    State("outcome_names_STORAGE", "data"),
+    prevent_initial_call=True
 )
 
 def display_textinfo(cell,value,rowdata, outcome_names):
     return display_modal_text(cell,value,rowdata, outcome_names)
 
-from tools.functions_modal_info import display_modal_data
+from tools.functions_modal_info import display_modal_data, display_modal_column
 
 @callback(
     Output("modal_treat_compare", "rowData"),
+    Output("modal_treat_compare", "columnDefs"),
     Input("grid_treat_compare", "cellClicked"), 
     # Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
-    State('modal_treat_compare','rowData')
+    State('modal_treat_compare','rowData'),
+    State("net_data_STORAGE", "data"),
+    prevent_initial_call=True
 )
 
-def display_modaldata(cell,rowdata,rowdata_modal):
-    return display_modal_data(cell,rowdata,rowdata_modal)
+def display_modaldata(cell,rowdata,rowdata_modal, net_data):
+    data = display_modal_data(cell,rowdata,rowdata_modal, net_data)
+    colunmdef = display_modal_column(cell)
+
+    return data, colunmdef
 
 # @callback(
 #     Output("quickstart-grid", "dashGridOptions"),
