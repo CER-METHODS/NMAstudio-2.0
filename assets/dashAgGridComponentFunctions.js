@@ -260,88 +260,90 @@ function getBackgroundColorForCertainty(certainty) {
 };
 
 
-
-
-
-
 dagcomponentfuncs.DMC_Button = function (props) {
     var { setData, data } = props;
 
-    function onClick() {   
+    function onClick() {
         const temp = structuredClone(data);
-        props.node.setDataValue( "Treatment", temp.Reference);
-        props.node.setDataValue( "Reference", temp.Treatment);
+
+        // swap treatment and reference
+        props.node.data.Treatment = temp.Reference;
+        props.node.data.Reference = temp.Treatment;
+
         data = props.node.data;
-        // const tempRR = data.RR;
-        // props.node.setDataValue("RR", parseFloat((1 / data.RR).toFixed(2)))
-        // props.node.setDataValue("RR_out2", parseFloat((1 / data.RR_out2).toFixed(2)));
 
-        // const temp3 = data.RR_out2;
-        // props.node.setDataValue("RR_out2", data.RR_inv2);
-        // props.node.setDataValue("RR_inv2", temp3);
-        
-        const rrParts = data.RR.match(/([\d.]+)\n\(([\d.]+) to ([\d.]+)\)/);
-        if (rrParts) {
-            const mainRR = parseFloat(rrParts[1]);
-            const ciLower = parseFloat(rrParts[2]);
-            const ciUpper = parseFloat(rrParts[3]);
+        // find all outcomes: RR_outX, OR_outX, MD_outX, SMD_outX
+        const outcomes = [];
+        Object.keys(data).forEach(k => {
+            const m = k.match(/^(RR|OR|MD|SMD)_out(\d+)$/);
+            if (m) outcomes.push({ type: m[1], index: m[2] });
+        });
 
-            const invertedMainRR = (1 / mainRR).toFixed(2);
-            const invertedCiLower = (1 / ciLower).toFixed(2);
-            const invertedCiUpper = (1 / ciUpper).toFixed(2);
+        outcomes.forEach(({ type, index }) => {
+            const valKey = `${type}_out${index}`;
+            const loKey = `CI_lower_out${index}`;
+            const hiKey = `CI_upper_out${index}`;
+            const labelKey = `${type}_out${index}_label`;
 
-            // Reformat the RR string with inverted values
-            const newRR = `${invertedMainRR}\n(${invertedCiLower} to ${invertedCiUpper})`;
-            props.node.setDataValue("RR", newRR);
-        }
-        
-        const rrParts2 = data.RR_out2.match(/([\d.]+)\n\(([\d.]+) to ([\d.]+)\)/);
-        if (rrParts2) {
-            const mainRR2 = parseFloat(rrParts2[1]);
-            const ciLower2 = parseFloat(rrParts2[2]);
-            const ciUpper2 = parseFloat(rrParts2[3]);
+            let main = parseFloat(data[valKey]);
+            let lo = parseFloat(data[loKey]);
+            let hi = parseFloat(data[hiKey]);
 
-            const invertedMainRR2 = (1 / mainRR2).toFixed(2);
-            const invertedCiLower2 = (1 / ciLower2).toFixed(2);
-            const invertedCiUpper2 = (1 / ciUpper2).toFixed(2);
+            if (type === "RR" || type === "OR") {
+                // invert
+                main = 1 / main;
+                lo = 1 / lo;
+                hi = 1 / hi;
+            } else {
+                // flip sign MD / SMD
+                const newLo = -hi;
+                const newHi = -lo;
+                main = -main;
+                lo = newLo;
+                hi = newHi;
+            }
 
-            // Reformat the RR string with inverted values
-            const newRR2 = `${invertedMainRR2}\n(${invertedCiLower2} to ${invertedCiUpper2})`;
-            props.node.setDataValue("RR_out2", newRR2);
-        }
+            // apply updates directly to row data
+            props.node.data[valKey] = main;
+            props.node.data[loKey] = lo;
+            props.node.data[hiKey] = hi;
+
+            props.node.data[labelKey] =
+                `${main.toFixed(2)} \n(${lo.toFixed(2)}, ${hi.toFixed(2)})`;
+        });
+
+        // refresh the grid row
+        props.api.refreshCells({ rowNodes: [props.node], force: true });
 
         setData();
     }
 
-    // Create the icon element
+    // icon as before
     let icon;
     if (props.icon) {
         icon = React.createElement(window.dash_iconify.DashIconify, {
             icon: props.icon,
-            style: {
-                color: props.color, // Apply color directly to the icon
-                fontSize: '24px' // Adjust size as needed
-            },
+            style: { color: props.color, fontSize: "24px" }
         });
     }
 
-    // Return a minimal button with no background or borders
     return React.createElement(
-        "div", // Change from a button to a div or span for no button appearance
+        "div",
         {
             onClick,
             style: {
-                background: 'none',   // No background
-                border: 'none',       // No border
-                cursor: 'pointer',    // Pointer cursor for clickability
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-            },
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }
         },
-        icon // Use only the icon as content
+        icon
     );
 };
+
 
 
 

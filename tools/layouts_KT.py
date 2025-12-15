@@ -65,7 +65,7 @@ def Sktpage():
                                     # top: 66 positions the toast below the navbar
                                     className='toast-faq'
                                 ),
-                     html.Div([skt_nonexpert()], id='skt_sub_content')
+                     html.Div([skt_nonexpert(), skt_layout()], id='skt_sub_content')
                      ], id='skt_page_content')
 
 
@@ -92,7 +92,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = False,
+                                value = True,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
@@ -468,7 +468,7 @@ def skt_layout():
                                                                         ], style={'padding-top': 0}),
                                                                 dbc.Row([dbc.Col([cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                             minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
-                                                                            elements=get_skt_elements(),
+                                                                            # elements=get_skt_elements(),
                                                                             style={ 
                                                                                 'height': '50vh', 
                                                                                 'width': '100%', 
@@ -491,19 +491,20 @@ def skt_layout():
                                             dbc.Row([
                                                 dbc.Col(dbc.Toast(
                                                                     [html.Span('Overall Info', className='study_design'),
-                                                                    html.Span('Number of studies: 96',className='skt_span1'),
-                                                                    html.Span('Number of participants: 1020',className='skt_span1'), 
-                                                                    html.Span('Number of interventions: 20', className='skt_span1'),
-                                                                    html.Span('Number of comparisons with direct evidence: 13', className='skt_span1'),
-                                                                    html.Span('Number of comparisons without direct evidence: 8 \n', className='skt_span1',
-                                                                            #  style={'border-bottom': 'dashed 1px gray'}
-                                                                                )
+                                                                     html.Span(className='skt_span1', id="kt_numstudies"),
+                                                                    html.Span(className='skt_span1', id="kt_int"),
+                                                                    html.Span(className='skt_span1',id="kt_par"), 
+                                                                    # html.Span(className='skt_span1',id="kt_com"),
+                                                                    html.Span( className='skt_span1', id="kt_com_direct"),
+                                                                    html.Span( className='skt_span1', id="kt_com_indirect"),
                                                                     ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'35%'}),
                                                 dbc.Col(dbc.Toast(
                                                                     [
-                                                                    html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                    html.Span('Mean age: 45.3',className='skt_span1'),
-                                                                    html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                    html.Span('Potential effect modifiers Info',
+                                                                              className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                    # html.Span('Mean age: 45.3',className='skt_span1'),
+                                                                    # html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                    dbc.Col(id='kt_modifiers_info2'),
                                                                     html.Button('Transitivity check', id='trans_button',className='sub-button',
                                                                                                 style={'color': 'rgb(118 135 123)',
                                                                                                         'background-color':'#dedecf',

@@ -38,11 +38,7 @@ from assets.cytoscape_styleesheeet import get_stylesheet
 
 # Navbar is added globally in app.py, not needed here
 from tools.skt_data_helpers import (
-    get_skt_network_elements,
-    get_skt_two_outcome_data,
-    build_skt_advanced_row_data,
-    get_skt_network_data,
-    get_effect_modifier_data,
+    Generate_advanced_data,
     Generate_kt_standad_data,
     Generate_kt_standad_columnDefs,
 )
@@ -115,35 +111,48 @@ layout = html.Div(
 
 
 # Toggle between Standard and Advanced versions
+# @callback(
+#     Output("skt_sub_content", "children"),
+#     Input("toggle_grid_select", "value"),
+#     prevent_initial_call=True,
+# )
+# def toggle_skt_version(toggle_value):
+#     """Switch between Standard (non-expert) and Advanced (expert) versions."""
+#     if toggle_value:
+#         return skt_layout()
+#     else:
+#         return skt_nonexpert()
+
 @callback(
-    Output("skt_sub_content", "children"),
+    Output("skt_nonexpert_page", "style"),
+    Output("sky_expert_page", "style"),
+    Input("kt_page_location", "pathname"),
     Input("toggle_grid_select", "value"),
     prevent_initial_call=True,
 )
-def toggle_skt_version(toggle_value):
+def toggle_skt_version(path, toggle_value):
     """Switch between Standard (non-expert) and Advanced (expert) versions."""
     if toggle_value:
-        return skt_layout()
+        return {"display": "none"}, {"display": "block"}
     else:
-        return skt_nonexpert()
-
-
+        return {"display": "block"}, {"display": "none"}
 
 from tools.functions_skt_abs_forest import __Change_Abs
 
-@callback(
-    Output("quickstart-grid", "rowData"),
-    # Output("quickstart-grid", "style"),
-    # Input("nomal_vs_log", "value"),
-    Input("checklist_effects", "value"),
-    Input("quickstart-grid", "cellValueChanged"),
-    Input("range_lower", "value"),
-    # Input("range_upper", "value"),
-    State("quickstart-grid", "rowData"),
-)
+####Important
+# @callback(
+#     Output("quickstart-grid", "rowData"),
+#     # Output("quickstart-grid", "style"),
+#     # Input("nomal_vs_log", "value"),
+#     Input("checklist_effects", "value"),
+#     Input("quickstart-grid", "cellValueChanged"),
+#     Input("range_lower", "value"),
+#     # Input("range_upper", "value"),
+#     State("quickstart-grid", "rowData"),
+# )
 
-def selected(value_effect, value_change,lower,rowData):
-    return __Change_Abs(value_effect, value_change,lower,rowData)
+# def selected(value_effect, value_change,lower,rowData):
+#     return __Change_Abs(value_effect, value_change,lower,rowData)
 
 
 clientside_callback(
@@ -313,6 +322,7 @@ def generate_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
                         dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs):
     return __generate_skt_stylesheet(node, slct_nodesdata, elements, slct_edgedata,
                         dd_nclr, dd_eclr, custom_nd_clr, custom_edg_clr, dd_nds, dd_egs)
+
 
 
 @callback(Output('cytoscape_skt', 'layout'),
@@ -878,7 +888,8 @@ def redirect_kt_on_reset(current_path, results_ready):
     Output("grid_treat_compare", "rowData"),
     Output("grid_treat_compare", "columnDefs"),
     Output('cytoscape_skt2', 'elements'),
-    Input("kt_page_location", "pathname"), 
+    Input("kt_page_location", "pathname"),
+    Input("stand-sktdropdown-out", "value"), 
     State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
     State("forest_data_STORAGE", "data"),
@@ -887,7 +898,7 @@ def redirect_kt_on_reset(current_path, results_ready):
     State("KT_standard_data_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
+def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
     if not results_ready or not net_data or not forest_data_STORAGE:
         raise PreventUpdate
     
@@ -906,7 +917,7 @@ def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STO
     
 
     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
-    element = get_skt_elements(net_df)
+    element = get_skt_elements(net_df, out_idx)
     return (
         data.to_dict("records"),
         data.to_dict("records"),
@@ -916,12 +927,57 @@ def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STO
 
 
 
+# @callback(
+#     Output("KT_advanced_data_STORAGE", "data"),
+#     Output("grid_treat_compare", "rowData"),
+#     Output("grid_treat_compare", "columnDefs"),
+#     Input("kt_page_location", "pathname"),
+#     Input("stand-sktdropdown-out", "value"), 
+#     State("results_ready_STORAGE", "data"),
+#     State("net_data_STORAGE", "data"),
+#     State("forest_data_STORAGE", "data"),
+#     State("number_outcomes_STORAGE", "data"),
+#     State("outcome_names_STORAGE", "data"),
+#     State("KT_advanced_data_STORAGE", "data"),
+#     prevent_initial_call="initial_duplicate",
+# )
+# def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
+#     if not results_ready or not net_data or not forest_data_STORAGE:
+#         raise PreventUpdate
+    
+#     from tools.utils import get_net_data_json
+
+#     net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+
+#     num_outcomes = int(num_outcomes or 0)
+#     effect_sizes = [
+#         net_df[f"effect_size{i+1}"].iloc[0]
+#         for i in range(num_outcomes)
+#         if f"effect_size{i+1}" in net_df.columns
+#     ]
+    
+#     data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
+#     data["index"] = data.index
+    
+
+#     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
+
+#     return (
+#         data.to_dict("records"),
+#         data.to_dict("records"),
+#         ColumnDefs_treat_compare
+#     )
+
+
+
 @callback(
     [
         Output("kt_numstudies", "children"),
         Output("kt_int", "children"),
         Output("kt_par", "children"),
         Output("kt_com", "children"),
+        Output("kt_com_direct", "children"),
+        Output("kt_com_indirect", "children"),
     ],
     Input("kt_page_location", "pathname"),
     State("net_data_STORAGE", "data"),
@@ -955,7 +1011,16 @@ def infor_overall(curr_path, net_data):
     else:
         num_par = ""
     
-    return [num_study], [num_treat], [num_com], [num_par]
+    net_data["treat_combine"] = list(zip(net_data["treat1"], net_data["treat2"]))
+    direct_combinations = set(net_data["treat_combine"])
+    n_com = len(direct_combinations)
+
+    num_com_direct = f"Number of comparisons with direct evidence: {n_com}"
+
+    n_com_without = num_unique_combinations - n_com
+    num_com_without = f"Number of comparisons without direct evidence: {n_com_without}"
+
+    return [num_study], [num_treat], [num_com], [num_par], [num_com_direct], [num_com_without]
 
 
 @callback(
@@ -969,9 +1034,9 @@ def infor_overall(curr_path, net_data):
     prevent_initial_call= True,
 )
 def infor_effectmodifier(curr_path, net_data, effect_modifiers, out_names):
+
     if not net_data:
         raise PreventUpdate
-    
     from tools.utils import get_net_data_json
     net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
     n_effect_modifiers = len(effect_modifiers) if effect_modifiers else 0
@@ -985,56 +1050,58 @@ def infor_effectmodifier(curr_path, net_data, effect_modifiers, out_names):
             children.append(html.Span(f"Median {modifier_name}: {median_modifier}",className='skt_span1'))
     options = [{'label': '{}'.format(col), 'value': col} for col in effect_modifiers]
     options_out = [{'label': '{}'.format(col), 'value': i} for i, col in enumerate(out_names)]
+
     return children, options, options_out
 
 
 
-# @callback(
-#     Output("KT_standard_data_STORAGE", "data"),
-#     # Input("KT_standard_data_STORAGE", "data"),
-#     State("KT_standard_data_STORAGE", "data"),
-#     prevent_initial_call="initial_duplicate",
-# )
-# def generate_kt_standad_data(kt_standard_data2):
-#     print(kt_standard_data2)
-#     kt_standard_data = {}
-#     return {}
+@callback(
+    Output("kt_modifiers_info2", "children"),
+    Input("kt_page_location", "pathname"),
+    State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data"),
+    prevent_initial_call= True,
+)
+def infor_effectmodifier2(curr_path, net_data, effect_modifiers):
+
+    if not net_data:
+        raise PreventUpdate
+    from tools.utils import get_net_data_json
+    net_data = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    n_effect_modifiers = len(effect_modifiers) if effect_modifiers else 0
+    children = []
+    for i in range(n_effect_modifiers):
+        modifier_name = effect_modifiers[i]
+        if modifier_name in net_data.columns:
+            unique_studies =  net_data[["studlab", f"{modifier_name}"]].drop_duplicates("studlab")
+            # Sum sample sizes (ignore NaN)
+            median_modifier = unique_studies[f"{modifier_name}"].dropna().median()
+            children.append(html.Span(f"Median {modifier_name}: {median_modifier}",className='skt_span1'))
+   
+    return children
 
 
-# @callback(
-#     Output("cytoscape_skt2", "elements", allow_duplicate=True),
-#     [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
-#     State("net_data_STORAGE", "data"),
-#     prevent_initial_call="initial_duplicate",
-# )
-# def update_skt_network_from_storage(results_ready, pathname, net_data_storage):
-#     """
-#     Update the Standard KT network graph with data from STORAGE.
-#     """
-#     if not results_ready or not net_data_storage:
-#         raise PreventUpdate
-
-#     elements = get_skt_network_elements(net_data_storage, outcome_idx=0)
-#     if not elements:
-#         raise PreventUpdate
-
-#     return elements
 
 
 @callback(
     Output("cytoscape_skt", "elements", allow_duplicate=True),
-    [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
+    [Input("results_ready_STORAGE", "data"), 
+     Input("kt_page_location", "pathname"),
+     Input("sktdropdown-out", "value"),],
     State("net_data_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def update_skt_advanced_network_from_storage(results_ready, pathname, net_data_storage):
+def update_skt_advanced_network_from_storage(results_ready, pathname, out_idx, net_data_storage):
     """
     Update the Advanced KT network graph with data from STORAGE.
     """
     if not results_ready or not net_data_storage:
         raise PreventUpdate
-
-    elements = get_skt_network_elements(net_data_storage, outcome_idx=0)
+    
+    from tools.utils import get_net_data_json
+    net_data = pd.read_json(get_net_data_json(net_data_storage), orient="split").round(3)
+    outcome_idx = out_idx if out_idx is not None else 0
+    elements = get_skt_elements(net_data, outcome_idx)
     if not elements:
         raise PreventUpdate
 
@@ -1044,57 +1111,63 @@ def update_skt_advanced_network_from_storage(results_ready, pathname, net_data_s
 
 
 
-@callback(
-    Output("quickstart-grid", "rowData", allow_duplicate=True),
-    [Input("results_ready_STORAGE", "data"), Input("kt_page_location", "pathname")],
-    [
-        State("forest_data_STORAGE", "data"),
-        State("net_split_data_STORAGE", "data"),
-        State("ranking_data_STORAGE", "data"),
-        State("cinema_net_data_STORAGE", "data"),
-        State("net_data_STORAGE", "data"),
-    ],
-    prevent_initial_call="initial_duplicate",
-)
-def update_skt_advanced_grid_from_storage(
-    results_ready,
-    pathname,
-    forest_data_storage,
-    net_split_storage,
-    ranking_storage,
-    cinema_storage,
-    net_data_storage,
-):
-    """
-    Update the Advanced KT grid with data from STORAGE.
-    """
-    if not results_ready or not forest_data_storage:
-        raise PreventUpdate
+# @callback(
+#     Output("quickstart-grid", "rowData", allow_duplicate=True),
+#     [Input("results_ready_STORAGE", "data"), 
+#      Input("kt_page_location", "pathname")],
+#     [
+#         State("forest_data_STORAGE", "data"),
+#         State("net_split_data_STORAGE", "data"),
+#         State("ranking_data_STORAGE", "data"),
+#         State("cinema_net_data_STORAGE", "data"),
+#         State("net_data_STORAGE", "data"),
+#     ],
+#     prevent_initial_call="initial_duplicate",
+# )
+# def generate_skt_advanced_grid_from_storage(
+#     results_ready,
+#     pathname,
+#     forest_data_storage,
+#     net_split_storage,
+#     ranking_storage,
+#     cinema_storage,
+#     net_data_storage,
+# ):
+#     """
+#     Update the Advanced KT grid with data from STORAGE.
+#     """
+#     if not results_ready or not forest_data_storage:
+#         raise PreventUpdate
 
-    try:
-        row_data_records, _ = build_skt_advanced_row_data(
-            forest_data_storage,
-            net_split_storage,
-            ranking_storage,
-            cinema_storage,
-            net_data_storage,
-            outcome_idx=0,
-        )
+#     try:
+#         finall_all = Generate_finall_data(
+#             forest_data_storage, 
+#             net_split_data_storage, 
+#             outcome_idx=0)
+        
+#         row_data_records, _ = Generate_advanced_data(
+#             forest_data_storage,
+#             net_split_storage,
+#             ranking_storage,
+#             cinema_storage,
+#             net_data_storage,
+#             outcome_idx=0,
+#         )
 
-        if not row_data_records:
-            print("[DEBUG] update_skt_advanced_grid: row_data_records is empty")
-            raise PreventUpdate
+#         if not row_data_records:
+#             print("[DEBUG] update_skt_advanced_grid: row_data_records is empty")
+#             raise PreventUpdate
 
-        print(
-            f"[DEBUG] update_skt_advanced_grid: returning {len(row_data_records)} rows"
-        )
-        return row_data_records
-    except Exception as e:
-        print(f"[ERROR] update_skt_advanced_grid: {e}")
-        import traceback
+#         print(
+#             f"[DEBUG] update_skt_advanced_grid: returning {len(row_data_records)} rows"
+#         )
+#         return row_data_records
+#     except Exception as e:
+#         print(f"[ERROR] update_skt_advanced_grid: {e}")
+#         import traceback
 
-        traceback.print_exc()
-        raise PreventUpdate
+#         traceback.print_exc()
+#         raise PreventUpdate
 
 
 # ================================

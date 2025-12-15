@@ -58,59 +58,161 @@ run_NetMeta <- function(dat){
   return(ALL_DFs)
 }
 
-
-
 run_NetMeta_new <- function(dat, i){
   ALL_DFs <- list()
   sm <- dat[[paste0("effect_size", i+1)]][1] 
 
-  TE_col <- paste0("TE", i+1)  # Generating the column name dynamically
+  TE_col <- paste0("TE", i+1)  
   seTE_col <- paste0("seTE", i+1)  
-  
-  # Filtering and updating 'dat' using the dynamically generated column names
+
+  # Filter rows with valid TE and non-zero SE
   dat <- dat %>%
     filter_at(vars(!!as.name(TE_col), !!as.name(seTE_col)), all_vars(!is.na(.))) %>%
     filter(!!as.name(seTE_col) != 0)
-  
 
   treatments <- unique(c(dat$treat1, dat$treat2))
-  # if incorrect number of arms, then delete entire study
+
+  # Remove studies with incorrect number of arms
   tabnarms <- table(dat$studlab)
   sel.narms <- !iswhole((1 + sqrt(8 * tabnarms + 1)) / 2)
-  if (sum(sel.narms) >= 1){dat <- dat %>% filter(!studlab %in% names(tabnarms)[sel.narms])}
-  nma_temp <- netmeta(dat[[paste0("TE", i+1)]], dat[[paste0("seTE", i+1)]], dat$treat1, dat$treat2, dat$studlab,
-                        sm = sm,
-                        random = TRUE,
-                        backtransf = TRUE,
-                        #prediction = TRUE,
-                        reference.group = treatments[1])
-    ### Values
+  if(sum(sel.narms) >= 1){ dat <- dat %>% filter(!studlab %in% names(tabnarms)[sel.narms]) }
+
+  # Run network meta-analysis
+  nma_temp <- netmeta(
+    TE = dat[[TE_col]], seTE = dat[[seTE_col]], treat1 = dat$treat1, treat2 = dat$treat2, studlab = dat$studlab,
+    sm = sm, random = TRUE, backtransf = TRUE, reference.group = treatments[1]
+  )
+
+  # Loop over treatments to extract all values
   for (treatment in treatments){
-      treatment_list <- nma_temp$trts[nma_temp$trts != treatment]
-      TE <-  nma_temp$TE.random[, treatment]
-      TE_names <- names(TE)[sapply(TE, is.numeric)]
-      TE <- TE[which(TE_names != treatment)]
-      se <- nma_temp$seTE.random[, treatment]
-      se <- se[which(TE_names != treatment)]
-      ci_lo <- TE - 1.96*se
-      ci_up <- TE + 1.96*se
-      TEweights <- 1 / nma_temp$seTE.random[, treatment] # Precision
-      TEweights <- TEweights[which(TE_names != treatment)]
-      tau2 <- nma_temp$tau^2
-      pre_lo <- nma_temp$lower.predict[, treatment]
-      pre_up <- nma_temp$upper.predict[, treatment]
-      pre_lo <- pre_lo[which(TE_names != treatment)]
-      pre_up <- pre_up[which(TE_names != treatment)]
-      if(sm=="MD" | sm=="SMD"){df <- data.frame(treatment_list, TE,  ci_lo, ci_up,pre_lo, pre_up, TEweights, tau2)
-      }else{df <- data.frame(treatment_list, exp(TE),  exp(ci_lo),  exp(ci_up),exp(pre_lo), exp(pre_up), TEweights, tau2)}
-      colnames(df) <- c("Treatment", sm, "CI_lower", "CI_upper","pre_lower", "pre_upper", "WEIGHT", "tau2")
-      df['Reference'] <- treatment
-      ALL_DFs[[treatment]] <- df
-      #rm(nma_temp, TE, TE_names, se, ci_lo, ci_up, TEweights, tau2)
+    treatment_list <- nma_temp$trts[nma_temp$trts != treatment]
+
+    TE <- nma_temp$TE.random[, treatment]
+    TE_names <- names(TE)[sapply(TE, is.numeric)]
+    TE <- TE[which(TE_names != treatment)]
+
+    se <- nma_temp$seTE.random[, treatment]
+    se <- se[which(TE_names != treatment)]
+
+    ci_lo <- TE - 1.96 * se
+    ci_up <- TE + 1.96 * se
+
+    TEweights <- 1 / nma_temp$seTE.random[, treatment]
+    TEweights <- TEweights[which(TE_names != treatment)]
+
+    tau2 <- nma_temp$tau^2
+
+    pre_lo <- nma_temp$lower.predict[, treatment]
+    pre_up <- nma_temp$upper.predict[, treatment]
+    pre_lo <- pre_lo[which(TE_names != treatment)]
+    pre_up <- pre_up[which(TE_names != treatment)]
+
+    # --- Add direct and indirect values ---
+    direct <- nma_temp$TE.direct.random[treatment, treatment_list]
+    direct_lo <- nma_temp$lower.direct.random[treatment, treatment_list]
+    direct_up <- nma_temp$upper.direct.random[treatment, treatment_list]
+
+    indirect <- nma_temp$TE.indirect.random[treatment, treatment_list]
+    indirect_lo <- nma_temp$lower.indirect.random[treatment, treatment_list]
+    indirect_up <- nma_temp$upper.indirect.random[treatment, treatment_list]
+
+    # Exponentiate if needed
+    if(!(sm %in% c("MD", "SMD"))){
+      TE <- exp(TE)
+      ci_lo <- exp(ci_lo)
+      ci_up <- exp(ci_up)
+      pre_lo <- exp(pre_lo)
+      pre_up <- exp(pre_up)
+
+      direct <- exp(direct)
+      direct_lo <- exp(direct_lo)
+      direct_up <- exp(direct_up)
+
+      indirect <- exp(indirect)
+      indirect_lo <- exp(indirect_lo)
+      indirect_up <- exp(indirect_up)
+    }
+
+    # Create DataFrame
+    df <- data.frame(
+      Treatment = treatment_list,
+      Reference = treatment,
+      TE = TE,
+      CI_lower = ci_lo,
+      CI_upper = ci_up,
+      pre_lower = pre_lo,
+      pre_upper = pre_up,
+      WEIGHT = TEweights,
+      tau2 = tau2,
+      direct = direct,
+      direct_lower = direct_lo,
+      direct_upper = direct_up,
+      indirect = indirect,
+      indirect_lower = indirect_lo,
+      indirect_upper = indirect_up,
+      stringsAsFactors = FALSE
+    )
+
+    ALL_DFs[[treatment]] <- df
   }
+
   ALL_DFs <- do.call('rbind', ALL_DFs)
   return(ALL_DFs)
 }
+
+
+# run_NetMeta_new <- function(dat, i){
+#   ALL_DFs <- list()
+#   sm <- dat[[paste0("effect_size", i+1)]][1] 
+
+#   TE_col <- paste0("TE", i+1)  # Generating the column name dynamically
+#   seTE_col <- paste0("seTE", i+1)  
+  
+#   # Filtering and updating 'dat' using the dynamically generated column names
+#   dat <- dat %>%
+#     filter_at(vars(!!as.name(TE_col), !!as.name(seTE_col)), all_vars(!is.na(.))) %>%
+#     filter(!!as.name(seTE_col) != 0)
+  
+
+#   treatments <- unique(c(dat$treat1, dat$treat2))
+#   # if incorrect number of arms, then delete entire study
+#   tabnarms <- table(dat$studlab)
+#   sel.narms <- !iswhole((1 + sqrt(8 * tabnarms + 1)) / 2)
+#   if (sum(sel.narms) >= 1){dat <- dat %>% filter(!studlab %in% names(tabnarms)[sel.narms])}
+#   nma_temp <- netmeta(dat[[paste0("TE", i+1)]], dat[[paste0("seTE", i+1)]], dat$treat1, dat$treat2, dat$studlab,
+#                         sm = sm,
+#                         random = TRUE,
+#                         backtransf = TRUE,
+#                         #prediction = TRUE,
+#                         reference.group = treatments[1])
+#     ### Values
+#   for (treatment in treatments){
+#       treatment_list <- nma_temp$trts[nma_temp$trts != treatment]
+#       TE <-  nma_temp$TE.random[, treatment]
+#       TE_names <- names(TE)[sapply(TE, is.numeric)]
+#       TE <- TE[which(TE_names != treatment)]
+#       se <- nma_temp$seTE.random[, treatment]
+#       se <- se[which(TE_names != treatment)]
+#       ci_lo <- TE - 1.96*se
+#       ci_up <- TE + 1.96*se
+#       TEweights <- 1 / nma_temp$seTE.random[, treatment] # Precision
+#       TEweights <- TEweights[which(TE_names != treatment)]
+#       tau2 <- nma_temp$tau^2
+#       pre_lo <- nma_temp$lower.predict[, treatment]
+#       pre_up <- nma_temp$upper.predict[, treatment]
+#       pre_lo <- pre_lo[which(TE_names != treatment)]
+#       pre_up <- pre_up[which(TE_names != treatment)]   
+
+#       if(sm=="MD" | sm=="SMD"){df <- data.frame(treatment_list, TE,  ci_lo, ci_up,pre_lo, pre_up, TEweights, tau2)
+#       }else{df <- data.frame(treatment_list, exp(TE),  exp(ci_lo),  exp(ci_up),exp(pre_lo), exp(pre_up), TEweights, tau2)}
+#       colnames(df) <- c("Treatment", sm, "CI_lower", "CI_upper","pre_lower", "pre_upper", "WEIGHT", "tau2")
+#       df['Reference'] <- treatment
+#       ALL_DFs[[treatment]] <- df
+#       #rm(nma_temp, TE, TE_names, se, ci_lo, ci_up, TEweights, tau2)
+#   }
+#   ALL_DFs <- do.call('rbind', ALL_DFs)
+#   return(ALL_DFs)
+# }
 
 
 
@@ -347,11 +449,15 @@ league_rank_new <- function(dat, i){
     comp_all <- ne$compare.random$comparison
     k_all <- ne$k
     direct_all <- exp(ne$direct.random$TE)
+    direct_low <- exp(ne$direct.random$lower)
+    direct_up  <- exp(ne$direct.random$upper)
     nma_all <- exp(ne$random$TE)
     indirect_all <- exp(ne$indirect.random$TE)
+    indirect_low <- exp(ne$indirect.random$lower)
+    indirect_up  <- exp(ne$indirect.random$upper)
     p_all <- ne$compare.random$p
-    netsplit_all <- data.frame(comp_all, k_all, direct_all, nma_all, indirect_all, p_all)
-    colnames(netsplit_all) <- c("comparison", "k", "direct", "nma", "indirect", "p-value")
+    netsplit_all <- data.frame(comp_all, k_all, direct_all,direct_low, direct_up, nma_all, indirect_all, indirect_low, indirect_up, p_all)
+    colnames(netsplit_all) <- c("comparison", "k", "direct", 'direct_low', 'direct_up', "nma", "indirect",'indirect_low', 'indirect_up', "p-value")
     if (all(is.na(ne$compare.random$p)) == TRUE){
         df_cons <- data.frame(comp_all, direct_all, indirect_all, p_all)
         colnames(df_cons) <- c("comparison", "direct", "indirect", "p-value")
