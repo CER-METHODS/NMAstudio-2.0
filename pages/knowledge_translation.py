@@ -915,6 +915,7 @@ def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_
     data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
     data["index"] = data.index
     
+    # data.to_csv('db/test_kt_standard_data.csv', index=False)
 
     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
     element = get_skt_elements(net_df, out_idx)
@@ -976,6 +977,9 @@ def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_
         Output("kt_int", "children"),
         Output("kt_par", "children"),
         Output("kt_com", "children"),
+        Output("kt_numstudies2", "children"),
+        Output("kt_int2", "children"),
+        Output("kt_par2", "children"),
         Output("kt_com_direct", "children"),
         Output("kt_com_indirect", "children"),
     ],
@@ -1020,7 +1024,7 @@ def infor_overall(curr_path, net_data):
     n_com_without = num_unique_combinations - n_com
     num_com_without = f"Number of comparisons without direct evidence: {n_com_without}"
 
-    return [num_study], [num_treat], [num_com], [num_par], [num_com_direct], [num_com_without]
+    return [num_study], [num_treat], [num_par],[num_com],[num_study],[num_treat], [num_par], [num_com_direct], [num_com_without]
 
 
 @callback(

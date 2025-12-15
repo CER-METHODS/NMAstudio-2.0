@@ -107,7 +107,7 @@ run_NetMeta_new <- function(dat, i){
     pre_lo <- pre_lo[which(TE_names != treatment)]
     pre_up <- pre_up[which(TE_names != treatment)]
 
-    # --- Add direct and indirect values ---
+    # Direct and indirect values
     direct <- nma_temp$TE.direct.random[treatment, treatment_list]
     direct_lo <- nma_temp$lower.direct.random[treatment, treatment_list]
     direct_up <- nma_temp$upper.direct.random[treatment, treatment_list]
@@ -133,25 +133,27 @@ run_NetMeta_new <- function(dat, i){
       indirect_up <- exp(indirect_up)
     }
 
-    # Create DataFrame
+    # Create DataFrame with dynamic main effect column name
     df <- data.frame(
       Treatment = treatment_list,
       Reference = treatment,
-      TE = TE,
-      CI_lower = ci_lo,
-      CI_upper = ci_up,
-      pre_lower = pre_lo,
-      pre_upper = pre_up,
-      WEIGHT = TEweights,
-      tau2 = tau2,
-      direct = direct,
-      direct_lower = direct_lo,
-      direct_upper = direct_up,
-      indirect = indirect,
-      indirect_lower = indirect_lo,
-      indirect_upper = indirect_up,
       stringsAsFactors = FALSE
     )
+
+    # Add main effect column with dynamic name
+    df[[sm]] <- TE
+    df$CI_lower <- ci_lo
+    df$CI_upper <- ci_up
+    df$pre_lower <- pre_lo
+    df$pre_upper <- pre_up
+    df$WEIGHT <- TEweights
+    df$tau2 <- tau2
+    df$direct <- direct
+    df$direct_lower <- direct_lo
+    df$direct_upper <- direct_up
+    df$indirect <- indirect
+    df$indirect_lower <- indirect_lo
+    df$indirect_upper <- indirect_up
 
     ALL_DFs[[treatment]] <- df
   }
@@ -159,6 +161,7 @@ run_NetMeta_new <- function(dat, i){
   ALL_DFs <- do.call('rbind', ALL_DFs)
   return(ALL_DFs)
 }
+
 
 
 # run_NetMeta_new <- function(dat, i){

@@ -15,7 +15,7 @@ from tools.utils import get_net_data_json, get_league_table_data_list
 def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
     if not forest_data_STORAGE:
         return pd.DataFrame()
-
+    
     def to_df(item):
         if isinstance(item, pd.DataFrame):
             return item.copy()
@@ -44,6 +44,8 @@ def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
         keep = ["Treatment", "Reference"] + [c for c in col_map if c in df.columns]
         
         dfs.append(df[keep].rename(columns=col_map))
+    
+   
 
     if not dfs:
         return pd.DataFrame()

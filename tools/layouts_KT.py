@@ -92,7 +92,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = True,
+                                value = False,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
@@ -491,9 +491,9 @@ def skt_layout():
                                             dbc.Row([
                                                 dbc.Col(dbc.Toast(
                                                                     [html.Span('Overall Info', className='study_design'),
-                                                                     html.Span(className='skt_span1', id="kt_numstudies"),
-                                                                    html.Span(className='skt_span1', id="kt_int"),
-                                                                    html.Span(className='skt_span1',id="kt_par"), 
+                                                                     html.Span(className='skt_span1', id="kt_numstudies2"),
+                                                                    html.Span(className='skt_span1', id="kt_int2"),
+                                                                    html.Span(className='skt_span1',id="kt_par2"), 
                                                                     # html.Span(className='skt_span1',id="kt_com"),
                                                                     html.Span( className='skt_span1', id="kt_com_direct"),
                                                                     html.Span( className='skt_span1', id="kt_com_indirect"),
