@@ -108,13 +108,15 @@ run_NetMeta_new <- function(dat, i){
     pre_up <- pre_up[which(TE_names != treatment)]
 
     # Direct and indirect values
-    direct <- nma_temp$TE.direct.random[treatment, treatment_list]
-    direct_lo <- nma_temp$lower.direct.random[treatment, treatment_list]
-    direct_up <- nma_temp$upper.direct.random[treatment, treatment_list]
+    direct <- -nma_temp$TE.direct.random[treatment, treatment_list]
+    direct_up <- -nma_temp$lower.direct.random[treatment, treatment_list]
+    direct_lo <- -nma_temp$upper.direct.random[treatment, treatment_list]
 
-    indirect <- nma_temp$TE.indirect.random[treatment, treatment_list]
-    indirect_lo <- nma_temp$lower.indirect.random[treatment, treatment_list]
-    indirect_up <- nma_temp$upper.indirect.random[treatment, treatment_list]
+    indirect <- -nma_temp$TE.indirect.random[treatment, treatment_list]
+    indirect_up <- -nma_temp$lower.indirect.random[treatment, treatment_list]
+    indirect_lo <- -nma_temp$upper.indirect.random[treatment, treatment_list]
+
+   
 
     # Exponentiate if needed
     if(!(sm %in% c("MD", "SMD"))){
@@ -136,7 +138,6 @@ run_NetMeta_new <- function(dat, i){
     # Create DataFrame with dynamic main effect column name
     df <- data.frame(
       Treatment = treatment_list,
-      Reference = treatment,
       stringsAsFactors = FALSE
     )
 
@@ -154,6 +155,7 @@ run_NetMeta_new <- function(dat, i){
     df$indirect <- indirect
     df$indirect_lower <- indirect_lo
     df$indirect_upper <- indirect_up
+    df['Reference'] <- treatment
 
     ALL_DFs[[treatment]] <- df
   }

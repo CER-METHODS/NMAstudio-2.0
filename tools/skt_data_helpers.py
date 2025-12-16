@@ -357,37 +357,31 @@ def get_skt_network_data(net_data_storage):
 
 
 #####################skt advanced data helpers #########################
-
-
-
-def Generate_advanced_data(data, p_score, cinima_dat, out_list, long_dat):
-    import pandas as pd
-    import numpy as np
-
+def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx):
+    n_treatments = len(p_score)
     df = prepare_base_dataframe(data)
-    df = add_cinema_data(df, cinima_dat)
-    df = add_stat_columns(df)
-    df = apply_forest_plot_options(df)
-    
-    range_ref_ab = compute_reference_ranges(long_dat)
-    row_data_default = build_grouped_rows(df)
+    df = add_stat_columns(df, effect_size)
+    df = apply_forest_plot_options(df, effect_size, n_treatments)
+    if effect_size in ['RR', 'OR', 'HR']:
+        range_ref_ab = compute_reference_ranges(net_dat, out_idx)
+    else:
+        range_ref_ab = pd.DataFrame(columns=['treat', 'min_value', 'max_value'])
+    row_data_default = build_grouped_rows(df, effect_size)
 
     row_data_default = merge_reference_data(
         row_data_default, p_score, range_ref_ab
     )
 
-    format_treatment_strings(row_data_default)
-
+    format_treatment_strings(row_data_default, effect_size)
     return row_data_default
 
 def prepare_base_dataframe(data):
-    import pandas as pd
-
     df = pd.DataFrame(data)
 
     default_cols = [
         'Certainty', 'within_study', 'reporting',
-        'indirectness', 'imprecision', 'heterogeneity', 'incoherence'
+        'indirectness', 'imprecision',
+        'heterogeneity', 'incoherence'
     ]
     for col in default_cols:
         df[col] = ''
@@ -402,84 +396,86 @@ def prepare_base_dataframe(data):
 
     return df
 
-def add_cinema_data(df, cinima_dat):
-    for i, row in df.iterrows():
-        src, trg = row['Reference'], row['Treatment']
-        comps = {f'{src}:{trg}', f'{trg}:{src}'}
-
-        cin = cinima_dat[cinima_dat['Comparison'].isin(comps)]
-        if cin.empty:
-            continue
-
-        df.loc[i, 'Certainty'] = cin['Confidence rating'].iloc[0]
-        df.loc[i, 'within_study'] = cin['Within-study bias'].iloc[0]
-        df.loc[i, 'reporting'] = cin['Reporting bias'].iloc[0]
-        df.loc[i, 'indirectness'] = cin['Indirectness'].iloc[0]
-        df.loc[i, 'imprecision'] = cin['Imprecision'].iloc[0]
-        df.loc[i, 'heterogeneity'] = cin['Heterogeneity'].iloc[0]
-        df.loc[i, 'incoherence'] = cin['Incoherence'].iloc[0]
-
-    return df
-
-def add_stat_columns(df):
-    df['CI_width_hf'] = df['CI_upper'] - df['RR']
-    df['lower_error'] = df['RR'] - df['CI_lower']
+def add_stat_columns(df, effect_size):
+    df['CI_width_hf'] = df['CI_upper'] - df[effect_size]
+    df['lower_error'] = df[effect_size] - df['CI_lower']
     df['weight'] = 1 / df['CI_width_hf']
     return df.round(2)
 
-def apply_forest_plot_options(df):
-    value_effect = ['PI', 'direct', 'indirect']
+def apply_forest_plot_options(df, effect_size, n_treatments):
     from tools.functions_skt_forestplot import __skt_options_forstplot
+    value_effect = ['PI', 'direct', 'indirect']
+
     return __skt_options_forstplot(
-        value_effect, df, 0.2,
-        scale_lower=None, scale_upper=None, refer_name=None
+        value_effect,
+        df,
+        0.2,
+        effect_size,
+        n_treatments,
+        scale_lower=None,
+        scale_upper=None,
+        refer_name=None
     )
 
-def compute_reference_ranges(long_dat):
-    import pandas as pd
+def compute_reference_ranges(net_dat, outcome_idx):
+    ev1 = f"event1{outcome_idx+1}"
+    n1  = f"n1{outcome_idx+1}"
+    ev2 = f"event2{outcome_idx+1}"
+    n2  = f"n2{outcome_idx+1}"
+
+    long_df = pd.concat(
+        [
+            net_dat[['treat1', ev1, n1]].rename(
+                columns={'treat1': 'treat', ev1: 'event', n1: 'n'}
+            ),
+            net_dat[['treat2', ev2, n2]].rename(
+                columns={'treat2': 'treat', ev2: 'event', n2: 'n'}
+            )
+        ],
+        ignore_index=True
+    )
+    
+    long_df = long_df.dropna(subset=['event', 'n'])
 
     return (
-        long_dat
+        long_df
         .groupby('treat')
         .apply(lambda g: pd.Series({
-            'min_value': (g['rPASI90'] / g['nPASI90']).min() * 1000,
-            'max_value': (g['rPASI90'] / g['nPASI90']).max() * 1000
+            'min_value': (g['event'] / g['n']).min() * 1000,
+            'max_value': (g['event'] / g['n']).max() * 1000
         }))
         .reset_index()
     )
 
-def build_grouped_rows(df):
-    import pandas as pd
-
+def build_grouped_rows(df, effect_size):
     rows = []
     grouped = df.groupby(['Reference', 'risk', 'Scale_lower', 'Scale_upper'])
 
     for (ref, risk, lo, hi), group in grouped:
-        treatments = group_to_treatments(group)
         rows.append({
             'Reference': ref,
             'risk': risk,
             'Scale_lower': lo,
             'Scale_upper': hi,
-            'Treatments': treatments
+            'Treatments': group_to_treatments(group, effect_size)
         })
 
     return pd.DataFrame(rows)
 
-def group_to_treatments(group):
+def group_to_treatments(group, effect_size):
     return [
         {
             "Treatment": r["Treatment"],
-            "RR": r["RR"],
-            "direct": r["direct"],
+            effect_size: r[effect_size],
+            "direct": r.get("direct"),
             "Graph": r["Graph"],
-            "indirect": r["indirect"],
-            "p-value": r["p-value"],
+            "indirect": r.get("indirect"),
+            "p-value": r.get("p-value"),
             "Certainty": r["Certainty"],
-            "direct_low": r["direct_low"],
-            "direct_up": r["direct_up"],
-            "indirect_low": r["indirect_low"],
-            "indirect_up": r["indirect_up"],
+            "direct_low": r.get("direct_lower"),
+            "direct_up": r.get("direct_upper"),
+            "indirect_low": r.get("indirect_lower"),
+            "indirect_up": r.get("indirect_upper"),
             "CI_lower": r["CI_lower"],
             "CI_upper": r["CI_upper"],
             "Comments": r["Comments"],
@@ -495,37 +491,178 @@ def group_to_treatments(group):
     ]
 
 def merge_reference_data(row_df, p_score, range_ref_ab):
+    p_score = p_score.round(2)
     row_df = row_df.merge(
-        p_score, left_on='Reference', right_on='treatment', how='left'
+        p_score,
+        left_on='Reference',
+        right_on='treatment',
+        how='left'
     )
 
     row_df = row_df.merge(
-        range_ref_ab, left_on='Reference', right_on='treat', how='left'
+        range_ref_ab,
+        left_on='Reference',
+        right_on='treat',
+        how='left'
     )
 
     row_df['risk_range'] = row_df.apply(
-        lambda r: f"from {int(r['min_value'])} to {int(r['max_value'])}"
-        if pd.notna(r.get('min_value')) else '',
+        lambda r: (
+            f"from {int(r['min_value'])} to {int(r['max_value'])}"
+            if pd.notna(r.get('min_value')) else ''
+        ),
         axis=1
     )
 
     return row_df
 
-def format_treatment_strings(row_df):
-    for j in range(row_df.shape[0]):
-        for i in range(1, len(row_df.loc[j, 'Treatments'])):
-            t = row_df.loc[j, 'Treatments'][i]
 
-            t['RR'] = f"{t['RR']}\n({t['CI_lower']}, {t['CI_upper']})"
+def format_treatment_strings(row_df, effect_size):
+    for j in range(len(row_df)):
+        treatments = row_df.at[j, 'Treatments']
 
-            t['direct'] = (
-                f"{t['direct']}\n({t['direct_low']}, {t['direct_up']})"
-                if t['direct'] not in ['', None] else ""
-            )
+        for i in range(1, len(treatments)):
+            t = treatments[i]
+            # Main effect
+            if not pd.isna(t.get(effect_size)):
+                t[effect_size] = (
+                    f"{t[effect_size]}\n({t['CI_lower']}, {t['CI_upper']})"
+                )
+            else:
+                t[effect_size] = ""
 
-            t['indirect'] = (
-                f"{t['indirect']}\n({t['indirect_low']}, {t['indirect_up']})"
-                if t['indirect'] not in ['', None] else ""
-            )
+            # Direct
+            if not pd.isna(t.get('direct')):
+                t['direct'] = (
+                    f"{t['direct']}\n({t['direct_low']}, {t['direct_up']})"
+                )
+            else:
+                t['direct'] = ""
+
+            # Indirect
+            if not pd.isna(t.get('indirect')):
+                t['indirect'] = (
+                    f"{t['indirect']}\n({t['indirect_low']}, {t['indirect_up']})"
+                )
+            else:
+                t['indirect'] = ""
 
 
+
+############################################################################
+
+def Generate_advanced_columnDefs(effect_size):
+    # Base definition for all columns, in the original order
+    masterColumnDefs = [
+        {
+            "headerName": "Reference Treatment",
+            "filter": True,
+            "field": "Reference",
+            "headerComponent": "HeaderWithIcon",
+            "cellRenderer": "agGroupCellRenderer",
+            'cellStyle': {'border-left': 'solid 0.8px', 'border-right': 'solid 0.8px'}
+        },
+        {"headerName": "P score\n(Ranking)", "field": "pscore", "editable": True,
+         'cellStyle': {'border-right': 'solid 0.8px'}},
+    ]
+
+    # For RR, OR, HR, add these extra columns in order
+    if effect_size in ['RR', 'OR', 'HR']:
+        masterColumnDefs.extend([
+            {"headerName": "Range of the risk\n(in dataset)", "field": "risk_range",
+             "headerComponent": "HeaderWithIcon", "editable": True,
+             'cellStyle': {'border-right': 'solid 0.8px'}},
+            {"headerName": "Risk per 1000", "field": "risk", "editable": True,
+             "headerComponent": "HeaderWithIcon",
+             'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}},
+            {"headerName": "The rationality of selecting the risk", "field": "rationality",
+             "editable": True, "headerComponent": "HeaderWithIcon",
+             'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}}
+        ])
+
+    # Columns always at the end
+    masterColumnDefs.extend([
+        {"headerName": "Scale lower\n(forestplots)", "field": "Scale_lower",
+         "headerComponent": "HeaderWithIcon", "editable": True,
+         'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}},
+        {"headerName": "Scale upper\n(forestplots)", "field": "Scale_upper",
+         "headerComponent": "HeaderWithIcon", "editable": True,
+         'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}}
+    ])
+
+    return masterColumnDefs
+
+############################################################################
+def Generate_advanced_detailColumnDefs(effect_size):
+    style_certainty = {
+        'white-space': 'pre',
+        'display': 'grid',
+        'text-align': 'center',
+        'align-items': 'center',
+        'border-left': 'solid 0.8px'
+    }
+
+    style_mixed = {
+        'border-left': 'solid 0.8px',
+        'background-color': 'white',
+        'text-align': 'center',
+        'white-space': 'pre',
+        'display': 'grid',
+        'line-height': 'normal',
+        'align-items': 'center'
+    }
+
+    def mixed_cell_style():
+        return {
+            "styleConditions": [
+                {"condition": "params.value =='RR'", "style": style_mixed},
+                {"condition": "params.data.CI_lower < 1 && params.data.CI_upper < 1", "style": {"color": "red", **style_mixed}},
+                {"condition": "params.data.CI_lower > 1 && params.data.CI_upper > 1", "style": {"color": "red", **style_mixed}},
+                {"condition": "!(params.data.CI_lower < 1 && params.data.CI_upper < 1) && !(params.data.CI_lower > 1 && params.data.CI_upper > 1)", "style": style_mixed}
+            ]
+        }
+
+    # Columns common to all effect sizes
+    detailColumnDefs = [
+        {"field": "Treatment", "headerName": "Treatment", "sortable": False, "filter": True, "width": 130,
+         "headerComponent": "HeaderWithIcon", "resizable": True,
+         'cellStyle': {'display': 'grid', "text-align": 'center', 'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
+
+        {"field": effect_size, "headerName": "Mixed effect\n95%CI", "width": 180, "resizable": True,
+         'cellStyle': mixed_cell_style()},
+
+        {"field": "Graph", "cellRenderer": "DCC_GraphClickData", "headerName": "Forest plot",
+         "headerComponent": "HeaderWithIcon", "width": 300, "resizable": True,
+         'cellStyle': {'border-left': 'solid 0.8px', 'border-right': 'solid 0.8px', 'background-color': 'white'}},
+
+        {"field": "direct", "headerName": "Direct effect\n(95%CI)", "headerComponent": "HeaderWithIcon",
+         "width": 170, "resizable": True,
+         'cellStyle': {'color': '#707B7C', 'text-align': 'center', 'display': 'grid', 'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
+
+        {"field": "indirect", "headerName": "Indirect effect\n(95%CI)", "width": 170, "resizable": True,
+         'cellStyle': {'color': '#ABB2B9', 'text-align': 'center', 'display': 'grid', 'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
+
+        {"field": "p-value", "headerName": "p-value\n(Consistency)", "width": 140, "resizable": True,
+         'cellStyle': {'text-align': 'center', 'display': 'grid', 'line-height': 'normal', 'white-space': 'pre', 'align-items': 'center'}},
+
+        {"field": "Certainty", "headerName": "Certainty", "headerComponent": "HeaderWithIcon", "filter": True,
+         "width": 110, "resizable": True, "tooltipField": 'Certainty',
+         "tooltipComponentParams": {"color": '#d8f0d3'}, "tooltipComponent": "CustomTooltip",
+         'cellStyle': {"styleConditions": [
+             {"condition": "params.value == 'High'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
+             {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},
+             {"condition": "params.value == 'Low'", "style": {"backgroundColor": "#B85042", **style_certainty}}
+         ]}},
+
+        {"field": "Comments", "width": 120, "headerComponent": "HeaderWithIcon", "resizable": True, "editable": True,
+         'cellStyle': {'border-left': 'solid 0.5px', 'text-align': 'center', 'display': 'grid', 'border-right': 'solid 0.8px'}},
+    ]
+
+    if effect_size in ['RR', 'OR', 'HR']:
+        detailColumnDefs.insert(2, {"field": "ab_difference", "headerName": "Absolute Difference",
+                                    "headerComponent": "HeaderWithIcon", "width": 180, "resizable": True,
+                                    'cellStyle': {'border-left': 'solid 0.8px', 'background-color': 'white',
+                                                  'text-align': 'center', 'white-space': 'pre', 'display': 'grid',
+                                                  'line-height': 'normal', 'align-items': 'center'}})
+
+    return detailColumnDefs

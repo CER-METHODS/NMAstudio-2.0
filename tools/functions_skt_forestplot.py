@@ -12,22 +12,25 @@ def update_indirect_direct(row):
 
 
 def __skt_options_forstplot(
-    value_effect, df, lower, scale_lower, scale_upper, refer_name
+    value_effect, df, lower, effect_size, n_treatments, scale_lower, scale_upper, refer_name
 ):
     # df = df.sort_values(by='Reference')
+    n_rows = len(df)
+    
     new_rows = pd.DataFrame(columns=df.columns)
-    for idx in range(0, 380, 19):
-        new_rows.loc[idx / 19, "Reference"] = df.loc[idx, "Reference"]
-
+    for idx in range(0, n_rows, n_treatments-1):
+        new_rows.loc[idx / n_treatments-1, "Reference"] = df.loc[idx, "Reference"]
+    n_new = len(new_rows)
+    n_total = n_rows + n_new
     # new_rows['Treatment'] = 'Scale'
     new_rows["risk"] = "Enter a number"
     new_rows["Scale_lower"] = "Enter a value for lower"
     new_rows["Scale_upper"] = "Enter a value for upper"
-    new_rows["RR"] = "RR"
-    new_rows["direct"] = "RR"
-    new_rows["indirect"] = "RR"
+    new_rows[f"{effect_size}"] = f"{effect_size}"
+    new_rows["direct"] = f"{effect_size}"
+    new_rows["indirect"] = f"{effect_size}"
     new_rows["p-value"] = "0.75\n(Global)"
-    interval = 19
+    interval = n_treatments-1
     insert_index = 0
     lower = float(lower)
     for _, row in new_rows.iterrows():
@@ -36,12 +39,13 @@ def __skt_options_forstplot(
         ).reset_index(drop=True)
         insert_index += interval + 1  # Move to the next insertion position
 
-    for j in range(0, 400, 20):
-        data_ex = df[j + 1 : j + 20]
+    for j in range(0, n_total, n_treatments):
+        data_ex = df[j + 1 : j + n_treatments]
         up_rng_max, low_rng_min = data_ex.CI_upper.mean(), data_ex.CI_lower.mean()
         # up_rng_max = 10**np.floor(np.log10(up_rng_max))
         # low_rng_min = 10 ** np.floor(np.log10(low_rng_min))
-        up_mix_max, low_mix_min = data_ex.RR.max(), data_ex.RR.min()
+
+        up_mix_max, low_mix_min = data_ex[f"{effect_size}"].max(), data_ex[f"{effect_size}"].min()
         # up_mix_max = 10**np.floor(np.log10(up_mix_max))
         # low_mix_min = 10 ** np.floor(np.log10(low_mix_min))
 
@@ -106,7 +110,7 @@ def __skt_options_forstplot(
         )
         fig.update_xaxes(
             ticks="outside",
-            type="log",
+            type="log" if effect_size in ["RR", "OR"] else "linear",
             showgrid=False,
             # autorange=True,
             showline=True,
@@ -118,7 +122,7 @@ def __skt_options_forstplot(
 
         num_line = len(value_effect) + 1
 
-        for i in range(j + 1, j + 20):
+        for i in range(j + 1, j + n_treatments):
             filterDf = df.iloc[i]
             filter_df = pd.DataFrame([filterDf])
             filter_df = filter_df.apply(update_indirect_direct, axis=1)
@@ -128,22 +132,22 @@ def __skt_options_forstplot(
             for index, value in enumerate(reversed(value_effect)):
                 if value == "PI":
                     dif = np.log(filter_df.CI_upper[index]) - np.log(
-                        filter_df["RR"][index]
+                        filter_df[f"{effect_size}"][index]
                     )
-                    CI_upper = np.exp(np.log(filter_df["RR"][index]) + (dif + 0.2))
-                    CI_lower = np.exp(np.log(filter_df["RR"][index]) - (dif + 0.2))
-                    filter_df["CI_width_hf"][index] = CI_upper - filter_df["RR"][index]
-                    filter_df["lower_error"][index] = filter_df["RR"][index] - CI_lower
+                    CI_upper = np.exp(np.log(filter_df[f"{effect_size}"][index]) + (dif + 0.2))
+                    CI_lower = np.exp(np.log(filter_df[f"{effect_size}"][index]) - (dif + 0.2))
+                    filter_df["CI_width_hf"][index] = CI_upper - filter_df[f"{effect_size}"][index]
+                    filter_df["lower_error"][index] = filter_df[f"{effect_size}"][index] - CI_lower
                     filter_df["name"][index] = "PI"
 
                 else:
                     filter_df["Treatment"][index] = value
-                    filter_df["RR"][index] = filter_df[value][index]
+                    filter_df[f"{effect_size}"][index] = filter_df[value][index]
                     filter_df["CI_width_hf"][index] = (
-                        filter_df[f"{value}_up"][index] - filter_df[value][index]
+                        filter_df[f"{value}_upper"][index] - filter_df[value][index]
                     )
                     filter_df["lower_error"][index] = (
-                        filter_df[value][index] - filter_df[f"{value}_low"][index]
+                        filter_df[value][index] - filter_df[f"{value}_lower"][index]
                     )
                     filter_df["name"][index] = value
 
@@ -167,13 +171,13 @@ def __skt_options_forstplot(
             fig = go.Figure()
             for idx in range(filter_df.shape[0]):
                 data_point = filter_df.iloc[idx]
-                if np.isnan(data_point["RR"]):
+                if np.isnan(data_point[f"{effect_size}"]):
                     continue
                 name = data_point["name"]
                 (
                     fig.add_trace(
                         go.Scatter(
-                            x=[data_point["RR"]],
+                            x=[data_point[f"{effect_size}"]],
                             y=[data_point["Treatment"]],
                             # error_x_minus=dict(type='data',color = colors[i],array='lower_error',visible=True),
                             error_x=dict(
@@ -207,7 +211,7 @@ def __skt_options_forstplot(
             fig.update_layout(
                 barmode="group",
                 bargap=0.25,
-                xaxis=dict(range=range_scale, type="log"),
+                xaxis=dict(range=range_scale, type="log" if effect_size in ["RR", "OR"] else "linear"),
                 # xaxis=dict(range=[min(low_rng_min, -10), up_rng_max]),
                 showlegend=False,
                 yaxis_visible=False,
@@ -599,12 +603,12 @@ def __skt_ab_forstplot(
                     filter_df["Treatment"][index] = value
                     filter_df["abs"][index] = filter_df[value][index]
                     filter_df["CI_width_hf"][index] = (
-                        filter_df[f"{value}_up"][index] * risk
+                        filter_df[f"{value}_upper"][index] * risk
                         - filter_df[value][index] * risk
                     )
                     filter_df["lower_error"][index] = (
                         filter_df[value][index] * risk
-                        - filter_df[f"{value}_low"][index] * risk
+                        - filter_df[f"{value}_lower"][index] * risk
                     )
                     filter_df["name"][index] = value
 

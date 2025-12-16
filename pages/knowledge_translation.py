@@ -41,6 +41,8 @@ from tools.skt_data_helpers import (
     Generate_advanced_data,
     Generate_kt_standad_data,
     Generate_kt_standad_columnDefs,
+    Generate_advanced_columnDefs,
+    Generate_advanced_detailColumnDefs
 )
 import pandas as pd
 import numpy as np
@@ -207,45 +209,51 @@ def show_forest_plot(cell, style_pair):
     Output("treat_comp", "children"),
     Output("num_RCT", "children"), 
     Output("num_sample", "children"),
-    Output("mean_modif", "children"), 
+    Output("mean_modif", "children"),
     Input("quickstart-grid", "cellClicked"),
+    State("sktdropdown-out", "value"),
+    State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data")
 )
+def display_sktinfo3(cell, out_idx, net_data, effect_modifiers):
+    treat_comp = num_RCT = num_sample = text_info = ''
 
-def display_sktinfo3(cell):
-    treat_comp, num_RCT, num_sample, mean_modif = '','','',''
-    if  cell is not None and len(cell) != 0 and 'colId' in cell and cell['colId'] == "Treatment" and cell['value'] is not None and cell['value']!= '':
-        df_n_rct = pd.read_csv('db/skt/final_all.csv')
-        dic_data =cell
-        treat = dic_data['value']
-        # idx = dic_data['rowIndex']
-        refer = dic_data['rowId'].split('_')[1].split(' ')[0]
-        treat_comp = f'Treatment: {treat}, Comparator: {refer}'
-        
-        n_rct = df_n_rct.loc[(df_n_rct['Treatment'] == treat) & (df_n_rct['Reference'] == refer), 'k']
-        # print(n_rct)
-        n_rct_value = n_rct.iloc[0] if not n_rct.empty else np.NAN
-        num_RCT = f'Randomize controlled trials: {n_rct_value}'
+    if not cell or cell.get('colId') != "Treatment" or not cell.get('value'):
+        return treat_comp, num_RCT, num_sample, text_info
 
-        df_n_total = pd.read_csv('db/psoriasis_wide_complete1.csv')
-        set1 = {(treat, refer), (refer, treat)}
+    treat = cell['value']
+    refer = cell['rowId'].split('_')[1].split(' ')[0]
+    treat_comp = f'Treatment: {treat}, Comparator: {refer}'
 
-        # Extract relevant rows from the DataFrame
-        dat_extract = df_n_total[
-            df_n_total.apply(lambda row: (row['treat1'], row['treat2']) in set1, axis=1)
-        ]
-        # Calculate the total
-        n_total = dat_extract['n11'].sum() + dat_extract['n21'].sum()
-        num_sample = f'Total participants: {n_total}'
+    from tools.utils import get_net_data_json
+    df_net = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
-        mean_age = round(dat_extract['age'].mean(), 2)
-        mean_gender = round((dat_extract['male'] / (dat_extract['n11'] + dat_extract['n21'])).mean(), 2)
+    # Count number of RCTs for this comparison
+    n_rct = df_net[
+        ((df_net['treat1'] == treat) & (df_net['treat2'] == refer)) |
+        ((df_net['treat2'] == refer) & (df_net['treat1'] == treat))
+    ]
+    num_RCT = f'Randomized controlled trials: {len(n_rct)}'
+
+    # Extract participant numbers
+    pair_set = {(treat, refer), (refer, treat)}
+    dat_extract = df_net[df_net.apply(lambda row: (row['treat1'], row['treat2']) in pair_set, axis=1)]
+    
+    idx = out_idx + 1
+    n_total = dat_extract.get(f'n1{idx}', pd.Series([0])).sum() + dat_extract.get(f'n2{idx}', pd.Series([0])).sum()
+    num_sample = f'Total participants: {n_total}'
+
+    # Median of effect modifiers
+    for modif in effect_modifiers or []:
+        modif_op = modif + '1'
+        if modif or modif_op in dat_extract.columns:
+            modif = modif_op if modif_op in dat_extract.columns else modif
+            median_val = round(dat_extract[modif].median(), 2)
+            text_info += f'{modif}: {median_val}\n'
+
+    return treat_comp, num_RCT, num_sample, text_info
 
 
-        mean_modif = f'Mean age: {mean_age}\nMean male percentage: {mean_gender}'
-
-
-
-    return treat_comp, num_RCT, num_sample, mean_modif
 
 
 @callback(
@@ -353,7 +361,6 @@ def generate_text_info(nodedata, edgedata):
     Input("close_compare", "n_clicks"),
 )
 def display_sktinfo1(cell, _):
-    # print(cell)
     if ctx.triggered_id == "close_compare":
         return False
     if cell is None or len(cell) == 0:  
@@ -706,7 +713,6 @@ clientside_callback(
 )
 
 
-
 import time
 
 @callback(
@@ -887,9 +893,7 @@ def redirect_kt_on_reset(current_path, results_ready):
     Output("KT_standard_data_STORAGE", "data"),
     Output("grid_treat_compare", "rowData"),
     Output("grid_treat_compare", "columnDefs"),
-    Output('cytoscape_skt2', 'elements'),
     Input("kt_page_location", "pathname"),
-    Input("stand-sktdropdown-out", "value"), 
     State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
     State("forest_data_STORAGE", "data"),
@@ -898,7 +902,7 @@ def redirect_kt_on_reset(current_path, results_ready):
     State("KT_standard_data_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
+def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
     if not results_ready or not net_data or not forest_data_STORAGE:
         raise PreventUpdate
     
@@ -912,62 +916,127 @@ def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_
         for i in range(num_outcomes)
         if f"effect_size{i+1}" in net_df.columns
     ]
+    
     data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
     data["index"] = data.index
     
     # data.to_csv('db/test_kt_standard_data.csv', index=False)
 
     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
-    element = get_skt_elements(net_df, out_idx)
     return (
         data.to_dict("records"),
         data.to_dict("records"),
-        ColumnDefs_treat_compare,
-        element
+        ColumnDefs_treat_compare
     )
 
 
 
-# @callback(
-#     Output("KT_advanced_data_STORAGE", "data"),
-#     Output("grid_treat_compare", "rowData"),
-#     Output("grid_treat_compare", "columnDefs"),
-#     Input("kt_page_location", "pathname"),
-#     Input("stand-sktdropdown-out", "value"), 
-#     State("results_ready_STORAGE", "data"),
-#     State("net_data_STORAGE", "data"),
-#     State("forest_data_STORAGE", "data"),
-#     State("number_outcomes_STORAGE", "data"),
-#     State("outcome_names_STORAGE", "data"),
-#     State("KT_advanced_data_STORAGE", "data"),
-#     prevent_initial_call="initial_duplicate",
-# )
-# def generate_kt_standad_data(curr_path, out_idx,results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
-#     if not results_ready or not net_data or not forest_data_STORAGE:
-#         raise PreventUpdate
+@callback(
+    Output('cytoscape_skt2', 'elements'),
+    Input("kt_page_location", "pathname"),
+    Input("stand-sktdropdown-out", "value"), 
+    State("results_ready_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
+    prevent_initial_call="initial_duplicate",
+)
+def generate_kt_diagram_data(curr_path, out_idx,results_ready, net_data):
+    if not results_ready or not net_data:
+        raise PreventUpdate
     
-#     from tools.utils import get_net_data_json
+    from tools.utils import get_net_data_json
 
-#     net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
-#     num_outcomes = int(num_outcomes or 0)
-#     effect_sizes = [
-#         net_df[f"effect_size{i+1}"].iloc[0]
-#         for i in range(num_outcomes)
-#         if f"effect_size{i+1}" in net_df.columns
-#     ]
-    
-#     data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
-#     data["index"] = data.index
-    
+   
+    element = get_skt_elements(net_df, out_idx)
+    return element
 
-#     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
 
-#     return (
-#         data.to_dict("records"),
-#         data.to_dict("records"),
-#         ColumnDefs_treat_compare
-#     )
+
+@callback(
+    Output("KT_advanced_data_STORAGE", "data"),
+    Output("quickstart-grid", "rowData"),
+    Output("quickstart-grid", "columnDefs"),
+    Output("quickstart-grid", "detailCellRendererParams"),
+    Input("kt_page_location", "pathname"),
+    Input("sktdropdown-out", "value"),
+    State("results_ready_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
+    State("ranking_data_STORAGE", "data"),
+    State("forest_data_STORAGE", "data"),
+    prevent_initial_call=True,
+)
+def generate_kt_advanced_data(
+    curr_path,
+    out_idx,
+    results_ready,
+    net_data,
+    ranking_data,
+    forest_data_storage
+):
+    if not results_ready or not net_data or not forest_data_storage:
+        raise PreventUpdate
+
+    from tools.utils import get_net_data_json
+
+    out_idx = int(out_idx or 0)
+
+    net_df = pd.read_json(
+        get_net_data_json(net_data),
+        orient="split"
+    ).round(3)
+
+    effect_size = net_df[f"effect_size{out_idx+1}"].iloc[0]
+
+    forest_df = pd.read_json(
+        forest_data_storage[out_idx],
+        orient="split"
+    )
+
+    ranking_df = pd.read_json(
+        ranking_data[out_idx],
+        orient="split"
+    )
+
+    data = Generate_advanced_data(
+        forest_df,
+        ranking_df,
+        net_df,
+        effect_size,
+        out_idx
+    )
+
+    data["index"] = data.index
+
+    records = data.to_dict("records")
+
+    columnDefs = Generate_advanced_columnDefs(effect_size)
+    detailColumnDefs = Generate_advanced_detailColumnDefs(effect_size)
+    getRowStyle = {
+        "styleConditions": [
+            {
+                "condition": "params.data.RR === 'RR'",
+                "style": {"backgroundColor": "#faead7",'font-weight': 'bold'},
+            },
+        ]
+    }
+
+    detailCellRendererParams={
+                "detailGridOptions": {
+                "columnDefs": detailColumnDefs,
+                "rowHeight": 80,
+                "rowDragManaged": True,
+                "rowDragMultiRow": True,
+                "rowDragEntireRow": True,
+                "rowSelection": "multiple",
+                'getRowStyle': getRowStyle,
+                "detailCellClass": "ag-details-grid",
+                },
+                "detailColName": "Treatments",
+                "suppressCallback": True,
+            }
+
+    return records, records, columnDefs, detailCellRendererParams
 
 
 
@@ -1031,6 +1100,7 @@ def infor_overall(curr_path, net_data):
     Output("kt_modifiers_info", "children"),
     Output("ddskt-trans", "options"),
     Output("stand-sktdropdown-out", "options"),
+    Output("sktdropdown-out", "options"),
     Input("kt_page_location", "pathname"),
     State("net_data_STORAGE", "data"),
     State("effect_modifiers_STORAGE", "data"),
@@ -1047,7 +1117,9 @@ def infor_effectmodifier(curr_path, net_data, effect_modifiers, out_names):
     children = []
     for i in range(n_effect_modifiers):
         modifier_name = effect_modifiers[i]
-        if modifier_name in net_data.columns:
+        modifier_name_op = modifier_name + "1"
+        if modifier_name or modifier_name_op in net_data.columns:
+            modifier_name = modifier_name if modifier_name in net_data.columns else modifier_name_op
             unique_studies =  net_data[["studlab", f"{modifier_name}"]].drop_duplicates("studlab")
             # Sum sample sizes (ignore NaN)
             median_modifier = unique_studies[f"{modifier_name}"].dropna().median()
@@ -1055,7 +1127,7 @@ def infor_effectmodifier(curr_path, net_data, effect_modifiers, out_names):
     options = [{'label': '{}'.format(col), 'value': col} for col in effect_modifiers]
     options_out = [{'label': '{}'.format(col), 'value': i} for i, col in enumerate(out_names)]
 
-    return children, options, options_out
+    return children, options, options_out, options_out
 
 
 
@@ -1076,7 +1148,9 @@ def infor_effectmodifier2(curr_path, net_data, effect_modifiers):
     children = []
     for i in range(n_effect_modifiers):
         modifier_name = effect_modifiers[i]
-        if modifier_name in net_data.columns:
+        modifier_name_op = modifier_name + "1"
+        if modifier_name or modifier_name_op in net_data.columns:
+            modifier_name = modifier_name if modifier_name in net_data.columns else modifier_name_op
             unique_studies =  net_data[["studlab", f"{modifier_name}"]].drop_duplicates("studlab")
             # Sum sample sizes (ignore NaN)
             median_modifier = unique_studies[f"{modifier_name}"].dropna().median()

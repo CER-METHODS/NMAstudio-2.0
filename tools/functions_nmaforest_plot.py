@@ -119,6 +119,7 @@ def __TapNodeData_fig(
 
         effect_size = df.columns[1]
 
+
         # Guard: Safe tau2 access
         try:
             if "tau2" in df.columns and len(df) > 1 and not pd.isna(df["tau2"].iloc[1]):
