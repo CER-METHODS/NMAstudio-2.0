@@ -55,14 +55,14 @@ def __skt_options_forstplot(
             and scale_lower is not None
             and scale_upper is not None
         ):
-            range_scale = [np.log10(scale_lower), np.log10(scale_upper)]
+            range_scale = [np.log10(scale_lower), np.log10(scale_upper)] if effect_size in ["RR", "OR"] else [scale_lower, scale_upper]
         elif (
             refer_name is not None
             and refer_name == df["Reference"][j + 1]
             and scale_lower is not None
             and scale_upper is None
         ):
-            range_scale = [np.log10(scale_lower), np.log10(max(up_rng_max, up_mix_max))]
+            range_scale = [np.log10(scale_lower), np.log10(max(up_rng_max, up_mix_max))] if effect_size in ["RR", "OR"] else [scale_lower, max(up_rng_max, up_mix_max)]
         elif (
             refer_name is not None
             and refer_name == df["Reference"][j + 1]
@@ -72,12 +72,12 @@ def __skt_options_forstplot(
             range_scale = [
                 np.log10(min(low_rng_min, 0.1, low_mix_min)),
                 np.log10(scale_upper),
-            ]
+            ] if effect_size in ["RR", "OR"] else [min(low_rng_min, low_mix_min), scale_upper]
         else:
             range_scale = [
                 np.log10(min(low_rng_min, 0.1, low_mix_min)),
                 np.log10(max(up_rng_max, 10, up_mix_max)),
-            ]
+            ] if effect_size in ["RR", "OR"] else [min(low_rng_min, low_mix_min), max(up_rng_max, up_mix_max)]
 
         # print(range_scale) if j == 0  else 0
         fig = go.Figure(go.Scatter(y=[], x=[]))
@@ -204,7 +204,7 @@ def __skt_options_forstplot(
                 )
                 fig.update_xaxes(
                     ticks="outside",
-                    type="log",
+                    type="log" if effect_size in ["RR", "OR"] else "linear",
                     range=range_scale,
                 )
 
@@ -265,8 +265,8 @@ def __skt_options_forstplot(
                 y0=0,
                 y1=1,
                 xref="x",
-                x0=1,
-                x1=1,
+                x0=1 if effect_size in ["RR", "OR"] else 0,
+                x1=1 if effect_size in ["RR", "OR"] else 0,
                 line=dict(color="green", width=2, dash="dot"),
                 layer="below",
             )

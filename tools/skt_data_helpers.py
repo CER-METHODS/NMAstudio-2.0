@@ -604,7 +604,7 @@ def Generate_advanced_detailColumnDefs(effect_size):
 
     style_mixed = {
         'border-left': 'solid 0.8px',
-        'background-color': 'white',
+        # 'background-color': 'white',
         'text-align': 'center',
         'white-space': 'pre',
         'display': 'grid',
@@ -628,12 +628,15 @@ def Generate_advanced_detailColumnDefs(effect_size):
          "headerComponent": "HeaderWithIcon", "resizable": True,
          'cellStyle': {'display': 'grid', "text-align": 'center', 'white-space': 'pre', 'line-height': 'normal', 'align-items': 'center'}},
 
-        {"field": effect_size, "headerName": "Mixed effect\n95%CI", "width": 180, "resizable": True,
+        {"field": effect_size, "headerName": "Mixed effect\n(95%CI)", "width": 180, "resizable": True,
          'cellStyle': mixed_cell_style()},
 
         {"field": "Graph", "cellRenderer": "DCC_GraphClickData", "headerName": "Forest plot",
          "headerComponent": "HeaderWithIcon", "width": 300, "resizable": True,
-         'cellStyle': {'border-left': 'solid 0.8px', 'border-right': 'solid 0.8px', 'background-color': 'white'}},
+         'cellStyle': {'border-left': 'solid 0.8px', ''
+         'border-right': 'solid 0.8px', 
+        #  'background-color': 'white'
+         }},
 
         {"field": "direct", "headerName": "Direct effect\n(95%CI)", "headerComponent": "HeaderWithIcon",
          "width": 170, "resizable": True,
@@ -661,8 +664,343 @@ def Generate_advanced_detailColumnDefs(effect_size):
     if effect_size in ['RR', 'OR', 'HR']:
         detailColumnDefs.insert(2, {"field": "ab_difference", "headerName": "Absolute Difference",
                                     "headerComponent": "HeaderWithIcon", "width": 180, "resizable": True,
-                                    'cellStyle': {'border-left': 'solid 0.8px', 'background-color': 'white',
+                                    'cellStyle': {'border-left': 'solid 0.8px', 
+                                                #   'background-color': 'white',
                                                   'text-align': 'center', 'white-space': 'pre', 'display': 'grid',
                                                   'line-height': 'normal', 'align-items': 'center'}})
 
     return detailColumnDefs
+
+
+import re
+import pandas as pd
+
+def _first_number(x):
+    if pd.isna(x):
+        return None
+    if isinstance(x, (int, float)):
+        return float(x)
+    m = re.search(r"[-+]?\d*\.?\d+", str(x))
+    return float(m.group()) if m else None
+
+
+def _change_abs_diff(change, rowData, effect_size):
+    df = pd.DataFrame(rowData).reset_index(drop=True)
+    row_idx = change["rowIndex"]
+    base_risk = int(change["value"])
+
+    df.at[row_idx, "risk"] = base_risk
+    treatments = pd.DataFrame(df.at[row_idx, "Treatments"])
+
+    for i in range(1, len(treatments)):
+        eff = _first_number(treatments.at[i, effect_size])
+        ci_lo = _first_number(treatments.at[i, "CI_lower"])
+        ci_up = _first_number(treatments.at[i, "CI_upper"])
+
+        if eff is None or ci_lo is None or ci_up is None:
+            continue
+
+        risk_t = int(base_risk * eff)
+        diff = risk_t - base_risk
+        sign = "more" if diff > 0 else "less"
+
+        lo = int(base_risk * ci_lo) - base_risk
+        up = int(base_risk * ci_up) - base_risk
+
+        treatments.at[i, "ab_difference"] = (
+            f"\n{abs(diff)} {sign} per 1000\n"
+            f"({abs(lo)} to {abs(up)})"
+        )
+
+        for k in ["direct", "indirect"]:
+            val = _first_number(treatments.at[i, k])
+            lo_k = _first_number(treatments.at[i, f"{k}_low"])
+            up_k = _first_number(treatments.at[i, f"{k}_up"])
+            treatments.at[i, k] = (
+                f"{val}\n({lo_k}, {up_k})" if val is not None else ""
+            )
+
+    df.at[row_idx, "Treatments"] = treatments.to_dict("records")
+    return df.to_dict("records")
+
+#############################################################################
+
+import plotly.express as px, plotly.graph_objects as go
+
+def update_indirect_direct(row):
+    if pd.isna(row["direct"]):
+        row["indirect"] = pd.NA
+    elif pd.isna(row["indirect"]):
+        row["direct"] = pd.NA
+    return row
+
+
+from dash import ctx
+
+def update_kt_plots_scale(value_effect, value_change, lower, rowData, effect_size):
+    df = pd.DataFrame(rowData)
+
+    triggered = ctx.triggered_id
+
+    # --------------------------------------------------
+    # 1. value_effect changed → update ALL rows
+    #    even if value_effect == []
+    # --------------------------------------------------
+    if triggered == "checklist_effects":
+        for i in range(len(df)):
+            row = df.iloc[i]
+
+            row_scale_lower = _first_number(row.get("Scale_lower"))
+            row_scale_upper = _first_number(row.get("Scale_upper"))
+
+            df.iloc[i] = __kt_options_forstplot_row(
+                value_effect,
+                row,
+                lower,
+                row_scale_lower,
+                row_scale_upper,
+                effect_size
+            )
+
+    # --------------------------------------------------
+    # 2. scale cell changed → update ONLY that row
+    # --------------------------------------------------
+    elif triggered == "quickstart-grid" and value_change and value_change[0]['colId']!= 'risk' and value_change[0]["value"] is not None:
+        row_idx = value_change[0]["rowIndex"]
+        col_id = value_change[0]["colId"]
+
+        row = df.iloc[row_idx]
+
+        row_scale_lower = _first_number(row.get("Scale_lower"))
+        row_scale_upper = _first_number(row.get("Scale_upper"))
+
+        # override with edited cell
+        if col_id == "Scale_lower":
+            row_scale_lower = _first_number(value_change[0]["value"])
+        elif col_id == "Scale_upper":
+            row_scale_upper = _first_number(value_change[0]["value"])
+
+        df.iloc[row_idx] = __kt_options_forstplot_row(
+            value_effect,
+            row,
+            lower,
+            row_scale_lower,
+            row_scale_upper,
+            effect_size
+        )
+
+    return df.to_dict("records")
+
+
+def __kt_options_forstplot_row(value_effect, row, lower, scale_lower, scale_upper, effect_size):
+    treatments_orig = pd.DataFrame(row["Treatments"])  # keep original
+    treatments = treatments_orig.copy()                # work on copy
+
+    # Apply _first_number only to relevant numeric columns
+    numeric_cols = [c for c in treatments.columns if c not in ("Graph", "Treatment")]
+    for col in numeric_cols:
+        treatments[col] = treatments[col].apply(_first_number)
+
+    up_rng_max, low_rng_min = treatments.CI_upper.mean(), treatments.CI_lower.mean()
+    up_mix_max, low_mix_min = treatments[effect_size].max(), treatments[effect_size].min()
+
+    # Compute row-specific scale
+    if scale_lower is not None and scale_upper is not None:
+        range_scale = [np.log10(scale_lower), np.log10(scale_upper)] if effect_size in ["RR", "OR"] else [scale_lower, scale_upper]
+    elif scale_lower is not None:
+        range_scale = [np.log10(scale_lower), np.log10(max(up_rng_max, up_mix_max))] if effect_size in ["RR", "OR"] else [scale_lower, max(up_rng_max, up_mix_max)]
+    elif scale_upper is not None:
+        range_scale = [np.log10(min(low_rng_min, 0.1, low_mix_min)), np.log10(scale_upper)] if effect_size in ["RR", "OR"] else [min(low_rng_min, low_mix_min), scale_upper]
+    else:
+        range_scale = [np.log10(min(low_rng_min, 0.1, low_mix_min)), np.log10(max(up_rng_max, 10, up_mix_max))] if effect_size in ["RR", "OR"] else [min(low_rng_min, low_mix_min), max(up_rng_max, up_mix_max)]
+
+    fig_template = go.Figure(go.Scatter(y=[], x=[]))
+
+    tick0 = 10 ** range_scale[0] + 0.1
+    tick_end = 10 ** range_scale[1] - 1
+
+    tick_values1 = np.linspace(tick0, 1, num=5).round(2)
+    tick_values2 = np.linspace(1, tick_end, num=5).astype(int)
+    tick_values = np.concatenate((tick_values1, tick_values2[1:]))
+    # Insert 1 at the beginning of the array
+    # tick_values = np.insert(tick_values, 0, 1)
+    # dtick=(tick_end - tick0) / 9
+    fig_template.update_layout(
+        xaxis=dict(
+            range=range_scale,
+            tickmode="auto",
+            tickformat=".1f",
+            # tickvals=tick_values
+        ),
+        dragmode=False,
+        showlegend=False,
+        yaxis_visible=False,
+        yaxis_showticklabels=False,
+        autosize=True,
+        paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=100,
+        margin=dict(l=0, r=0),
+    )
+    fig_template.update_xaxes(
+        ticks="outside",
+        type="log" if effect_size in ["RR", "OR"] else "linear",
+        showgrid=False,
+        # autorange=True,
+        showline=True,
+        # tickcolor='rgba(0,0,0,0)',
+        linecolor="black",
+    )
+
+    treatments_orig.at[0, "Graph"] = fig_template
+    num_line = len(value_effect) + 1
+
+    for i in range(1, len(treatments)):
+        filter_df = treatments.iloc[[i]].apply(update_indirect_direct, axis=1).reset_index(drop=True)
+        filter_df["CI_width_hf"] = ""
+        filter_df["lower_error"] = ""
+        filter_df["name"] = ""
+
+        CI_upper = filter_df['CI_upper'][0]
+        CI_lower = filter_df['CI_lower'][0]
+        filter_df.at[0, "CI_width_hf"] = CI_upper - filter_df[f"{effect_size}"][0]
+        filter_df.at[0, "lower_error"] = filter_df[f"{effect_size}"][0] - CI_lower
+        filter_df = pd.concat([filter_df] * num_line, ignore_index=True)
+    
+        for index, value in enumerate(reversed(value_effect)):
+            if value == "PI":
+                dif = np.log(filter_df.CI_upper[index]) - np.log(filter_df[effect_size][index])
+                CI_upper = np.exp(np.log(filter_df[effect_size][index]) + dif + 0.2)
+                CI_lower = np.exp(np.log(filter_df[effect_size][index]) - dif - 0.2)
+                filter_df["CI_width_hf"][index] = CI_upper - filter_df[effect_size][index]
+                filter_df["lower_error"][index] = filter_df[effect_size][index] - CI_lower
+                filter_df["name"][index] = "PI"
+            else:
+                filter_df["Treatment"][index] = value
+                filter_df[effect_size][index] = filter_df[value][index]
+                filter_df["CI_width_hf"][index] = filter_df[f"{value}_up"][index] - filter_df[value][index]
+                filter_df["lower_error"][index] = filter_df[value][index] - filter_df[f"{value}_low"][index]
+                filter_df["name"][index] = value
+          
+        colors = {
+                "indirect": "#ABB2B9",
+                "direct": "#707B7C",
+                "PI": "red",
+                "other": "black",
+            }
+
+        hovert_template = {
+            "indirect": "indirect estimate with CI" + "<extra></extra>",
+            "direct": "direct estimate with CI" + "<extra></extra>",
+            "PI": "mixed estimate with CI & PI" + "<extra></extra>",
+            "other": "mixed estimate with CI & PI" + "<extra></extra>",
+        }
+        
+        fig = go.Figure()
+        for idx in range(filter_df.shape[0]):
+            data_point = filter_df.iloc[idx]
+            value = data_point[f"{effect_size}"]
+            if pd.isna(value):
+                continue
+            name = data_point["name"]
+            (
+                fig.add_trace(
+                    go.Scatter(
+                        x=[data_point[f"{effect_size}"]],
+                        y=[data_point["Treatment"]],
+                        # error_x_minus=dict(type='data',color = colors[i],array='lower_error',visible=True),
+                        error_x=dict(
+                            type="data",
+                            color=colors[name]
+                            if name in colors
+                            else colors["other"],
+                            array=[data_point["CI_width_hf"]],
+                            arrayminus=[data_point["lower_error"]],
+                            visible=True,
+                        ),
+                        marker=dict(
+                            color=colors[name]
+                            if name in colors
+                            else colors["other"],
+                            size=8,
+                        ),
+                        showlegend=False,
+                        hovertemplate=hovert_template[name]
+                        if name in hovert_template
+                        else hovert_template["other"],
+                    )
+                ),
+            )
+            fig.update_xaxes(
+                ticks="outside",
+                type="log" if effect_size in ["RR", "OR"] else "linear",
+                range=range_scale,
+            )
+
+        fig.update_layout(
+            barmode="group",
+            bargap=0.25,
+            xaxis=dict(range=range_scale, type="log" if effect_size in ["RR", "OR"] else "linear"),
+            # xaxis=dict(range=[min(low_rng_min, -10), up_rng_max]),
+            showlegend=False,
+            yaxis_visible=False,
+            yaxis_showticklabels=False,
+            xaxis_visible=False,
+            xaxis_showticklabels=False,
+            margin=dict(l=0, r=0, t=0, b=0),
+            autosize=True,
+            height=80,  # Set the height to 82 pixels
+            # width=200,  # Set the width to 200 pixels
+            shapes=[
+                dict(
+                    type="rect",
+                    xref="x",
+                    yref="paper",
+                    x0=f"{1 + lower}",
+                    y0="0",
+                    x1=f"{1 - lower}",
+                    y1="1",
+                    fillcolor="orange",
+                    opacity=0.4,
+                    line_width=0,
+                    layer="below",
+                ),
+            ],
+            # template="plotly_dark",
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=[1 - lower, 1 + lower],  # x-coordinate in the middle of the shape
+                y=[
+                    0,
+                    0,
+                ],  # y-coordinate (doesn't matter, since it's vertical shape)
+                mode="markers",
+                marker=dict(color="rgba(0, 0, 0, 0)", size=5),
+                hovertemplate="<b>Range of equivalence</b>: %{x} <extra></extra>",
+                hoverlabel=dict(bgcolor="rgba(255, 165, 0, 0.4)"),
+            )
+        )
+
+        fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+
+        fig.add_shape(
+            type="line",
+            yref="paper",
+            y0=0,
+            y1=1,
+            xref="x",
+            x0=1 if effect_size in ["RR", "OR"] else 0,
+            x1=1 if effect_size in ["RR", "OR"] else 0,
+            line=dict(color="green", width=2, dash="dot"),
+            layer="below",
+        )
+
+        treatments_orig.at[i, "Graph"] = fig
+
+    row["Treatments"] = treatments_orig.to_dict("records")
+    return row

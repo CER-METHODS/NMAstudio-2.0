@@ -42,7 +42,9 @@ from tools.skt_data_helpers import (
     Generate_kt_standad_data,
     Generate_kt_standad_columnDefs,
     Generate_advanced_columnDefs,
-    Generate_advanced_detailColumnDefs
+    Generate_advanced_detailColumnDefs,
+    update_kt_plots_scale,
+    _change_abs_diff
 )
 import pandas as pd
 import numpy as np
@@ -141,20 +143,7 @@ def toggle_skt_version(path, toggle_value):
 
 from tools.functions_skt_abs_forest import __Change_Abs
 
-####Important
-# @callback(
-#     Output("quickstart-grid", "rowData"),
-#     # Output("quickstart-grid", "style"),
-#     # Input("nomal_vs_log", "value"),
-#     Input("checklist_effects", "value"),
-#     Input("quickstart-grid", "cellValueChanged"),
-#     Input("range_lower", "value"),
-#     # Input("range_upper", "value"),
-#     State("quickstart-grid", "rowData"),
-# )
 
-# def selected(value_effect, value_change,lower,rowData):
-#     return __Change_Abs(value_effect, value_change,lower,rowData)
 
 
 clientside_callback(
@@ -955,7 +944,7 @@ def generate_kt_diagram_data(curr_path, out_idx,results_ready, net_data):
 
 @callback(
     Output("KT_advanced_data_STORAGE", "data"),
-    Output("quickstart-grid", "rowData"),
+    Output("quickstart-grid", "rowData", allow_duplicate=True),
     Output("quickstart-grid", "columnDefs"),
     Output("quickstart-grid", "detailCellRendererParams"),
     Input("kt_page_location", "pathname"),
@@ -1037,6 +1026,71 @@ def generate_kt_advanced_data(
             }
 
     return records, records, columnDefs, detailCellRendererParams
+
+
+
+@callback(
+    Output("quickstart-grid", "rowData", allow_duplicate=True),
+    Input("quickstart-grid", "cellValueChanged"),
+    State("sktdropdown-out", "value"),
+    State("quickstart-grid", "rowData"),
+    State("net_data_STORAGE", "data"),
+    prevent_initial_call=True,
+)
+def change_abs(value_change, out_idx, rowData, net_data):
+    from tools.utils import get_net_data_json
+
+    if not value_change or not rowData:
+        return rowData
+
+    change = value_change[0]
+    if change.get("colId") != "risk" or not change.get("value") or change["value"] == "Enter a number":
+        return rowData
+
+    out_idx = int(out_idx or 0)
+
+    net_df = pd.read_json(
+        get_net_data_json(net_data), orient="split"
+    ).round(3)
+
+    effect_size = net_df[f"effect_size{out_idx+1}"].iloc[0]
+    return _change_abs_diff(change, rowData, effect_size)
+
+
+
+@callback(
+    Output("quickstart-grid", "rowData", allow_duplicate=True),
+    Input("checklist_effects", "value"),
+    Input("quickstart-grid", "cellValueChanged"),
+    Input("range_lower", "value"),
+    State("quickstart-grid", "rowData"),
+    State("sktdropdown-out", "value"),
+    State("net_data_STORAGE", "data"),
+    prevent_initial_call=True,
+)
+def selected(value_effect, value_change, lower, rowData, out_idx, net_data):
+    triggered = ctx.triggered_id
+
+    if (
+        triggered == "quickstart-grid"
+        and value_change
+        and value_change[0].get("colId") == "risk"
+    ):
+        raise PreventUpdate
+    
+    from tools.utils import get_net_data_json
+
+    out_idx = int(out_idx or 0)
+    net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    effect_size = net_df[f"effect_size{out_idx+1}"].iloc[0]
+
+    return update_kt_plots_scale(
+        value_effect,
+        value_change,
+        lower,
+        rowData,
+        effect_size
+    )
 
 
 

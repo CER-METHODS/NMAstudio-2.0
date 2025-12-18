@@ -652,6 +652,10 @@ h6 {margin-top: 0;}
     background-color: white;
 }
 
+.ag-header-cell{
+    white-space: pre;
+}
+
 .ag-header-cell-label .ag-header-cell-text {
     white-space: pre-wrap !important;
     text-align: center;

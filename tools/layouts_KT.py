@@ -92,7 +92,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = False,
+                                value = True,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
