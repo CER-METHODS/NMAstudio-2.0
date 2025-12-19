@@ -142,26 +142,13 @@ def __ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_da
                 outcomes2,
             )
 
-        return fig, fig2
-    except Exception as e:
-        print(f"[ERROR] __ranking_plot failed: {e}")
-        import traceback
-
-        traceback.print_exc()
-        empty_fig = px.scatter()
-        empty_fig.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-        )
-        return empty_fig, empty_fig
+    return fig, fig2
 
 
 
-
-
-def __ranking_heatmap(treatments, pscores, outcomes, z_text):
-    if len(pscores) + len(outcomes) + len(z_text) == 3:
-        pscores, outcomes, z_text = list(pscores), list(outcomes), list(z_text)
+# @lru_cache(maxsize=None)
+# def __ranking_heatmap(treatments, pscores, outcomes, z_text):
+#     if len(pscores) + len(outcomes) + len(z_text) == 3: pscores, outcomes, z_text = list(pscores), list(outcomes), list(z_text)
 
     fig = ff.create_annotated_heatmap(
         pscores,
@@ -324,42 +311,34 @@ def __ranking_scatter(
         fig2.update_layout(uniformtext_minsize=8, uniformtext_mode="hide")
         fig2.layout.margin = dict(l=30, r=30, t=10, b=80)
 
-    else:  # Empty scatter
-        df = pd.DataFrame([[0] * 2], columns=["pscore1", "pscore2"])
-        fig2 = px.scatter(df, x="pscore1", y="pscore2")
-        fig2.update_shapes(dict(xref="x", yref="y"))
-        fig2.update_xaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
-        fig2.update_yaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
-        (
-            fig2.update_layout(
-                margin=dict(l=100, r=100, t=12, b=80),
-                xaxis=dict(showgrid=False, title=""),
-                modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
-                yaxis=dict(showgrid=False, title=""),
-                showlegend=False,
-                coloraxis_showscale=False,
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                autosize=True,
-                annotations=[
-                    {
-                        "text": "Please provide a second outcome in data upload to display p-scores scatter plot",
-                        "font": {"size": 15, "color": "black", "family": "sans-serif"},
-                        "xref": "paper",
-                        "yref": "paper",
-                        "showarrow": False,
-                    },
-                ],
-            ),
-        )
-        fig2.update_annotations(align="center")
-    return fig2
+#     else:  # Empty scatter
+#         df = pd.DataFrame([[0] * 2], columns=['pscore1', 'pscore2'])
+#         fig2 = px.scatter(df, x="pscore1", y="pscore2")
+#         fig2.update_shapes(dict(xref='x', yref='y'))
+#         fig2.update_xaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
+#         fig2.update_yaxes(tickvals=[], ticktext=[], visible=False, zeroline=False)
+#         fig2.update_layout(margin=dict(l=100, r=100, t=12, b=80),
+#                           xaxis=dict(showgrid=False, title=''),
+#                           modebar=dict(orientation='h', bgcolor='rgba(0,0,0,0.5)'),
+#                           yaxis=dict(showgrid=False, title=''),
+#                           showlegend=False,
+#                           coloraxis_showscale=False,
+#                           paper_bgcolor='rgba(0,0,0,0)',
+#                           plot_bgcolor='rgba(0,0,0,0)',
+#                           autosize=True,
+#                           annotations=[{"text": "Please provide a second outcome in data upload to display p-scores scatter plot",
+#                                          "font": {"size": 15, "color": "black", 'family': 'sans-serif'},
+#                                          "xref":"paper", "yref":"paper",
+#                                          "showarrow":False},
+#                                        ]
+#                            ),
+#         fig2.update_annotations(align="center")
+#     return fig2
 
 
-def __ranking_plot_skt():
+def __ranking_plot_skt(ranking_list, net_data, outcomes):
     # Load ranking CSVs
-    ranking_files = ["db/ranking/rank.csv", "db/ranking/rank2.csv"]
-    ranking_data = [pd.read_csv(path) for path in ranking_files]
+    ranking_data = [pd.read_json(StringIO(r), orient="split") for r in ranking_list]
 
     # Start with the first ranking file
     df = ranking_data[0].copy()
@@ -376,8 +355,8 @@ def __ranking_plot_skt():
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
 
     # Outcomes and additional data
-    outcomes = ["PASI90", "SAE"]
-    net_storage = pd.read_csv("db/psoriasis_wide_complete.csv", encoding="iso-8859-1")
+    from tools.utils import get_net_data_json
+    net_storage = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
 
     # Adjust scores based on outcome direction
     df1 = df.copy(deep=True)

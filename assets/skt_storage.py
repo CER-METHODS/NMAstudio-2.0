@@ -25,10 +25,14 @@ SESSION_TYPE = "local"
 
 SKT_STORAGE_SCHEMA = {
     "treatment_fullnames_SKT": "dict",  # Treatment abbreviation -> full name mapping
+    "KT_standard_data_STORAGE": "dict",
+    "KT_advanced_data_STORAGE": "dict",
 }
 
 SKT_EMPTY_STORAGE = {
     "treatment_fullnames_SKT": {},
+    "KT_standard_data_STORAGE": {},
+    "KT_advanced_data_STORAGE": {},
 }
 
 SKT_STORAGE_KEYS = list(SKT_STORAGE_SCHEMA.keys())
@@ -41,6 +45,9 @@ def skt_storage_components():
     """
     return [
         dcc.Store(id="treatment_fullnames_SKT", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="KT_standard_data_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="KT_advanced_data_STORAGE", data=None, storage_type=SESSION_TYPE),
+
     ]
 
 

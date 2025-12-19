@@ -652,6 +652,10 @@ h6 {margin-top: 0;}
     background-color: white;
 }
 
+.ag-header-cell{
+    white-space: pre;
+}
+
 .ag-header-cell-label .ag-header-cell-text {
     white-space: pre-wrap !important;
     text-align: center;
@@ -752,7 +756,7 @@ h6 {margin-top: 0;}
 
 
 .center-aligned-group-header:nth-of-type(4) {
-    border-right: 1px solid rgb(165, 163, 163); /* Apply separator styling */
+    border-right: 1px solid rgb(165, 163, 163); 
 }
 
 .absolute-alpine{
@@ -783,6 +787,10 @@ h6 {margin-top: 0;}
 }
 
 #grid_treat_compare .ag-header-cell:nth-child(5) {
+    border-right: 1px solid rgb(165, 163, 163)
+}
+
+#grid_treat_compare .ag-header-cell:nth-child(4) {
     border-right: 1px solid rgb(165, 163, 163)
 }
 

@@ -6,7 +6,7 @@ from dash import dcc
 import dash_daq as daq
 import dash_cytoscape as cyto
 from tools.functions_skt_others import get_skt_elements, skt_stylesheet
-# from tools.functions_chatbot import render_chatbot
+from tools.functions_chatbot import render_chatbot
 from tools.kt_table_standard import treat_compare_grid, modal_compare_grid, modal_fullname_grid
 from tools.kt_table_advance import grid
 from assets.dropdowns_values import *
@@ -65,7 +65,7 @@ def Sktpage():
                                     # top: 66 positions the toast below the navbar
                                     className='toast-faq'
                                 ),
-                     html.Div([skt_nonexpert()], id='skt_sub_content')
+                     html.Div([skt_nonexpert(), skt_layout()], id='skt_sub_content')
                      ], id='skt_page_content')
 
 
@@ -92,7 +92,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = False,
+                                value = True,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
@@ -168,16 +168,19 @@ def skt_nonexpert():
                                                                               ],className='tab1_col2'),
                                                            dbc.Col(dbc.Toast(
                                                                               [html.Span('Overall Info', className='study_design'),
-                                                                              html.Span('Number of studies: 96',className='skt_span1'),
-                                                                              html.Span('Number of interventions: 20', className='skt_span1'),
-                                                                              html.Span('Number of participants: 1020',className='skt_span1'), 
-                                                                              html.Span('Number of comparisons: 190', className='skt_span1'),
+                                                                              html.Span(className='skt_span1', id="kt_numstudies"),
+                                                                              html.Span(className='skt_span1', id="kt_int"),
+                                                                              html.Span(className='skt_span1',id="kt_par"), 
+                                                                              html.Span(className='skt_span1',id="kt_com"),
                                                                               ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'25%'}),
                                                             dbc.Col(dbc.Toast(
                                                                               [
                                                                               html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                              html.Span('Mean age: 45.3',className='skt_span1'),
-                                                                              html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                               dbc.Col(
+                                                                                #    [
+                                                                                #    html.Span('Mean age: 45.3',className='skt_span1'),
+                                                                                #    html.Span('Mean male percentage: 43.4%',className='skt_span1')],
+                                                                                   id = 'kt_modifiers_info'),
                                                                               html.Button('Distribution of modifiers', id='trans_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
                                                                                                                    'background-color':'#dedecf',
@@ -213,7 +216,7 @@ def skt_nonexpert():
                                                                                                 'align-items': 'center',
                                                                                                 'font-weight':'bold',
                                                                                                 'color':'rgb(184, 80, 66)', 'font-size': 'small'}),
-                                                                                    dcc.Dropdown(id='stand-sktdropdown-out', options=[{'label': 'PASI90', 'value': 0}, {'label': 'SAE', 'value': 1}],
+                                                                                    dcc.Dropdown(id='stand-sktdropdown-out',
                                                                                         clearable=False, placeholder="",value = 0)], style={'display': 'flex', 
                                                                                                                             'align-items': 'center',
                                                                                                                             'justify-content': 'space-evenly'}
@@ -232,7 +235,7 @@ def skt_nonexpert():
                                                                         dbc.Row([
                                                                             dbc.Col([cyto.Cytoscape(id='cytoscape_skt2', responsive=False, autoRefreshLayout=True,
                                                                                     minZoom=0.6,  maxZoom=1.5,  panningEnabled=True,   
-                                                                                    elements=get_skt_elements(),
+                                                                                    # elements=get_skt_elements(),
                                                                                     style={ 
                                                                                         'height': '94%', 
                                                                                         'width': '100%', 
@@ -249,7 +252,7 @@ def skt_nonexpert():
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
-                                                                                                                    'margin-left':'2%',
+                                                                                                                    # 'margin-left':'2%',
                                                                                                                     'padding': '4px'}),
                                                                             html.Button('Click to see the ranking info', id='ranking_button',className='sub-button',
                                                                                                             style={'color': 'rgb(118 135 123)',
@@ -257,12 +260,21 @@ def skt_nonexpert():
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
-                                                                                                                    'margin-left':'25%',
-                                                                                                                    'padding': '4px'})], 
+                                                                                                                    'margin-left':'2%',
+                                                                                                                    'padding': '4px'}),
+                                                                            html.Button('Upload CINeMA files', id='cinema_button',className='sub-button',
+                                                                                                            style={'color': 'rgb(118 135 123)',
+                                                                                                                'background-color':'#dedecf',
+                                                                                                                    'display': 'inline-block',
+                                                                                                                    'justify-self':'center',
+                                                                                                                    'border': 'unset',
+                                                                                                                    'margin-left':'2%',
+                                                                                                                    'padding': '4px'})
+                                                                                                                    ], 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'},),
                                                                             dbc.Col(
-                                                                                # render_chatbot(), 
+                                                                                render_chatbot(), 
                                                                                     style={'width':'50%','justify-items': 'center',"height": "500px"})
                                                                                     ])
                                                                                     ], className='tab3_col2')], className='row_skt'),
@@ -456,7 +468,7 @@ def skt_layout():
                                                                         ], style={'padding-top': 0}),
                                                                 dbc.Row([dbc.Col([cyto.Cytoscape(id='cytoscape_skt', responsive=False, autoRefreshLayout=True,
                                                                             minZoom=0.6,  maxZoom=1.2,  panningEnabled=True,   
-                                                                            elements=get_skt_elements(),
+                                                                            # elements=get_skt_elements(),
                                                                             style={ 
                                                                                 'height': '50vh', 
                                                                                 'width': '100%', 
@@ -479,19 +491,20 @@ def skt_layout():
                                             dbc.Row([
                                                 dbc.Col(dbc.Toast(
                                                                     [html.Span('Overall Info', className='study_design'),
-                                                                    html.Span('Number of studies: 96',className='skt_span1'),
-                                                                    html.Span('Number of participants: 1020',className='skt_span1'), 
-                                                                    html.Span('Number of interventions: 20', className='skt_span1'),
-                                                                    html.Span('Number of comparisons with direct evidence: 13', className='skt_span1'),
-                                                                    html.Span('Number of comparisons without direct evidence: 8 \n', className='skt_span1',
-                                                                            #  style={'border-bottom': 'dashed 1px gray'}
-                                                                                )
+                                                                     html.Span(className='skt_span1', id="kt_numstudies2"),
+                                                                    html.Span(className='skt_span1', id="kt_int2"),
+                                                                    html.Span(className='skt_span1',id="kt_par2"), 
+                                                                    # html.Span(className='skt_span1',id="kt_com"),
+                                                                    html.Span( className='skt_span1', id="kt_com_direct"),
+                                                                    html.Span( className='skt_span1', id="kt_com_indirect"),
                                                                     ], className='skt_studyinfo',headerClassName='headtab1'), style={'width':'35%'}),
                                                 dbc.Col(dbc.Toast(
                                                                     [
-                                                                    html.Span('Potential effect modifiers Info',className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                    html.Span('Mean age: 45.3',className='skt_span1'),
-                                                                    html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                    html.Span('Potential effect modifiers Info',
+                                                                              className='skt_span1', style={'color': '#B85042', 'font-weight': 'bold'}),
+                                                                    # html.Span('Mean age: 45.3',className='skt_span1'),
+                                                                    # html.Span('Mean male percentage: 43.4%',className='skt_span1'),
+                                                                    dbc.Col(id='kt_modifiers_info2'),
                                                                     html.Button('Transitivity check', id='trans_button',className='sub-button',
                                                                                                 style={'color': 'rgb(118 135 123)',
                                                                                                         'background-color':'#dedecf',
@@ -619,7 +632,8 @@ model_transitivity = dbc.Modal(
                                                 'verticalAlign':"top",
                                                 'font-size': '12px',
                                                 'margin-bottom': '-10px'}),
-                                  dcc.Dropdown(id='ddskt-trans', options=OPTIONS,
+                                  dcc.Dropdown(id='ddskt-trans', 
+                                            #    options=OPTIONS,
                                                clearable=True, placeholder="",
                                                className="tapEdgeData-fig-class",
                                                style={'width': '150px', 'height': '30px',
@@ -708,7 +722,7 @@ model_ranking = dbc.Modal(
                                   html.Div([dcc.Loading(
                                          dcc.Graph(
                                              id='tab-rank1',
-                                             figure = __ranking_plot_skt(),
+                                            #  figure = __ranking_plot_skt(),
                                              style={'height': '99%',
                                                     'max-height': 'calc(51vh)',
                                                     'width': '100%',
@@ -759,17 +773,19 @@ model_skt_compare_simple = dbc.Modal(
                     [
                         dbc.Col(
                             [
-                                html.Span(
-                                    "Enter the risk for comparator (per 1000):", 
-                                    className="abvalue_simple"
+                                dbc.Row([html.Span(
+                                    [html.P("")], 
+                                    className="abvalue_simple",
+                                    id='enter_label'
                                 ),
                                 dcc.Input(
                                     id="simple_abvalue",
                                     type="text",
                                     name="risk",
+                                    value="20",
                                     placeholder="e.g. 20", 
                                     style={"width": "80px", "margin-left": "15px"}
-                                ),
+                                )]),
                                 html.Span(
                                     [html.P("The risk of comparator ranges from 10 per 1000 to 30 per 1000 in the dataset.")], 
                                     className="abvalue_range", id='risk_range'
@@ -785,19 +801,19 @@ model_skt_compare_simple = dbc.Modal(
                     [
                         dbc.Col(
                             [
-                                html.Span("Outcome: PASI90", className="skt_span_info2", id="treat_comp"),
-                                html.Span("Treatment: ADA", className="skt_span_info2", id="num_RCT"),
-                                html.Span("Comparator: PBO", className="skt_span_info2", id="num_RCT"),
-                                html.Span(
-                                    "Absolute difference: 30 more per 1000", 
-                                    className="skt_span_info2", 
-                                    id="num_sample"
-                                ),
-                                html.Span(
-                                    "CI: 10 per 1000 to 40 per 1000",
-                                    className="skt_span_info2",
-                                    id="mean_modif",
-                                ),
+                                # html.Span("Outcome: PASI90", className="skt_span_info2", id="treat_comp"),
+                                # html.Span("Treatment: ADA", className="skt_span_info2", id="num_RCT"),
+                                # html.Span("Comparator: PBO", className="skt_span_info2", id="num_RCT"),
+                                # html.Span(
+                                #     "Absolute difference: 30 more per 1000", 
+                                #     className="skt_span_info2", 
+                                #     id="num_sample"
+                                # ),
+                                # html.Span(
+                                #     "CI: 10 per 1000 to 40 per 1000",
+                                #     className="skt_span_info2",
+                                #     id="mean_modif",
+                                # ),
                             ], style={'margin-right': '20px'}, id= 'text_info_col'
                         ),
                         dbc.Col(dcc.Loading(

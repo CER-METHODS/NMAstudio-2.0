@@ -7,12 +7,12 @@ import numpy as np
 import plotly.express as px, plotly.graph_objects as go
 
 
-def __show_forest_plot(cell, style_pair):
-    df = pd.read_csv("db/skt/forest_data_prws.csv")
+def __show_forest_plot(cell, style_pair, forest_df, rowdata, effect_size):
+    df = forest_df.copy()
     slctd_comps = []
     slctd_compsinv = []
-    data = pd.read_csv("db/skt/final_all.csv")
-    grouped = data.groupby(["Reference"])
+    grouped = rowdata
+
     if (
         cell is not None
         and len(cell) != 0
@@ -22,13 +22,16 @@ def __show_forest_plot(cell, style_pair):
         and cell["value"] != ""
     ):
         dic_data = cell
-        # selected_treatment = [s["Treatment"] for s in row_select]
-        # row_select[0]['Treatment']
-        # src, trgt = reference.split('\n')[0], row_select[0]['Treatment'].split('\n')[0]
-        idx = dic_data["rowIndex"]
+        idx = int(dic_data["rowIndex"])
         src = dic_data["rowId"].split("_")[1].split(" ")[0]
-        trgt = grouped.get_group(src).iloc[idx - 1]
-        trgt = trgt["Treatment"]
+        
+        # get the nested table
+        # treatments_tbl = grouped.at[grouped["Reference"] == src, 'Treatments'][idx]
+        treatments_tbl = grouped.loc[grouped["Reference"] == src, "Treatments"].iloc[0]
+
+        # extract Treatment from the nested table
+        # print(treatments_tbl)
+        trgt = treatments_tbl[idx]['Treatment']
 
         slctd_comps += [f"{src} vs {trgt}"]
         slctd_compsinv += [f"{trgt} vs {src}"]
@@ -55,9 +58,9 @@ def __show_forest_plot(cell, style_pair):
         n = len(df)
         style_pair.update({"height": 200 + 20 * (n - 2)})
         # df['CI_width'] = df.CI_upper - df.CI_lower
-        df["CI_width"] = df.CI_upper - df["RR"]
-        df["lower_error"] = df["RR"] - df.CI_lower
-        df["CI_width_hf"] = df.CI_upper - df["RR"]
+        df["CI_width"] = df.CI_upper - df[f"{effect_size}"]
+        df["lower_error"] = df[f"{effect_size}"] - df.CI_lower
+        df["CI_width_hf"] = df.CI_upper - df[f"{effect_size}"]
         # df['CI_width_hf'] = df['CI_width'] / 2
         df["CI_width_diamond"] = df.CI_upper_diamond - df.CI_lower_diamond
         df["WEIGHT"] = round(df["WEIGHT"], 3)
@@ -78,7 +81,7 @@ def __show_forest_plot(cell, style_pair):
             + CI_upper_diamond.astype(str)
             + ")"
         )
-        df = df.sort_values(by="RR", ascending=False)
+        df = df.sort_values(by=f"{effect_size}", ascending=False)
         pred_lo = df["Predict_lo"].reset_index().Predict_lo[0]
         pred_up = df["Predict_up"].reset_index().Predict_up[0]
         if abs(pred_lo) > np.float64(1000) or abs(pred_up) > np.float64(1000):
@@ -89,20 +92,20 @@ def __show_forest_plot(cell, style_pair):
 
         up_rng_, low_rng_ = df.CI_upper.max(), df.CI_lower.min()
 
-        up_rng = 10 ** np.floor(np.log10(up_rng_))
-        low_rng = 10 ** np.floor(np.log10(low_rng_))
+        up_rng = 10 ** np.floor(np.log10(up_rng_)) if effect_size in ["RR", "OR", "HR"] else up_rng_ + 1
+        low_rng = 10 ** np.floor(np.log10(low_rng_)) if effect_size in ["RR", "OR", "HR"] else max(0, low_rng_ - 1)
 
         fig = px.scatter(
             df,
-            x=df["RR"],
+            x=df[f"{effect_size}"],
             y=df["studlab"].str.pad(
                 max(LEN_FOREST_ANNOT, df["studlab"].str.len().max()), fillchar=" "
             ),
             error_x_minus="lower_error",
             error_x="CI_width_hf",
-            log_x=True,
+            log_x=True if effect_size in ["RR", "OR", "HR"] else False,
             size_max=10,
-            range_x=[min(low_rng, 0.1), max([up_rng, 10])],
+            range_x=[min(low_rng, 0.1), max([up_rng, 10])] if effect_size in ["RR", "OR", "HR"] else [low_rng, up_rng],
             range_y=[-1, len(df.studlab) + 1],
             size=df.WEIGHT,
         )
@@ -113,8 +116,8 @@ def __show_forest_plot(cell, style_pair):
             y0=0,
             y1=1,
             xref="x",
-            x0=1,
-            x1=1,
+            x0=1 if effect_size in ["RR", "OR", "HR"] else 0,
+            x1=1 if effect_size in ["RR", "OR", "HR"] else 0,
             line=dict(color="black", width=1),
             layer="below",
         )
@@ -123,7 +126,7 @@ def __show_forest_plot(cell, style_pair):
             paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
             plot_bgcolor="rgba(0,0,0,0)",
             showlegend=False,
-            xaxis_type="log",
+            xaxis_type="log" if effect_size in ["RR", "OR", "HR"] else "linear",
             modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
             xaxis=dict(showgrid=False, tick0=0, title=""),
             yaxis=dict(showgrid=False, title=""),
@@ -192,10 +195,10 @@ def __show_forest_plot(cell, style_pair):
                     yanchor="bottom",
                     yshift=-40,
                     showarrow=False,
-                    text="RR",
+                    text=f"{effect_size}",
                 ),
                 dict(
-                    x=np.floor(np.log10(min(low_rng, 0.1))),
+                    x=np.floor(np.log10(min(low_rng, 0.1))) if effect_size in ["RR", "OR", "HR"] else low_rng,
                     ax=0,
                     y=0,
                     ay=-0.1,
@@ -211,7 +214,7 @@ def __show_forest_plot(cell, style_pair):
                     arrowcolor="black",
                 ),
                 dict(
-                    x=np.floor(np.log10(max([up_rng, 10]))),
+                    x=np.floor(np.log10(max([up_rng, 10]))) if effect_size in ["RR", "OR", "HR"] else up_rng,
                     ax=0,
                     y=0,
                     ay=-0.1,
@@ -227,7 +230,7 @@ def __show_forest_plot(cell, style_pair):
                     arrowcolor="green",
                 ),  # '#751225'
                 dict(
-                    x=np.floor(np.log10(min(low_rng, 0.1))) / 2,
+                    x=np.floor(np.log10(min(low_rng, 0.1))) / 2 if effect_size in ["RR", "OR", "HR"] else low_rng/2,
                     y=0,
                     xref="x",
                     yref="paper",
@@ -238,7 +241,7 @@ def __show_forest_plot(cell, style_pair):
                     showarrow=False,
                 ),
                 dict(
-                    x=np.floor(np.log10(max([up_rng, 10]))) / 2,
+                    x=np.floor(np.log10(max([up_rng, 10]))) / 2 if effect_size in ["RR", "OR", "HR"] else up_rng / 2,
                     y=0,
                     xref="x",
                     yref="paper",
@@ -249,7 +252,7 @@ def __show_forest_plot(cell, style_pair):
                     showarrow=False,
                 ),
                 dict(
-                    x=0,
+                    x= 0 if effect_size not in ["RR", "OR", "HR"] else -0.2,
                     y=1,
                     xanchor="left",
                     yanchor="top",
@@ -337,7 +340,7 @@ def __show_forest_plot(cell, style_pair):
         fig.update_traces(overwrite=False)
         ticktext_list = [
             " " * 5 + "{:.2f}   {:<17}".format(x, y)
-            for x, y in zip(df["RR"].values, df["CI"].values)
+            for x, y in zip(df[f"{effect_size}"].values, df["CI"].values)
         ]
 
         (
@@ -385,7 +388,7 @@ def __show_forest_plot(cell, style_pair):
         fig.update_layout(yaxis_range=[-2.4, len(df.studlab) + 1])
 
         fig.add_annotation(
-            x=1.15,
+            x=1.1 ,
             y=1,
             xanchor="center",
             align="center",
@@ -393,12 +396,12 @@ def __show_forest_plot(cell, style_pair):
             yshift=-10,
             xref="paper",
             yref="y domain",
-            text=f"<b> RR </b>",
+            text=f"<b> {effect_size} </b>",
             showarrow=False,
         )
 
         fig.add_annotation(
-            x=1.4,
+            x=1.2 ,
             y=1,
             align="center",
             ayref="y3 domain",
@@ -412,7 +415,7 @@ def __show_forest_plot(cell, style_pair):
         )
 
         fig.add_annotation(
-            x=1,
+            x=1.05,
             y=0.04,
             align="center",
             ayref="y4 domain",
@@ -428,13 +431,13 @@ def __show_forest_plot(cell, style_pair):
     else:
         fig = px.scatter(
             df,
-            x=df["RR"],
+            x=df[f"{effect_size}"],
             y=df["studlab"],
             error_x_minus=None,
             error_x=None,
             log_x=False,
             size_max=10,
-            range_x=[min(0, 0.1), max([1, 10])],
+            range_x=[min(0, 0.1), max([1, 10])] if effect_size in ["RR", "OR", "HR"] else [df.CI_lower.min()-1, df.CI_upper.max()+1],
             range_y=[-1, len(df.studlab) + 1],
             size=None,
         )
