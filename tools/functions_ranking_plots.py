@@ -147,8 +147,8 @@ def __ranking_plot(ranking_data, out_number, out_idx1, options, out_idx2, net_da
 
 
 # @lru_cache(maxsize=None)
-# def __ranking_heatmap(treatments, pscores, outcomes, z_text):
-#     if len(pscores) + len(outcomes) + len(z_text) == 3: pscores, outcomes, z_text = list(pscores), list(outcomes), list(z_text)
+def __ranking_heatmap(treatments, pscores, outcomes, z_text):
+    if len(pscores) + len(outcomes) + len(z_text) == 3: pscores, outcomes, z_text = list(pscores), list(outcomes), list(z_text)
 
     fig = ff.create_annotated_heatmap(
         pscores,
