@@ -773,17 +773,19 @@ model_skt_compare_simple = dbc.Modal(
                     [
                         dbc.Col(
                             [
-                                html.Span(
-                                    "Enter the risk for comparator (per 1000):", 
-                                    className="abvalue_simple"
+                                dbc.Row([html.Span(
+                                    [html.P("")], 
+                                    className="abvalue_simple",
+                                    id='enter_label'
                                 ),
                                 dcc.Input(
                                     id="simple_abvalue",
                                     type="text",
                                     name="risk",
+                                    value="20",
                                     placeholder="e.g. 20", 
                                     style={"width": "80px", "margin-left": "15px"}
-                                ),
+                                )]),
                                 html.Span(
                                     [html.P("The risk of comparator ranges from 10 per 1000 to 30 per 1000 in the dataset.")], 
                                     className="abvalue_range", id='risk_range'
@@ -799,19 +801,19 @@ model_skt_compare_simple = dbc.Modal(
                     [
                         dbc.Col(
                             [
-                                html.Span("Outcome: PASI90", className="skt_span_info2", id="treat_comp"),
-                                html.Span("Treatment: ADA", className="skt_span_info2", id="num_RCT"),
-                                html.Span("Comparator: PBO", className="skt_span_info2", id="num_RCT"),
-                                html.Span(
-                                    "Absolute difference: 30 more per 1000", 
-                                    className="skt_span_info2", 
-                                    id="num_sample"
-                                ),
-                                html.Span(
-                                    "CI: 10 per 1000 to 40 per 1000",
-                                    className="skt_span_info2",
-                                    id="mean_modif",
-                                ),
+                                # html.Span("Outcome: PASI90", className="skt_span_info2", id="treat_comp"),
+                                # html.Span("Treatment: ADA", className="skt_span_info2", id="num_RCT"),
+                                # html.Span("Comparator: PBO", className="skt_span_info2", id="num_RCT"),
+                                # html.Span(
+                                #     "Absolute difference: 30 more per 1000", 
+                                #     className="skt_span_info2", 
+                                #     id="num_sample"
+                                # ),
+                                # html.Span(
+                                #     "CI: 10 per 1000 to 40 per 1000",
+                                #     className="skt_span_info2",
+                                #     id="mean_modif",
+                                # ),
                             ], style={'margin-right': '20px'}, id= 'text_info_col'
                         ),
                         dbc.Col(dcc.Loading(

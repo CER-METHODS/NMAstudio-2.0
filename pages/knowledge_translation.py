@@ -186,11 +186,26 @@ from tools.functions_show_forest_plot import __show_forest_plot
    [ Output('forest-fig-pairwise', 'figure'),
     Output('forest-fig-pairwise', 'style')],
     [Input("quickstart-grid", "cellClicked"),
-    Input('forest-fig-pairwise', 'style')]
+    State('forest-fig-pairwise', 'style'),
+    State('forest_data_prws_STORAGE', 'data'),
+    State("quickstart-grid", "rowData"),
+    State("net_data_STORAGE", "data"),
+    State("sktdropdown-out", "value")
+    ]
 )
 
-def show_forest_plot(cell, style_pair):
-    return __show_forest_plot(cell, style_pair)
+def show_forest_plot(cell, style_pair, forest_data_storage, rowData, net_data, out_idx):
+    out_idx = int(out_idx or 0)
+    rowdata = pd.DataFrame(rowData)
+    forest_df = pd.read_json(
+        forest_data_storage[out_idx],
+        orient="split"
+    )
+    from tools.utils import get_net_data_json
+    net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    effect_size = net_df[f"effect_size{out_idx+1}"].iloc[0]
+
+    return __show_forest_plot(cell, style_pair, forest_df, rowdata, effect_size)
 
 
 
@@ -605,6 +620,7 @@ from tools.functions_modal_info import display_modal_text
 @callback(
     # Output("risk_range", "children"),
     Output("text_info_col", "children"),
+    Output("enter_label", "children"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
@@ -623,14 +639,28 @@ from tools.functions_modal_info import display_modal_data, display_modal_column
     Input("grid_treat_compare", "cellClicked"), 
     # Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
-    State('modal_treat_compare','rowData'),
     State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data"),
     prevent_initial_call=True
 )
 
-def display_modaldata(cell,rowdata,rowdata_modal, net_data):
-    data = display_modal_data(cell,rowdata,rowdata_modal, net_data)
-    colunmdef = display_modal_column(cell)
+def display_modaldata(cell,rowdata, net_data, effect_modifiers):
+    if not cell or len(cell) == 0:
+        return PreventUpdate
+    
+    from tools.utils import get_net_data_json
+    # Load modal data
+    df_modal = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+
+    # Accept outcome-specific metric columns, e.g. 'RR_out1_label', 'OR_out2_label', 'MD_out1_label', 'SMD_out1_label'
+    colid = str(cell.get("colId"))
+    m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+    if not m:
+        # not an outcome metric column we handle
+        return PreventUpdate
+    
+    data = display_modal_data(cell, rowdata, df_modal, m)
+    colunmdef = display_modal_column( m, effect_modifiers, df_modal)
 
     return data, colunmdef
 
@@ -949,8 +979,10 @@ def generate_kt_diagram_data(curr_path, out_idx,results_ready, net_data):
     Output("quickstart-grid", "detailCellRendererParams"),
     Input("kt_page_location", "pathname"),
     Input("sktdropdown-out", "value"),
+    State("range_lower", "value"),
     State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
+    State("consistency_data_STORAGE", "data"),
     State("ranking_data_STORAGE", "data"),
     State("forest_data_STORAGE", "data"),
     prevent_initial_call=True,
@@ -958,8 +990,10 @@ def generate_kt_diagram_data(curr_path, out_idx,results_ready, net_data):
 def generate_kt_advanced_data(
     curr_path,
     out_idx,
+    lower,
     results_ready,
     net_data,
+    consistency_data,
     ranking_data,
     forest_data_storage
 ):
@@ -969,6 +1003,7 @@ def generate_kt_advanced_data(
     from tools.utils import get_net_data_json
 
     out_idx = int(out_idx or 0)
+    lower = float(lower or 0)
 
     net_df = pd.read_json(
         get_net_data_json(net_data),
@@ -976,6 +1011,10 @@ def generate_kt_advanced_data(
     ).round(3)
 
     effect_size = net_df[f"effect_size{out_idx+1}"].iloc[0]
+    consistency_data = pd.read_json(
+        consistency_data[out_idx],
+        orient="split"
+    )
 
     forest_df = pd.read_json(
         forest_data_storage[out_idx],
@@ -992,7 +1031,9 @@ def generate_kt_advanced_data(
         ranking_df,
         net_df,
         effect_size,
-        out_idx
+        out_idx,
+        consistency_data,
+        lower
     )
 
     data["index"] = data.index
@@ -1068,9 +1109,9 @@ def change_abs(value_change, out_idx, rowData, net_data):
     State("net_data_STORAGE", "data"),
     prevent_initial_call=True,
 )
-def selected(value_effect, value_change, lower, rowData, out_idx, net_data):
+def update_kt_plots(value_effect, value_change, lower, rowData, out_idx, net_data):
     triggered = ctx.triggered_id
-
+    lower = float(lower or 0)
     if (
         triggered == "quickstart-grid"
         and value_change

@@ -357,22 +357,24 @@ def get_skt_network_data(net_data_storage):
 
 
 #####################skt advanced data helpers #########################
-def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx):
+def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx, consistency_data,lower):
     n_treatments = len(p_score)
     df = prepare_base_dataframe(data)
     df = add_stat_columns(df, effect_size)
-    df = apply_forest_plot_options(df, effect_size, n_treatments)
+    df = apply_forest_plot_options(df, effect_size, n_treatments, consistency_data, lower)
     if effect_size in ['RR', 'OR', 'HR']:
         range_ref_ab = compute_reference_ranges(net_dat, out_idx)
     else:
         range_ref_ab = pd.DataFrame(columns=['treat', 'min_value', 'max_value'])
+
     row_data_default = build_grouped_rows(df, effect_size)
 
     row_data_default = merge_reference_data(
         row_data_default, p_score, range_ref_ab
     )
-
+    
     format_treatment_strings(row_data_default, effect_size)
+    
     return row_data_default
 
 def prepare_base_dataframe(data):
@@ -402,14 +404,15 @@ def add_stat_columns(df, effect_size):
     df['weight'] = 1 / df['CI_width_hf']
     return df.round(2)
 
-def apply_forest_plot_options(df, effect_size, n_treatments):
+def apply_forest_plot_options(df, effect_size, n_treatments, consistency_data, lower):
     from tools.functions_skt_forestplot import __skt_options_forstplot
     value_effect = ['PI', 'direct', 'indirect']
 
     return __skt_options_forstplot(
         value_effect,
         df,
-        0.2,
+        consistency_data,
+        lower,
         effect_size,
         n_treatments,
         scale_lower=None,
@@ -478,6 +481,8 @@ def group_to_treatments(group, effect_size):
             "indirect_up": r.get("indirect_upper"),
             "CI_lower": r["CI_lower"],
             "CI_upper": r["CI_upper"],
+            "pre_lower": r.get("pre_lower"),
+            "pre_upper": r.get("pre_upper"),
             "Comments": r["Comments"],
             "ab_difference": r["ab_difference"],
             "within_study": r["within_study"],
@@ -869,9 +874,8 @@ def __kt_options_forstplot_row(value_effect, row, lower, scale_lower, scale_uppe
     
         for index, value in enumerate(reversed(value_effect)):
             if value == "PI":
-                dif = np.log(filter_df.CI_upper[index]) - np.log(filter_df[effect_size][index])
-                CI_upper = np.exp(np.log(filter_df[effect_size][index]) + dif + 0.2)
-                CI_lower = np.exp(np.log(filter_df[effect_size][index]) - dif - 0.2)
+                CI_upper = filter_df["pre_upper"][index]
+                CI_lower = filter_df["pre_lower"][index]
                 filter_df["CI_width_hf"][index] = CI_upper - filter_df[effect_size][index]
                 filter_df["lower_error"][index] = filter_df[effect_size][index] - CI_lower
                 filter_df["name"][index] = "PI"
@@ -956,9 +960,9 @@ def __kt_options_forstplot_row(value_effect, row, lower, scale_lower, scale_uppe
                     type="rect",
                     xref="x",
                     yref="paper",
-                    x0=f"{1 + lower}",
+                    x0=f"{1/(1-lower)}" if effect_size in ["RR", "OR"] else f"{lower}",
                     y0="0",
-                    x1=f"{1 - lower}",
+                    x1=f"{1-lower}" if effect_size in ["RR", "OR"] else f"{-lower}",
                     y1="1",
                     fillcolor="orange",
                     opacity=0.4,
@@ -971,7 +975,7 @@ def __kt_options_forstplot_row(value_effect, row, lower, scale_lower, scale_uppe
 
         fig.add_trace(
             go.Scatter(
-                x=[1 - lower, 1 + lower],  # x-coordinate in the middle of the shape
+                x=[1/(1-lower), 1-lower] if effect_size in ["RR", "OR"] else [0 - lower, 0 + lower],  # x-coordinate in the middle of the shape
                 y=[
                     0,
                     0,

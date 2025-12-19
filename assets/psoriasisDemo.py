@@ -70,6 +70,7 @@ LEAGUE_TABLE_DATA_BOTH = pd.DataFrame(
 CINEMA_NET_DATA1 = pd.read_csv("db/Cinema/cinema_report_PASI90.csv")
 CINEMA_NET_DATA2 = pd.read_csv("db/Cinema/cinema_report_SAE.csv")
 CONSISTENCY_DATA = pd.read_csv("db/consistency/consistency.csv")
+CONSISTENCY_DATA2 = pd.read_csv("db/consistency/consistency2.csv")
 NETSPLIT_DATA = pd.read_csv("db/consistency/node_split_out1.csv")
 NETSPLIT_DATA_OUT2 = pd.read_csv("db/consistency/node_split_out2.csv")
 NETSPLIT_DATA_ALL = pd.read_csv("db/consistency/netsplit_all.csv")
@@ -105,7 +106,7 @@ PSORIASIS_DATA = {
     },
     "consistency_data_STORAGE": [
         CONSISTENCY_DATA.to_json(orient="split"),
-        CONSISTENCY_DATA.to_json(orient="split"),  # Placeholder for outcome 2
+        CONSISTENCY_DATA2.to_json(orient="split"),  # Placeholder for outcome 2
     ],
     "forest_data_STORAGE": [
         FOREST_DATA.to_json(orient="split"),

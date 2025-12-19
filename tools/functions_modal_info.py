@@ -22,96 +22,97 @@ def _parse_first_numeric(val):
     except Exception:
         return None
 
+
+
 def display_modal_barplot(cell, value, rowdata):
-    # print(cell)
     if cell is None or len(cell) == 0:
-        fig = go.Figure(data=[], layout={})
-        header = html.P("")
-        return fig, header
+        return go.Figure(data=[], layout={}), html.P("")
 
     rowdata = pd.DataFrame(rowdata)
-    if (
-            'colId' in cell
-            and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
-            and cell.get('value') is not None
-        ):
-        first_part = cell["value"].split("\n")[0]
-        rr = _parse_first_numeric(first_part)
-        row_idx = cell["rowIndex"]
-        treatment = rowdata.loc[row_idx, "Treatment"]
-        compare = rowdata.loc[row_idx, "Reference"]
-        header = html.P(f"{treatment} VS {compare}")
-    else:
-        fig = go.Figure(data=[], layout={})
-        header = html.P("")
-        return fig, header
 
-    annotations = []
+    if not (
+        "colId" in cell
+        and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell["colId"]))
+        and cell.get("value") is not None
+    ):
+        return go.Figure(data=[], layout={}), html.P("")
 
-    if value:
-        value = int(value)
-        ab_treat = int(rr * value)
-        x_data = [ab_treat, value]
+    colid = str(cell["colId"])
+    m = re.search(r"(RR|OR|MD|SMD)_out\d+", colid)
+    metric = m.group(1)
+
+    first_part = cell["value"].split("\n")[0]
+    effect = _parse_first_numeric(first_part)
+
+    row_idx = cell["rowIndex"]
+    treatment = rowdata.loc[row_idx, "Treatment"]
+    compare = rowdata.loc[row_idx, "Reference"]
+    header = html.P(f"{treatment} VS {compare}")
+
+    if value is None:
+        value = 20
+    value = float(value)
+
+    # ---------- RR / OR ----------
+    if metric in ["RR", "OR"]:
+        ab_treat = int(effect * value)
+
+        x_data = [ab_treat, int(value)]
         y_data = [treatment, compare]
-        y_value_dict = {category: index for index, category in enumerate(y_data)}
-        fig = go.Figure(
-            go.Bar(
-                x=x_data,
-                y=y_data,
-                marker_color=["rgb(241,197,13)", " rgb(128, 191, 69)"],
-                orientation="h",
-            )
-        )
-        for yd, xd in zip(y_data, x_data):
-            yd_position = y_value_dict[yd]
+
+        annotations = []
+        for y, x in zip(y_data, x_data):
             annotations.append(
                 dict(
+                    x=x / 2,
+                    y=y,
                     xref="x",
                     yref="y",
-                    x=xd / 2,
-                    y=yd_position + 0.5,
-                    text=str(xd) + " per 1000",
-                    font=dict(family="Arial", size=14, color="black"),
+                    text=f"{x} per 1000",
                     showarrow=False,
+                    font=dict(size=14),
                 )
             )
 
+    # ---------- MD / SMD ----------
     else:
-        ab_treat = int(rr * 20)
-        x_data = [ab_treat, 20]
+        comp_val = value
+        treat_val = value + effect
+
+        x_data = [treat_val, comp_val]
         y_data = [treatment, compare]
-        y_value_dict = {category: index for index, category in enumerate(y_data)}
-        fig = go.Figure(
-            go.Bar(
-                x=x_data,
-                y=y_data,
-                marker_color=["rgb(241,197,13)", " rgb(128, 191, 69)"],
-                orientation="h",
-            )
-        )
-        for yd, xd in zip(y_data, x_data):
-            yd_position = y_value_dict[yd]
+
+        annotations = []
+        for y, x in zip(y_data, x_data):
             annotations.append(
                 dict(
+                    x=x,
+                    y=y,
                     xref="x",
                     yref="y",
-                    x=xd / 2,
-                    y=yd_position + 0.5,
-                    text=str(xd) + " per 1000",
-                    font=dict(family="Arial", size=14, color="black"),
+                    text=f"{x:.2f}",
                     showarrow=False,
+                    font=dict(size=14),
                 )
             )
+
+    fig = go.Figure(
+        go.Bar(
+            x=x_data,
+            y=y_data,
+            orientation="h",
+            marker_color=["rgb(241,197,13)", "rgb(128,191,69)"],
+        )
+    )
 
     fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",  # transparent bg
+        paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=20, r=20, t=20, b=20),
         width=350,
         height=150,
         autosize=True,
         bargap=0.3,
-        bargroupgap=0.2,
         annotations=annotations,
         xaxis=dict(
             showgrid=False,
@@ -119,59 +120,167 @@ def display_modal_barplot(cell, value, rowdata):
             showticklabels=False,
             zeroline=False,
         ),
+        yaxis=dict(showgrid=False, showline=False),
     )
 
     return fig, header
 
 
+
+# def display_modal_text(cell, value, rowdata, outcome_names):
+#     if cell is None or len(cell) == 0:
+#         # risk_range = html.P("")
+#         info_col = html.Span("")
+#         return info_col
+
+#     rowdata = pd.DataFrame(rowdata)
+#     if (
+#         'colId' in cell
+#         and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
+#         and cell.get('value') is not None
+#     ):
+#         row_idx = cell["rowIndex"]
+
+#         if value:
+#             value = int(value)
+#         else:
+#             value = 20
+
+#         colid = str(cell.get("colId"))
+#         # Determine outcome index from column id (expects RR_outN_label)
+#         m = re.search(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+#         idx = int(m.group(2)) if m else 1
+
+#         # Resolve outcome display name from outcome_names if provided
+#         try:
+#             if outcome_names and len(outcome_names) >= idx and outcome_names[idx - 1]:
+#                 out = outcome_names[idx - 1]
+#             else:
+#                 out = f"Outcome {idx}"
+#         except Exception:
+#             out = f"Outcome {idx}"
+
+#         # Outcome-specific CI columns
+#         rr_low_col = f"CI_lower_out{idx}"
+#         rr_up_col = f"CI_upper_out{idx}"
+
+#         rr_low = rowdata.loc[row_idx, rr_low_col] if rr_low_col in rowdata.columns else None
+#         rr_up = rowdata.loc[row_idx, rr_up_col] if rr_up_col in rowdata.columns else None
+
+#         first_part = cell["value"].split("\n")[0]
+#         rr = _parse_first_numeric(first_part)
+
+#         treatment = rowdata.loc[row_idx, "Treatment"]
+#         compare = rowdata.loc[row_idx, "Reference"]
+
+#         ab_treat = int(rr * value) if rr is not None else 0
+#         ab_diff = ab_treat - value
+#         span_diff = (
+#             f"{ab_diff} more per 1000"
+#             if ab_diff > 0
+#             else f"{abs(ab_diff)} less per 1000"
+#         )
+
+#         ab_diff_low = int(rr_low * value) - value if rr_low is not None else 0
+#         span_diff_low = (
+#             f"{ab_diff_low} more per 1000"
+#             if ab_diff_low > 0
+#             else f"{abs(ab_diff_low)} less per 1000"
+#         )
+
+#         ab_diff_up = int(rr_up * value) - value if rr_up is not None else 0
+#         span_diff_up = (
+#             f"{ab_diff_up} more per 1000"
+#             if ab_diff_up > 0
+#             else f"{abs(ab_diff_up)} less per 1000"
+#         )
+
+#     else:
+#         return ""
+
+#     span1 = html.Span(f"Outcome: {out}", className="skt_span_info2", id="modal_out_name")
+#     span2 = html.Span(
+#         f"Treatment: {treatment}", className="skt_span_info2", id="standard_treat"
+#     )
+#     span3 = html.Span(
+#         f"Comparator: {compare}", className="skt_span_info2", id="standard_com"
+#     )
+#     span4 = html.Span(
+#         f"Absolute difference: {span_diff}", className="skt_span_info2", id="standard_abs"
+#     )
+#     span5 = html.Span(
+#         f"CI: {span_diff_low} to {span_diff_up}",
+#         className="skt_span_info2",
+#         id="standard_ci",
+#     )
+#     children = [span1, span2, span3, span4, span5]
+
+#     return children
+
+
 def display_modal_text(cell, value, rowdata, outcome_names):
     if cell is None or len(cell) == 0:
-        # risk_range = html.P("")
-        info_col = html.Span("")
-        return info_col
+        return html.P(""), html.Span("")
 
     rowdata = pd.DataFrame(rowdata)
-    if (
-        'colId' in cell
-        and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell['colId']))
-        and cell.get('value') is not None
+
+    if not (
+        "colId" in cell
+        and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell["colId"]))
+        and cell.get("value") is not None
     ):
-        row_idx = cell["rowIndex"]
+        return "",""
 
-        if value:
-            value = int(value)
+    row_idx = cell["rowIndex"]
+
+    if value:
+        value = float(value)
+    else:
+        value = 20
+
+    colid = str(cell.get("colId"))
+    m = re.search(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
+    metric = m.group(1)
+    idx = int(m.group(2)) if m else 1
+
+    # outcome name
+    try:
+        if outcome_names and len(outcome_names) >= idx and outcome_names[idx - 1]:
+            out = outcome_names[idx - 1]
         else:
-            value = 20
-
-        colid = str(cell.get("colId"))
-        # Determine outcome index from column id (expects RR_outN_label)
-        m = re.search(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
-        idx = int(m.group(2)) if m else 1
-
-        # Resolve outcome display name from outcome_names if provided
-        try:
-            if outcome_names and len(outcome_names) >= idx and outcome_names[idx - 1]:
-                out = outcome_names[idx - 1]
-            else:
-                out = f"Outcome {idx}"
-        except Exception:
             out = f"Outcome {idx}"
+    except Exception:
+        out = f"Outcome {idx}"
 
-        # Outcome-specific CI columns
-        rr_low_col = f"CI_lower_out{idx}"
-        rr_up_col = f"CI_upper_out{idx}"
+    # CI columns
+    low_col = f"CI_lower_out{idx}"
+    up_col = f"CI_upper_out{idx}"
 
-        rr_low = rowdata.loc[row_idx, rr_low_col] if rr_low_col in rowdata.columns else None
-        rr_up = rowdata.loc[row_idx, rr_up_col] if rr_up_col in rowdata.columns else None
+    rr_low = rowdata.loc[row_idx, low_col] if low_col in rowdata.columns else None
+    rr_up = rowdata.loc[row_idx, up_col] if up_col in rowdata.columns else None
 
-        first_part = cell["value"].split("\n")[0]
-        rr = _parse_first_numeric(first_part)
+    first_part = cell["value"].split("\n")[0]
+    rr = _parse_first_numeric(first_part)
 
-        treatment = rowdata.loc[row_idx, "Treatment"]
-        compare = rowdata.loc[row_idx, "Reference"]
+    treatment = rowdata.loc[row_idx, "Treatment"]
+    compare = rowdata.loc[row_idx, "Reference"]
 
+    children = [
+        html.Span(f"Outcome: {out}", className="skt_span_info2", id="modal_out_name"),
+        html.Span(
+            f"Treatment: {treatment}", className="skt_span_info2", id="standard_treat"
+        ),
+        html.Span(
+            f"Comparator: {compare}", className="skt_span_info2", id="standard_com"
+        ),
+    ]
+
+    # -------- RR / OR --------
+    if metric in ["RR", "OR"]:
+        enter_label = html.P(f"Enter the risk for {compare} (per 1000):")
         ab_treat = int(rr * value) if rr is not None else 0
         ab_diff = ab_treat - value
+
         span_diff = (
             f"{ab_diff} more per 1000"
             if ab_diff > 0
@@ -179,61 +288,59 @@ def display_modal_text(cell, value, rowdata, outcome_names):
         )
 
         ab_diff_low = int(rr_low * value) - value if rr_low is not None else 0
+        ab_diff_up = int(rr_up * value) - value if rr_up is not None else 0
+
         span_diff_low = (
             f"{ab_diff_low} more per 1000"
             if ab_diff_low > 0
             else f"{abs(ab_diff_low)} less per 1000"
         )
-
-        ab_diff_up = int(rr_up * value) - value if rr_up is not None else 0
         span_diff_up = (
             f"{ab_diff_up} more per 1000"
             if ab_diff_up > 0
             else f"{abs(ab_diff_up)} less per 1000"
         )
 
+        children.extend(
+            [
+                html.Span(
+                    f"Absolute difference: {span_diff}",
+                    className="skt_span_info2",
+                    id="standard_abs",
+                ),
+                html.Span(
+                    f"CI: {span_diff_low} to {span_diff_up}",
+                    className="skt_span_info2",
+                    id="standard_ci",
+                ),
+            ]
+        )
+
+    # -------- MD / SMD --------
     else:
-        return ""
+        enter_label = html.P(f"Enter a value for {compare}:")
+        children.extend(
+            [
+                html.Span(
+                    f"{metric}: {rr}",
+                    className="skt_span_info2",
+                    id="standard_effect",
+                ),
+                html.Span(
+                    f"CI: {rr_low.round(2)} to {rr_up.round(2)}",
+                    className="skt_span_info2",
+                    id="standard_ci",
+                ),
+            ]
+        )
 
-    span1 = html.Span(f"Outcome: {out}", className="skt_span_info2", id="treat_comp")
-    span2 = html.Span(
-        f"Treatment: {treatment}", className="skt_span_info2", id="num_RCT"
-    )
-    span3 = html.Span(
-        f"Comparator: {compare}", className="skt_span_info2", id="num_RCT"
-    )
-    span4 = html.Span(
-        f"Absolute difference: {span_diff}", className="skt_span_info2", id="num_sample"
-    )
-    span5 = html.Span(
-        f"CI: {span_diff_low} to {span_diff_up}",
-        className="skt_span_info2",
-        id="mean_modif",
-    )
-    children = [span1, span2, span3, span4, span5]
-
-    return children
+    return  children, enter_label
 
 
-def display_modal_data(cell, rowdata, rowdata_modal, net_data):
+
+def display_modal_data(cell, rowdata, df_modal, m):
     # Convert rowdata to DataFrame
     rowdata = pd.DataFrame(rowdata)
-    rowdata_modal = pd.DataFrame(rowdata_modal)
-
-    # Return original rowdata if no cell or invalid cell
-    if not cell or len(cell) == 0:
-        return rowdata_modal.to_dict("records")
-    
-    from tools.utils import get_net_data_json
-    # Load modal data
-    df_modal = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
-
-    # Accept outcome-specific metric columns, e.g. 'RR_out1_label', 'OR_out2_label', 'MD_out1_label', 'SMD_out1_label'
-    colid = str(cell.get("colId"))
-    m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
-    if not m:
-        # not an outcome metric column we handle
-        return rowdata_modal.to_dict("records")
 
     metric = m.group(1)
     idx = int(m.group(2))
@@ -335,13 +442,7 @@ def display_modal_data(cell, rowdata, rowdata_modal, net_data):
 
 
 
-def display_modal_column(cell):
-    colid = str(cell.get("colId"))
-    m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
-    if not m:
-        # not an outcome metric column we handle
-        return []
-
+def display_modal_column( m, effect_modifiers, df_modal):
     metric = m.group(1)
     ci_col = f"{metric}_ci"
     style_certainty = {
@@ -351,6 +452,8 @@ def display_modal_column(cell):
         "alignItems": "center",
         "border-left": "solid 0.8px",
     }
+
+
     modal_treat_compare = [
    
         {"headerName": "Study", 
@@ -384,50 +487,45 @@ def display_modal_column(cell):
             'background-color': '#ffecb3',
             }
         },
-
-        {"headerName": "Age", 
-        "field": "age",
-        "suppressHeaderMenuButton": True,
-        "editable": False,
-        "resizable": False,
-        'cellStyle': {
-            'background-color': '#ffecb3',
-            }
-        },
-
-        {"headerName": "BMI", 
-        "field": "bmi",
-        "suppressHeaderMenuButton": True,
-        "editable": False,
-        "resizable": False,
-        'cellStyle': {
-            'background-color': '#ffecb3',
-            }
-        },
-
-        {"headerName": "Weight", 
-        "field": "weight",
-        "suppressHeaderMenuButton": True,
-        "editable": False,
-        "resizable": False,
-        'cellStyle': {
-            'background-color': '#ffecb3',
-            }
-        },
-        
-        {"headerName": "Risk of bias", 
-        "field": "rob",
-        "suppressHeaderMenuButton": True,
-        "editable": False,
-        "resizable": False,
-        'cellStyle':{
-                    "styleConditions": [
-                    {"condition": "params.value == 'High'", "style": {"backgroundColor": "#B85042", **style_certainty}},   
-                    {"condition": "params.value == 'Low'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
-                    {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},       
-                        ]}
-        },
     ]
+    df_modal = pd.DataFrame(df_modal)
+    
+    for eff_mod in effect_modifiers:
+        if eff_mod in df_modal.columns:
+            field = eff_mod
+        elif f"{eff_mod}1" in df_modal.columns:
+            field = f"{eff_mod}1"
+        else:
+            continue 
+            
+        modal_treat_compare.append(
+            {
+                "headerName": eff_mod,
+                "field": field,
+                "suppressHeaderMenuButton": True,
+                "editable": False,
+                "resizable": False,
+                'cellStyle': {
+                    'background-color': '#ffecb3',
+                    }
+            }
+        )
+
+   
+    modal_treat_compare.append(       
+            {"headerName": "Risk of bias", 
+            "field": "rob",
+            "suppressHeaderMenuButton": True,
+            "editable": False,
+            "resizable": False,
+            'cellStyle':{
+                        "styleConditions": [
+                        {"condition": "params.value == 'High'", "style": {"backgroundColor": "#B85042", **style_certainty}},   
+                        {"condition": "params.value == 'Low'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
+                        {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},       
+                            ]}
+            }
+        )
 
 
     return modal_treat_compare

@@ -83,28 +83,6 @@ def __Change_Abs(value_effect, value_change,lower,rowData):
         refer_name = refer_name
         risk = None
         
-    # if value_effect==[]:
-    #         df = __skt_mix_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in value_effect for effect in ['PI', 'direct', 'indirect']):
-    #         df = __skt_all_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['PI'] for effect in value_effect):
-    #     
-    #     df = __skt_PI_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['direct'] for effect in value_effect):
-    #         df = __skt_direct_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['indirect'] for effect in value_effect):
-    #         df = __skt_indirect_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['PI', 'direct'] for effect in value_effect):
-    #         df = __skt_PIdirect_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['PI', 'indirect'] for effect in value_effect):
-    #         df = __skt_PIindirect_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # elif all(effect in ['direct', 'indirect'] for effect in value_effect):
-    #         df = __skt_directin_forstplot(df,lower, scale_lower, scale_upper, refer_name)
-    # print(df['risk'])
-    
-    # if toggle_value:
-    #     df = __skt_ab_forstplot(risk, value_effect, df,lower, scale_lower, scale_upper, refer_name)
-    # else:
     if value_effect==[]:
             df = __skt_mix_forstplot(df,lower, scale_lower, scale_upper, refer_name)
     else:

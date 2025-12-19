@@ -208,6 +208,7 @@ treat_compare_grid = dag.AgGrid(
     # use column flex sizing instead of sizeToFit so columns always fill width
     
     getRowId='params.data.index', 
+    columnSize="sizeToFit", 
     style={ 
            "width": "100%",
            'height':f'{45.5 *30}px'
@@ -348,7 +349,7 @@ modal_compare_grid = dag.AgGrid(
                     "animateRows": False,
                     # "tooltipComponent": "CustomTooltip"
                     },
-    columnSize="autoSize", 
+    # columnSize="autoSize", 
     getRowId='params.data.studlab', 
     style={ 
         # "width": "100%",

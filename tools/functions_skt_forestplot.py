@@ -12,11 +12,11 @@ def update_indirect_direct(row):
 
 
 def __skt_options_forstplot(
-    value_effect, df, lower, effect_size, n_treatments, scale_lower, scale_upper, refer_name
+    value_effect, df, consistency_data,lower, effect_size, n_treatments, scale_lower, scale_upper, refer_name
 ):
     # df = df.sort_values(by='Reference')
     n_rows = len(df)
-    
+    pval = consistency_data['p-value'].values[0].round(2)
     new_rows = pd.DataFrame(columns=df.columns)
     for idx in range(0, n_rows, n_treatments-1):
         new_rows.loc[idx / n_treatments-1, "Reference"] = df.loc[idx, "Reference"]
@@ -29,10 +29,10 @@ def __skt_options_forstplot(
     new_rows[f"{effect_size}"] = f"{effect_size}"
     new_rows["direct"] = f"{effect_size}"
     new_rows["indirect"] = f"{effect_size}"
-    new_rows["p-value"] = "0.75\n(Global)"
+    new_rows["p-value"] = f"{pval}\n(Global)"
     interval = n_treatments-1
     insert_index = 0
-    lower = float(lower)
+    # lower = float(lower)
     for _, row in new_rows.iterrows():
         df = pd.concat(
             [df.iloc[:insert_index], row.to_frame().T, df.iloc[insert_index:]]
@@ -131,13 +131,8 @@ def __skt_options_forstplot(
             filter_df["name"] = ""
             for index, value in enumerate(reversed(value_effect)):
                 if value == "PI":
-                    dif = np.log(filter_df.CI_upper[index]) - np.log(
-                        filter_df[f"{effect_size}"][index]
-                    )
-                    CI_upper = np.exp(np.log(filter_df[f"{effect_size}"][index]) + (dif + 0.2))
-                    CI_lower = np.exp(np.log(filter_df[f"{effect_size}"][index]) - (dif + 0.2))
-                    filter_df["CI_width_hf"][index] = CI_upper - filter_df[f"{effect_size}"][index]
-                    filter_df["lower_error"][index] = filter_df[f"{effect_size}"][index] - CI_lower
+                    filter_df["CI_width_hf"][index] = filter_df["pre_upper"][index] - filter_df[f"{effect_size}"][index]
+                    filter_df["lower_error"][index] = filter_df[f"{effect_size}"][index] - filter_df["pre_lower"][index]
                     filter_df["name"][index] = "PI"
 
                 else:
@@ -227,9 +222,9 @@ def __skt_options_forstplot(
                         type="rect",
                         xref="x",
                         yref="paper",
-                        x0=f"{1 + lower}",
+                        x0=f"{1/(1-lower) if effect_size in ['RR','OR'] else 0 + lower}",
                         y0="0",
-                        x1=f"{1 - lower}",
+                        x1=f"{1-lower if effect_size in ['RR','OR'] else 0 - lower}",
                         y1="1",
                         fillcolor="orange",
                         opacity=0.4,
@@ -242,7 +237,7 @@ def __skt_options_forstplot(
 
             fig.add_trace(
                 go.Scatter(
-                    x=[1 - lower, 1 + lower],  # x-coordinate in the middle of the shape
+                    x=[1/(1-lower), 1-lower] if effect_size in ["RR", "OR"] else [0 - lower, 0 + lower],  # x-coordinate in the middle of the shape
                     y=[
                         0,
                         0,
