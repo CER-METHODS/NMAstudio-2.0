@@ -6,6 +6,8 @@ from dash import html, dcc, callback, Input, Output, State, ctx, no_update, clie
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 from dash.exceptions import PreventUpdate
+import base64
+import io
 
 # from tools.skt_layout import (
 #     Sktpage,
@@ -349,14 +351,92 @@ def update_cytoscape_layout(layout):
 
 
 
+
 from tools.functions_generate_text_info import __generate_text_info__
 @callback(
     Output('trigger_info', 'children'),
     Input('cytoscape_skt', 'selectedNodeData'),
-    Input('cytoscape_skt', 'selectedEdgeData')
+    Input('cytoscape_skt', 'selectedEdgeData'),
+    State("treat_instruction", "data"),
+    State("sktdropdown-out", "value"),
+    State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data")
 )
-def generate_text_info(nodedata, edgedata):
-    return __generate_text_info__(nodedata, edgedata)
+def generate_text_info(nodedata, edgedata,  instruct_data, out_idx, net_data, effect_modifiers):
+    return __generate_text_info__(nodedata, edgedata, instruct_data, out_idx, net_data, effect_modifiers)
+
+
+@callback(
+    Output('treat_instruction', 'data'),
+    Output('treat-instruction-filename', 'children'),
+    Input("treat-instruction-upload", "contents"),
+    State("treat-instruction-upload", "filename"),
+    prevent_initial_call=True
+)
+def display_upload_instructon(contents, filename):
+
+    
+    if not contents or not filename:
+        raise PreventUpdate
+
+    # only allow csv
+    if not filename.lower().endswith(".csv"):
+        return  None, None
+
+    try:
+        _, content_string = contents.split(",")
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+        filename_display = f"Uploaded file: {filename}"
+    except Exception:
+        return  None, None
+
+    # success → hide toast, store data
+    return  df.to_dict("records"), filename_display
+
+
+@callback(
+    Output('treat_fullname', 'data'),
+    Output('treat-fullname-filename', 'children'),
+    Input("treat-fullname-upload", "contents"),
+    State("treat-fullname-upload", "filename"),
+    State('modal_fullname', 'rowData'),
+    prevent_initial_call=True
+)
+def display_upload_fullname(contents, filename, rowdata):
+
+    # nothing uploaded
+    if not contents or not filename:
+        raise PreventUpdate
+
+    # only allow csv
+    if not filename.lower().endswith(".csv"):
+        return  rowdata, None
+
+    try:
+        _, content_string = contents.split(",")
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+        filename_display = f"Uploaded file: {filename}"
+    except Exception:
+        return  rowdata, None
+
+
+    return  df.to_dict("records"), filename_display
+
+@callback(
+    Output('modal_fullname', 'rowData'),
+    Input('treat_fullname', 'data'),
+    prevent_initial_call=True
+)
+def display_fullname_data(rowdata):
+
+    if isinstance(rowdata, list) and len(rowdata) > 0:
+        rowdata = pd.DataFrame(rowdata)
+        return rowdata.to_dict('records')
+       
+    raise PreventUpdate
+
 
 
 @callback(
@@ -646,7 +726,7 @@ from tools.functions_modal_info import display_modal_data, display_modal_column
 
 def display_modaldata(cell,rowdata, net_data, effect_modifiers):
     if not cell or len(cell) == 0:
-        return PreventUpdate
+        raise PreventUpdate
     
     from tools.utils import get_net_data_json
     # Load modal data
@@ -657,7 +737,7 @@ def display_modaldata(cell,rowdata, net_data, effect_modifiers):
     m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
     if not m:
         # not an outcome metric column we handle
-        return PreventUpdate
+        raise PreventUpdate
     
     data = display_modal_data(cell, rowdata, df_modal, m)
     colunmdef = display_modal_column( m, effect_modifiers, df_modal)
@@ -1367,7 +1447,8 @@ def update_skt_protocol_link(protocol_link):
     return "#", "Not provided"
 
 @callback(
-    Output("title_skt", "value"),
+    Output("title_skt", "children"),
+    Output("title_skt_advacned", "children"),
     Input("project_title_STORAGE", "data"),
     prevent_initial_call=False,
 )
@@ -1376,5 +1457,5 @@ def update_skt_title_input(project_title):
     Update the editable project title input in SKT page from STORAGE.
     """
     if project_title and isinstance(project_title, str) and project_title.strip():
-        return project_title.strip()
-    return ""
+        return project_title.strip(), project_title.strip()
+    return "", ""

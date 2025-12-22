@@ -254,6 +254,8 @@ grid = dag.AgGrid(
     defaultColDef={
                     # "resizable": True, 
                 #    "sortable": False, "filter": True,
+                    "flex": 1,
+                    "minWidth": 100,
                     "wrapText": True, 
                     'autoHeight': True,
                     "enableRowGroup": False,
@@ -270,6 +272,8 @@ grid = dag.AgGrid(
                     },
     columnSize="sizeToFit", 
     dashGridOptions = {'suppressRowTransform': True,
+                       "rowHeight": 60,
+                       "domLayout": "autoHeight",
                     #    "domLayout":'print',
                        "rowSelection": "multiple",
                     #    "tooltipShowDelay": 100,
@@ -280,7 +284,7 @@ grid = dag.AgGrid(
                        }, 
     getRowId='params.data.Reference',
     style={ "width": "100%",
-           'height':f'{46.5 *20}px'
+        #    'height':f'{46.5 *20}px'
            }
     
 )

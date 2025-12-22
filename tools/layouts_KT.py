@@ -140,8 +140,7 @@ def skt_nonexpert():
                                                                                     # "float":"right",
                                                                                     },
                                                                             )),],id="query-title",),
-                                                              dbc.Col(dcc.Input(id='title_skt',
-                                                                            value='Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis', 
+                                                              dbc.Col(html.Span(id='title_skt',
                                                                             style={'width':'800px'}
                                                                             ),className='title_col2')],
                                                                        className='row_skt'),
@@ -158,10 +157,10 @@ def skt_nonexpert():
                                                                                                 },
                                                                                                 )),],id="query-PICOS",)
                                                                                                 ]),
-                                                                     dcc.Textarea(value ='Patients: patients with psoriasis\n'+
-                                                                                'Primary outcome: PASI90, SAE\n'+
-                                                                                'Study design: randomized control trial'
-                                                                                ,className='skt_span1', style={'width':'200%'}),
+                                                                     dcc.Textarea(placeholder ='Patients: (e.g. patients with psoriasis)\n'+
+                                                                                'Primary outcome: (e.g. PASI90, SAE)\n'+
+                                                                                'Study design: (e.g. randomized control trial)'
+                                                                                ,className='skt_span1', style={'width':'200%', 'height':'126px'},),
                                                                             #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                             #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                               ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')
@@ -413,13 +412,13 @@ def skt_layout():
                                                                         # "float":"right",
                                                                         },
                                                                 )),],id="query-title",), 
-                                                    dbc.Col(dcc.Input(id='title_skt',
-                                                                value='Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis', 
+                                                    dbc.Col(html.Span(id='title_skt_advacned',
                                                                 style={'width':'800px'}
                                                                 ),className='title_col2')],
                                                             className='row_skt'),
-                                            dbc.Row([dbc.Col([
-                                                dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
+                                            dbc.Row([
+                                                dbc.Col([
+                                                        dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
                                                                     html.Div([ html.P("editable, add more PICOS information",
                                                                     id='PICOS-instruction'),
                                                                     html.A(
@@ -431,10 +430,10 @@ def skt_layout():
                                                                                     },
                                                                                     )),],id="query-PICOS",)
                                                                                     ]),
-                                                            dcc.Textarea(value ='Patients: patients with psoriasis\n'+
-                                                                    'Primary outcome: PASI90\n'+
-                                                                    'Study design: randomized controlled trial'
-                                                                    ,className='skt_span1', style={'width':'160%'}),
+                                                            dcc.Textarea(placeholder ='Patients: (e.g., patients with psoriasis)\n'+
+                                                                    'Primary outcome: (e.g., PASI90)\n'+
+                                                                    'Study design: (e.g., randomized controlled trial)'
+                                                                    ,className='skt_span1', style={'width':'160%', 'height':'50vh'}),
                                                                 #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                 #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                     ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')
@@ -482,7 +481,31 @@ def skt_layout():
                                                                     ], 
                                                                     style={'border-right': '3px solid #B85042',
                                                                             'width': '50%'}),
-                                                                    dbc.Col(html.Span(id='trigger_info'),
+                                                                    dbc.Col([
+                                                                            dbc.Toast(
+                                                                                [
+                                                                                dcc.Upload(
+                                                                                            html.A('Upload treatments instructions',
+                                                                                                className = 'treat-instruct'),
+                                                                                        id='treat-instruction-upload', 
+                                                                                        multiple=False,
+                                                                                        style={'display': 'inline-block', 
+                                                                                            'font-size': '12px', }),
+                                                                                html.Span(id ='treat-instruction-filename',
+                                                                                            style={'font-size':'12px', 
+                                                                                                   'color':'blue', 
+                                                                                                   'margin-left':'10px'}),
+                                                                                html.Br(), html.Br(),
+                                                                                html.Span('First, upload a CSV file with two columns: one for the treatment name (treatment) and one for the treatment description (description).')
+                                                                                ],
+                                                                                style={
+                                                                                    'justify-items': 'center',
+                                                                                    'align-items': 'center',
+                                                                                    'text-align': 'center',
+                                                                                    'font-weight': 'bold'
+                                                                                }, id='toast_upload',
+                                                                            ),
+                                                                            html.Span([],id='trigger_info')],
                                                                             style={'width': '50%','align-items': 'center', 'display': 'grid'})
                                                                         ]),
                                                                     ], className='tab3_col')               
@@ -691,6 +714,22 @@ model_fullname = dbc.Modal(
         
         dbc.ModalBody(
             [
+                dbc.Row([
+                    dcc.Upload(
+                                html.A('Upload treatments fullnames',
+                                    className = 'treat-instruct'),
+                                id='treat-fullname-upload', 
+                                multiple=False,
+                                style={'display': 'inline-block', 
+                                    'font-size': '12px', }),
+                                html.Span(id ='treat-fullname-filename',
+                                            style={'font-size':'12px', 
+                                                   'color':'blue',
+                                                   'margin-top':'10px', 
+                                                   'margin-left':'10px'}),
+                                html.Br(), html.Br(),
+                                html.Span('Upload a CSV file with two columns: one for the treatment abbreviation (abbreviation) and one for the full treatment name (fullname).')
+                                    ]),
                 dbc.Row([modal_fullname_grid],
                         style={'width':'95%', 'justify-self':'center',
                                'justify-content':'center'}),
