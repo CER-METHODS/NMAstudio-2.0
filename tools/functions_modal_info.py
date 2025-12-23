@@ -218,7 +218,7 @@ def display_modal_barplot(cell, value, rowdata):
 #     return children
 
 
-def display_modal_text(cell, value, rowdata, outcome_names):
+def display_modal_text(cell, value, rowdata, outcome_names, net_data):
     if cell is None or len(cell) == 0:
         return html.P(""), html.Span("")
 
@@ -277,6 +277,15 @@ def display_modal_text(cell, value, rowdata, outcome_names):
 
     # -------- RR / OR --------
     if metric in ["RR", "OR"]:
+        from tools.skt_data_helpers import compute_reference_ranges
+        from tools.utils import get_net_data_json
+        # Load modal data
+        net_dat = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+        range_ref_ab = compute_reference_ranges(net_dat, idx-1)
+        min_val = int(range_ref_ab[range_ref_ab['treat'] == compare]['min_value'].values[0])
+        max_val = int(range_ref_ab[range_ref_ab['treat'] == compare]['max_value'].values[0])
+        range_text = html.P(f"The risk of {compare} ranges from {min_val} to {max_val} per 1000 in the dataset.")
+
         enter_label = html.P(f"Enter the risk for {compare} (per 1000):")
         ab_treat = int(rr * value) if rr is not None else 0
         ab_diff = ab_treat - value
@@ -318,6 +327,7 @@ def display_modal_text(cell, value, rowdata, outcome_names):
 
     # -------- MD / SMD --------
     else:
+        range_text = html.P("")
         enter_label = html.P(f"Enter a value for {compare}:")
         children.extend(
             [
@@ -334,7 +344,7 @@ def display_modal_text(cell, value, rowdata, outcome_names):
             ]
         )
 
-    return  children, enter_label
+    return  children, enter_label, range_text
 
 
 

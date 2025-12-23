@@ -2549,3 +2549,17 @@ margin: 10px
 #grid_treat_compare .ag-header-cell-menu-button {
     display: none !important;
 }
+
+
+.kt-info-icon {
+    cursor: pointer;
+    font-size: 16px;
+    color: rgb(184, 80, 67);
+    font-weight: bold;
+    padding: unset;
+}
+
+.kt-info-icon:hover {
+    color: rgb(228, 28, 2);
+    font-weight: bolder;
+}

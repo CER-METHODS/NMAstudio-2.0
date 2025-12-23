@@ -385,7 +385,6 @@ dagcomponentfuncs.StudyLink = function (props) {
 dagcomponentfuncs.HeaderWithIcon = function (props) {
     const [hover, setHover] = React.useState(false);
     const iconId = "info-icon-" + props.column.colId;
-
     // small menu button handler — AG Grid expects the target element to anchor the menu
     function onMenuClick(e) {
         if (typeof props.showColumnMenu === 'function') {
@@ -420,7 +419,7 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                         cursor: "pointer",
                         fontSize: "16px",
                         color: hover ? "rgb(228, 28, 2)" : "rgb(184, 80, 67)",
-                        fontWeight: hover ? "bold" : "normal",
+                        fontWeight: hover ? "bolder" : "bold",
                         marginLeft: "4px"
                     },
                 },

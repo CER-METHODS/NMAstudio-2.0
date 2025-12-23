@@ -701,15 +701,17 @@ from tools.functions_modal_info import display_modal_text
     # Output("risk_range", "children"),
     Output("text_info_col", "children"),
     Output("enter_label", "children"),
+    Output("risk_range", "children"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
     State("outcome_names_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
     prevent_initial_call=True
 )
 
-def display_textinfo(cell,value,rowdata, outcome_names):
-    return display_modal_text(cell,value,rowdata, outcome_names)
+def display_textinfo(cell,value,rowdata, outcome_names, net_data):
+    return display_modal_text(cell,value,rowdata, outcome_names, net_data)
 
 from tools.functions_modal_info import display_modal_data, display_modal_column
 
@@ -813,6 +815,71 @@ clientside_callback(
 
 
 import time
+
+
+@callback(
+    Output("popover-container-master", "children"),
+    Input("KT_advanced_data_STORAGE", "data"),
+    prevent_initial_call=True
+)
+def show_popover_master(data):
+    if data:
+        children = [
+            dbc.Popover(
+                        "Clicking a cell will open a nested table, where the corresponding treatment will be a reference treatment.",
+                        target="info-icon-Reference",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-ref",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "This is the range of risk per 1000 in your original dataset. This can be a reference when you enter the number in 'Risk per 1000' column.",
+                        target="info-icon-risk_range",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-range",
+                        className= 'popover-grid'
+                    ),
+                
+                dbc.Popover(
+                        "You can enter a risk for the reference treatment, then the corresponding nested table will include effects in absolute scale.",
+                        target="info-icon-risk",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-risk",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Please explain why you specified this particular risk for the reference treatment.",
+                        target="info-icon-rationality",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-rationality",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Here you can specify the lower limit of the x-axis range for the forest plot in the nested table.",
+                        target="info-icon-Scale_lower",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-Scale_lower",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Here you can specify the upper limit of the x-axis range for the forest plot in the nested table.",
+                        target="info-icon-Scale_upper",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-Scale_upper",
+                        className= 'popover-grid'
+                    )
+        ]
+        # Still uses the same target, so may not work if multiple icons exist
+        return children
+    return None
+
+
 
 @callback(
     Output("popover-container", "children"),
@@ -1027,6 +1094,64 @@ def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STO
         data.to_dict("records"),
         ColumnDefs_treat_compare
     )
+
+
+@callback(
+    Output("popover-container-standard", "children"),
+    Input("KT_standard_data_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
+    State("number_outcomes_STORAGE", "data"),
+    prevent_initial_call="initial_duplicate",
+)
+def generate_kt_standad_popover(data, net_data, num_outcomes):
+    if data:
+        from tools.utils import get_net_data_json
+
+        net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+
+        num_outcomes = int(num_outcomes or 0)
+        effect_sizes = [
+            net_df[f"effect_size{i+1}"].iloc[0]
+            for i in range(num_outcomes)
+            if f"effect_size{i+1}" in net_df.columns
+        ]
+
+        children = [
+            dbc.Popover(
+                "Click switch button to switch treatment and comparator.",
+                target="info-icon-switch",
+                trigger="click",
+                placement="top",
+                id="popover-switch",
+                className="popover-grid",
+            )
+        ]
+
+        for i, effect_size in enumerate(effect_sizes):
+            children.extend([
+                dbc.Popover(
+                    "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
+                    target=f"info-icon-{effect_size}_out{i+1}_label",
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-{effect_size}_out{i+1}_label",
+                    className="popover-grid",
+                ),
+                dbc.Popover(
+                    "Hover your mouse over a cell to view detailed information for each field.",
+                    target=f"info-icon-Certainty_out{i+1}",
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-certainty{i+1}",
+                    className="popover-grid",
+                ),
+            ])
+        
+        return children
+
+    return None
+
+    
 
 
 

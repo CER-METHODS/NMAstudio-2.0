@@ -92,7 +92,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = True,
+                                value = False,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
@@ -130,33 +130,33 @@ def skt_nonexpert():
                                             #         'width': '90%'
                                             #            }),
                                             html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'), 
-                                                               html.Div([ html.P("editable, put your project title here",
-                                                                                 id='title-instruction'),
-                                                                            html.A(
-                                                                            html.Img(
-                                                                                src="/assets/icons/query.png",
-                                                                                style={
-                                                                                    "width": "16px",
-                                                                                    # "float":"right",
-                                                                                    },
-                                                                            )),],id="query-title",),
+                                                               html.Div([ dbc.Popover(
+                                                                                    "This should be filled in the 'SETUP' page.",
+                                                                                    target="infoicon-standard-title",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-standard-title",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                            html.A("ⓘ",id="infoicon-standard-title", className='kt-info-icon'),]
+                                                                            ,id="query-title",),
                                                               dbc.Col(html.Span(id='title_skt',
                                                                             style={'width':'800px'}
                                                                             ),className='title_col2')],
                                                                        className='row_skt'),
                                                       dbc.Row([dbc.Col([
                                                           dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
-                                                                              html.Div([ html.P("editable, add more PICOS information",
-                                                                                id='PICOS-instruction'),
-                                                                                html.A(
-                                                                                    html.Img(
-                                                                                            src="/assets/icons/query.png",
-                                                                                            style={
-                                                                                                "width": "16px",
-                                                                                                # "float":"right",
-                                                                                                },
-                                                                                                )),],id="query-PICOS",)
-                                                                                                ]),
+                                                                              html.Div([ 
+                                                                                dbc.Popover(
+                                                                                    "Editable, add more PICOS information here.",
+                                                                                    target="infoicon-standard-picos",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-standard-picos",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                                html.A("ⓘ",id="infoicon-standard-picos", className='kt-info-icon'),],id="query-PICOS",)
+                                                                                ]),
                                                                      dcc.Textarea(placeholder ='Patients: (e.g. patients with psoriasis)\n'+
                                                                                 'Primary outcome: (e.g. PASI90, SAE)\n'+
                                                                                 'Study design: (e.g. randomized control trial)'
@@ -200,16 +200,17 @@ def skt_nonexpert():
                                                             dbc.Col([
                                                                         dbc.Row([
                                                                             dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
-                                                                            html.Div([html.P("Select nodes/edges to display results for specific interventions or comparisons in the table below.",
-                                                                                            id='diagram-instruction'),
-                                                                                            html.A(
-                                                                                                html.Img(
-                                                                                                        src="/assets/icons/query.png",
-                                                                                                        style={
-                                                                                                            "width": "16px",
-                                                                                                            # "float":"right",
-                                                                                                            },
-                                                                                                            )),],id="query-diagram",),
+                                                                            html.Div([
+                                                                                    dbc.Popover(
+                                                                                        "Select nodes/edges to display results for specific interventions or comparisons in the table below.",
+                                                                                        target="infoicon-standard-diagram",
+                                                                                        trigger="hover",
+                                                                                        placement="top",
+                                                                                        id="popover-standard-diagram",
+                                                                                        className="popover-grid",
+                                                                                    ),
+                                                                                    html.A("ⓘ",id="infoicon-standard-diagram", className='kt-info-icon')
+                                                                                    ],id="query-diagram",),
                                                                             dbc.Col([
                                                                                     html.P(f"Select outcome:",className="", style={'display': 'flex',  
                                                                                                 'align-items': 'center',
@@ -281,46 +282,7 @@ def skt_nonexpert():
                                                       dbc.Row(
                                                         [dbc.Col(
                                                             [
-                                                                 dbc.Popover(
-                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
-                                                                        target="info-icon-RR",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-RR",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
-                                                                        target="info-icon-RR_out2",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-RR2",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Click switch button to switch treament and comparator.",
-                                                                        target="info-icon-switch",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-switch",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Hover your mouse over a cell to view detailed information for each field.",
-                                                                        target="info-icon-Certainty_out1",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-certainty1",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Hover your mouse over a cell to view detailed information for each field.",
-                                                                        target="info-icon-Certainty_out2",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-certainty2",
-                                                                        className= 'popover-grid'
-                                                                    ),
+                                                                 html.Div(id="popover-container-standard"),
                                                                 model_skt_compare_simple,
                                                                 dbc.Row(treat_compare_grid, 
                                                                         style={'width':'95%', 'justify-self':'center'}),
@@ -402,16 +364,17 @@ def skt_layout():
                                     className="sktdropdown-out")], id='outselect_row'),
                                 html.Br(),
                                 html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'),
-                                                    html.Div([ html.P("editable, put your project title here",
-                                                                        id='title-instruction'),
-                                                                html.A(
-                                                                html.Img(
-                                                                    src="/assets/icons/query.png",
-                                                                    style={
-                                                                        "width": "16px",
-                                                                        # "float":"right",
-                                                                        },
-                                                                )),],id="query-title",), 
+                                                    html.Div([ 
+                                                              dbc.Popover(
+                                                                        "This should be filled in the 'SETUP' page.",
+                                                                        target="infoicon-advanced-title",
+                                                                        trigger="hover",
+                                                                        placement="top",
+                                                                        id="popover-advanced-title",
+                                                                        className="popover-grid",
+                                                                    ),
+                                                              html.A("ⓘ",id="infoicon-advanced-title", className='kt-info-icon')
+                                                                ],id="query-title",), 
                                                     dbc.Col(html.Span(id='title_skt_advacned',
                                                                 style={'width':'800px'}
                                                                 ),className='title_col2')],
@@ -419,16 +382,16 @@ def skt_layout():
                                             dbc.Row([
                                                 dbc.Col([
                                                         dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
-                                                                    html.Div([ html.P("editable, add more PICOS information",
-                                                                    id='PICOS-instruction'),
-                                                                    html.A(
-                                                                        html.Img(
-                                                                                src="/assets/icons/query.png",
-                                                                                style={
-                                                                                    "width": "16px",
-                                                                                    # "float":"right",
-                                                                                    },
-                                                                                    )),],id="query-PICOS",)
+                                                                    html.Div([dbc.Popover(
+                                                                                    "Editable, add more PICOS information here.",
+                                                                                    target="infoicon-advanced-picos",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-advanced-picos",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                    html.A("ⓘ",id="infoicon-advanced-picos", className='kt-info-icon'),
+                                                                    ],id="query-PICOS",)
                                                                                     ]),
                                                             dcc.Textarea(placeholder ='Patients: (e.g., patients with psoriasis)\n'+
                                                                     'Primary outcome: (e.g., PASI90)\n'+
@@ -567,56 +530,8 @@ def skt_layout():
                                                              grid, 
                                                              model_skt_stand1, 
                                                              model_skt_stand2,
+                                                             html.Div(id="popover-container-master"),
                                                              html.Div(id="popover-container"),
-                                                             dbc.Popover(
-                                                                        "Clicking a cell will open a nested table, where the corresponding treatment will be a reference treatment.",
-                                                                        target="info-icon-Reference",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-ref",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "This is the range of risk per 1000 in your original dataset. This can be a reference when you enter the number in 'Risk per 1000' column.",
-                                                                        target="info-icon-risk_range",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-range",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             
-                                                             dbc.Popover(
-                                                                        "You can enter a risk for the reference treatment, then the corresponding nested table will include effects in absolute scale.",
-                                                                        target="info-icon-risk",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-risk",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Please explain why you specified this particular risk for the reference treatment.",
-                                                                        target="info-icon-rationality",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-rationality",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Here you can specify the lower limit of the x-axis range for the forest plot in the nested table.",
-                                                                        target="info-icon-Scale_lower",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-Scale_lower",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Here you can specify the upper limit of the x-axis range for the forest plot in the nested table.",
-                                                                        target="info-icon-Scale_upper",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-Scale_upper",
-                                                                        className= 'popover-grid'
-                                                                    )
                                                              ],className='skt_col2', id = 'grid_type'),
                                                                     ],className='skt_rowtable'),
                                             html.Br(), html.Br(),
