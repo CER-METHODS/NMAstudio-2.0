@@ -9,21 +9,6 @@ from dash.exceptions import PreventUpdate
 import base64
 import io
 
-# from tools.skt_layout import (
-#     Sktpage,
-#     switch_table,
-#     skt_layout,
-#     skt_nonexpert,
-#     model_transitivity,
-#     model_skt_stand1,
-#     model_skt_stand2,
-#     model_skt_compare_simple,
-#     model_fullname,
-#     model_ranking,
-#     grid,
-#     row_data,
-#     row_data_default,
-# )
 
 from tools.layouts_KT import *
 
@@ -281,7 +266,7 @@ def display_transitivity(cell, _):
               Input('ddskt-trans', 'value'),
               State('net_data_STORAGE', 'data'),
               )
-def update_boxplot(scatter, value, net_data):
+def update_boxplot_scatter(scatter, value, net_data):
     if scatter:
         return __show_scatter(value, net_data)
     return __show_boxplot(value, net_data)
@@ -424,12 +409,16 @@ def display_upload_fullname(contents, filename, rowdata):
 
     return  df.to_dict("records"), filename_display
 
+
+
+
 @callback(
     Output('modal_fullname', 'rowData'),
     Input('treat_fullname', 'data'),
     prevent_initial_call=True
 )
 def display_fullname_data(rowdata):
+
 
     if isinstance(rowdata, list) and len(rowdata) > 0:
         rowdata = pd.DataFrame(rowdata)

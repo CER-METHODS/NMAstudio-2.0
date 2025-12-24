@@ -54,7 +54,7 @@ def skt_storage_components():
         dcc.Store(id="KT_advanced_data_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="treat_instruction", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="treat_fullname", data=None, storage_type=SESSION_TYPE),
-
+        
     ]
 
 

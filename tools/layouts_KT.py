@@ -223,11 +223,21 @@ def skt_nonexpert():
                                                                                                                             ),
                                                                             html.Div(KT_Dropdown_graphlayout, style={'font-size': '11px','justify-self': 'end', 'margin-right':'20px'})],
                                                                             style={'display': 'grid', 'grid-template-columns':'1fr 0.1fr 3fr 3fr'}),
-                                                                            dbc.Row([html.Span('Ask Dr.Bot',className='skt_span1', 
+                                                                            dbc.Row([
+                                                                                     html.Div([ dbc.Popover(
+                                                                                                "This chatbot is powered by the LLaMA API and is designed to answer practical questions about the interventions.",
+                                                                                                target="infoicon-standard-chatbot",
+                                                                                                trigger="hover",
+                                                                                                placement="top",
+                                                                                                id="popover-standard-chatbot",
+                                                                                                className="popover-grid",),
+                                                                                                html.A("ⓘ",id="infoicon-standard-chatbot", className='kt-info-icon'),]
+                                                                                                ,id="query-chatbot",),
+                                                                                    html.Span('Ask Dr.Bot',className='skt_span1', 
                                                                                               style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                                              html.Img(src="/assets/icons/chatbot.png",
-                                                                                                       style={ "height": 30, 
-                                                                                                              'margin-left': '7px'})
+                                                                                    html.Img(src="/assets/icons/chatbot.png",
+                                                                                            style={ "height": 30, 
+                                                                                                    'margin-left': '7px'}),
                                                                                               ], style={'justify-content':'center',
                                                                                                         'align-items': 'center'}),
                                                                             #  html.Span('Please tick to select the reference treatment', className='note_tick')
