@@ -762,16 +762,38 @@ def open_toast(cell, _):
         return True
     return no_update
 
-for ans in range(1, 3):
+
+def make_sub_callback(i):
     @callback(
-        Output(f"faq_ans{ans}", "is_open"),
-        [Input(f"faq_ques{ans}", "n_clicks")],
-        [State(f"faq_ans{ans}", "is_open")],
+        Output(f"faq_block{i}", "is_open"),
+        Input(f"faq_sub{i}", "n_clicks"),
+        State(f"faq_block{i}", "is_open"),
     )
-    def toggle_collapse(n, is_open):
+    def toggle_sub(n, is_open):
         if n:
             return not is_open
         return is_open
+
+
+for i in range(1, 8):
+    make_sub_callback(i)
+
+
+def make_ques_callback(i):
+    @callback(
+        Output(f"faq_ans{i}", "is_open"),
+        Input(f"faq_ques{i}", "n_clicks"),
+        State(f"faq_ans{i}", "is_open"),
+    )
+    def toggle_ans(n, is_open):
+        if n:
+            return not is_open
+        return is_open
+
+
+for i in range(1, 13):
+    make_ques_callback(i)
+
 
 
 # Unified clientside callback to manage AG Grid events

@@ -13,32 +13,204 @@ from assets.dropdowns_values import *
 from tools.functions_ranking_plots import __ranking_plot_skt
 
 
+from dash import html
+import dash_bootstrap_components as dbc
+
 FAQ_total = html.Div([
-                      dbc.Button(
-                                "How can I use this tool for my own project?",
-                                id="faq_ques1",
-                                className="faq_ques",
-                                n_clicks=0,
-                                ),
-                      dbc.Collapse(
-                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
-                                id="faq_ans1",
-                                is_open=False,
-                                className="faq_ans",
-                            ),
-                      dbc.Button(
-                                "How can I ......",
-                                id="faq_ques2",
-                                className="faq_ques",
-                                n_clicks=0,
-                                ),
-                      dbc.Collapse(
-                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
-                                id="faq_ans2",
-                                is_open=False,
-                                className="faq_ans",
-                            ),
-                        ])
+
+    # ===== General =====
+    dbc.Button("General", id="faq_sub1", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is this tool?", id="faq_ques1", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "This tool is an interactive knowledge translation tool designed to help users explore, understand, and communicate results from network meta-analyses."
+                )),
+                id="faq_ans1",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Who is this tool for?", id="faq_ques2", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The tool is intended for clinicians, guideline developers, policymakers, researchers, and students."
+                )),
+                id="faq_ans2",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block1",
+        is_open=False,
+    ),
+
+    # ===== About Network Meta-Analysis =====
+    dbc.Button("About Network Meta-Analysis", id="faq_sub2", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is a network meta-analysis?", id="faq_ques3", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "A network meta-analysis compares multiple treatments at the same time by combining direct and indirect evidence from many studies."
+                )),
+                id="faq_ans3",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Do I need to be an NMA expert to use this tool?", id="faq_ques4", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "No. The Standard version is designed for users with limited experience, while the Advanced version is for experienced users."
+                )),
+                id="faq_ans4",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block2",
+        is_open=False,
+    ),
+
+    # ===== Versions of the Tool =====
+    dbc.Button("Versions of the Tool", id="faq_sub3", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is the Standard version?", id="faq_ques5", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The Standard version focuses on key results, rankings, and certainty of evidence in a simple and clear format."
+                )),
+                id="faq_ans5",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("What is the Advanced version?", id="faq_ques6", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The Advanced version provides detailed statistical results, including direct and indirect effects and inconsistency checks."
+                )),
+                id="faq_ans6",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block3",
+        is_open=False,
+    ),
+
+    # ===== Using the App =====
+    dbc.Button("Using the App", id="faq_sub4", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("How can I use this tool for my own project?", id="faq_ques7", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "You must upload your dataset and run the analysis in NMAstudio. The results will then appear automatically in this tool."
+                )),
+                id="faq_ans7",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Can I focus on specific treatments or comparisons?", id="faq_ques8", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. You can click treatments or comparisons in the network diagram to filter the results table."
+                )),
+                id="faq_ans8",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block4",
+        is_open=False,
+    ),
+
+    # ===== Help and Guidance =====
+    dbc.Button("Help and Guidance", id="faq_sub5", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("Is there a tutorial or help available?", id="faq_ques9", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. The tool includes a tutorial video, a floating FAQ window, info icons, and hover tips."
+                )),
+                id="faq_ans9",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block5",
+        is_open=False,
+    ),
+
+    # ===== Data and Access =====
+    dbc.Button("Data and Access", id="faq_sub6", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("Who can upload data and access results?", id="faq_ques10", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "NMA authors can upload data and run analyses. Reviewers can request access to explore the results."
+                )),
+                id="faq_ans10",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block6",
+        is_open=False,
+    ),
+
+    # ===== Limitations and Future Plans =====
+    dbc.Button("Limitations and Future Plans", id="faq_sub7", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What are the current limitations of the tool?", id="faq_ques11", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The tool supports standard NMAs with binary and continuous outcomes. Other analysis types are not supported yet."
+                )),
+                id="faq_ans11",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Will the tool be updated in the future?", id="faq_ques12", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. New features and improvements will be added based on user feedback."
+                )),
+                id="faq_ans12",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block7",
+        is_open=False,
+    ),
+
+])
+
+
 
 def Sktpage():
     return html.Div([
@@ -57,7 +229,7 @@ def Sktpage():
                                                 html.P("Frequently Asked Questions", id = 'faq_head'),
                                                 html.Img(src="/assets/icons/cancel.png", id ='close_faq')
                                                 ], className='faq-header'),
-                                        FAQ_total],
+                                        html.Div(FAQ_total, className="faq-scroll")],
                                     id="faq_toast",
                                     # header="Frequently Asked Questions",
                                     is_open=False,
@@ -469,7 +641,8 @@ def skt_layout():
                                                                                                    'color':'blue', 
                                                                                                    'margin-left':'10px'}),
                                                                                 html.Br(), html.Br(),
-                                                                                html.Span('First, upload a CSV file with two columns: one for the treatment name (treatment) and one for the treatment description (description).')
+                                                                                html.Span('First, upload a CSV file with two columns: one for the treatment name (treatment) and one for the treatment description (description).',
+                                                                                          id='treat-instruct-span'),
                                                                                 ],
                                                                                 style={
                                                                                     'justify-items': 'center',
