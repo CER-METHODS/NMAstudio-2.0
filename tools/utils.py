@@ -17,6 +17,9 @@ import rpy2.robjects.packages as rpackages
 from rpy2.robjects.vectors import StrVector
 
 
+
+
+
 # utils = rpackages.importr('base')
 
 # # import R's utility package
@@ -58,66 +61,177 @@ def  my_consoleread(promp: str) -> str:
 def print_console_error():
     rlib.callbacks.consoleread = my_consoleread
 
-def apply_r_func(func, df):
-    df['rob'] = df['rob'].astype("string")
-    df['rob'] = (df['rob'].str.lower()
-                      .str.strip()
-                      .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
-                      .replace({'l': 1, 'm': 2, 'h': 3}))
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-    func_r_res = func(dat=df_r)
-    r_result = pandas2ri.rpy2py(func_r_res)
+# def apply_r_func(func, df):
+#     df['rob'] = df['rob'].astype("string")
+#     df['rob'] = (df['rob'].str.lower()
+#                       .str.strip()
+#                       .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
+#                       .replace({'l': 1, 'm': 2, 'h': 3}))
+#     with localconverter(ro.default_converter + pandas2ri.converter):
+#         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
+#     func_r_res = func(dat=df_r)
 
-    if isinstance(r_result, ro.vectors.ListVector):
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            leaguetable, pscores, consist, netsplit, netsplit_all  = (ro.conversion.rpy2py(rf) for rf in r_result)
-        return leaguetable, pscores, consist, netsplit, netsplit_all
-    else:
-        df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
-        return df_result
+#     with localconverter(ro.default_converter + pandas2ri.converter):
+#         r_result = ro.conversion.rpy2py(func_r_res)
+
+#     if isinstance(r_result, ro.vectors.ListVector):
+#         with localconverter(ro.default_converter + pandas2ri.converter):
+#             leaguetable, pscores, consist, netsplit, netsplit_all  = (ro.conversion.rpy2py(rf) for rf in r_result)
+#         return leaguetable, pscores, consist, netsplit, netsplit_all
+#     else:
+#         df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
+#         return df_result
+
 
 
 
 def apply_r_func_new(func, df, i):
+    df = df.copy()
     df['rob'] = df['rob'].astype("string")
     df['rob'] = (df['rob'].str.lower()
                         .str.strip()
                         .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
                         .replace({'l': 1, 'm': 2, 'h': 3}))
+
+    # Convert pandas -> R
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
 
+    # Call R function (outside converter context to avoid nested conversions)
     func_r_res = func(dat=df_r, i=i)
-    r_result = pandas2ri.rpy2py(func_r_res)
 
-    if isinstance(r_result, ro.vectors.ListVector):
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            leaguetable, pscores, consist, netsplit, netsplit_all  = (ro.conversion.rpy2py(rf) for rf in r_result)
-        return leaguetable, pscores, consist, netsplit, netsplit_all
-    else:
-        df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
-        return df_result
+    # Convert R result -> Python using pandas2ri directly
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        # Check R class to determine return type
+        r_classes = []
+        try:
+            if hasattr(func_r_res, 'rclass'):
+                r_classes = list(func_r_res.rclass)
+        except Exception:
+            pass
+
+        # If it's a data.frame, convert and return single DataFrame
+        if 'data.frame' in r_classes:
+            result = pandas2ri.rpy2py(func_r_res)
+            if hasattr(result, 'reset_index'):
+                return result.reset_index(drop=True)
+            return result
+        # If it's an R list (but not data.frame), convert each element
+        elif 'list' in r_classes:
+            converted = []
+            for idx in range(len(func_r_res)):
+                elem = func_r_res[idx]
+                try:
+                    converted.append(pandas2ri.rpy2py(elem))
+                except Exception:
+                    converted.append(elem)
+            return tuple(converted)
+        else:
+            # Fallback: try single conversion
+            result = pandas2ri.rpy2py(func_r_res)
+            if hasattr(result, 'reset_index'):
+                return result.reset_index(drop=True)
+            return result
+
 
 
 def apply_r_func_new_lt(func, df, i, j):
+    df = df.copy()
     df['rob'] = df['rob'].astype("string")
     df['rob'] = (df['rob'].str.lower()
                         .str.strip()
                         .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
                         .replace({'l': 1, 'm': 2, 'h': 3}))
+
+    # Convert pandas -> R
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
+
+    # Call R function (outside converter context)
     func_r_res = func(dat=df_r, i=i, j=j)
-    r_result = pandas2ri.rpy2py(func_r_res)
-    if isinstance(r_result, ro.vectors.ListVector):
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            leaguetable = (ro.conversion.rpy2py(rf) for rf in r_result)
-        return leaguetable
+
+    # Convert R result -> Python
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        # Check R class to determine return type
+        r_classes = []
+        try:
+            if hasattr(func_r_res, 'rclass'):
+                r_classes = list(func_r_res.rclass)
+        except Exception:
+            pass
+
+        # If it's a data.frame, convert and return single DataFrame
+        if 'data.frame' in r_classes:
+            result = pandas2ri.rpy2py(func_r_res)
+            if hasattr(result, 'reset_index'):
+                return result.reset_index(drop=True)
+            return result
+        # If it's an R list (but not data.frame), convert each element
+        elif 'list' in r_classes:
+            converted = []
+            for idx in range(len(func_r_res)):
+                elem = func_r_res[idx]
+                try:
+                    converted.append(pandas2ri.rpy2py(elem))
+                except Exception:
+                    converted.append(elem)
+            return tuple(converted)
+        else:
+            # Fallback: try single conversion
+            result = pandas2ri.rpy2py(func_r_res)
+            if hasattr(result, 'reset_index'):
+                return result.reset_index(drop=True)
+            return result
+    
+
+def apply_r_func_two_outcomes(func, df, num_outcomes):
+    df = df.copy()
+
+    df['rob'] = (
+        df['rob'].astype("string")
+                 .str.lower()
+                 .str.strip()
+                 .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
+                 .replace({'l': 1, 'm': 2, 'h': 3})
+    )
+
+    # Python → R
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
+
+    # Call R
+    func_r_res = func(dat=df_r, num_outcome=num_outcomes)
+
+    # R → Python (ONCE)
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        r_result = ro.conversion.rpy2py(func_r_res)
+
+    # Already Python here
+    if isinstance(r_result, list):
+        (
+            leaguetable,
+            pscores,
+            consist,
+            netsplit,
+            netsplit2,
+            netsplit_all,
+            netsplit_all2,
+        ) = r_result
+
+        return (
+            leaguetable,
+            pscores,
+            consist,
+            netsplit,
+            netsplit2,
+            netsplit_all,
+            netsplit_all2,
+        )
     else:
-        df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
-        return df_result
-# def apply_r_func_two_outcomes(func, df):
+        return r_result.reset_index(drop=True)
+
+
+# def apply_r_func_two_outcomes(func, df, num_outcomes):
 #     df['rob'] = df['rob'].astype("string")
 #     df['rob'] = (df['rob'].str.lower()
 #                  .str.strip()
@@ -125,8 +239,10 @@ def apply_r_func_new_lt(func, df, i, j):
 #                  .replace({'l': 1, 'm': 2, 'h': 3}))
 #     with localconverter(ro.default_converter + pandas2ri.converter):
 #         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-#     func_r_res = func(dat=df_r, outcome2=True)
-#     r_result = pandas2ri.rpy2py(func_r_res)
+#     func_r_res = func(dat=df_r, num_outcome = num_outcomes)
+    
+#     with localconverter(ro.default_converter + pandas2ri.converter):
+#         r_result = pandas2ri.rpy2py(func_r_res)
 
 #     if isinstance(r_result, ro.vectors.ListVector):
 #         with localconverter(ro.default_converter + pandas2ri.converter):
@@ -135,27 +251,6 @@ def apply_r_func_new_lt(func, df, i, j):
 #     else:
 #         df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
 #         return df_result
-
-
-
-def apply_r_func_two_outcomes(func, df, num_outcomes):
-    df['rob'] = df['rob'].astype("string")
-    df['rob'] = (df['rob'].str.lower()
-                 .str.strip()
-                 .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
-                 .replace({'l': 1, 'm': 2, 'h': 3}))
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
-    func_r_res = func(dat=df_r, num_outcome = num_outcomes)
-    r_result = pandas2ri.rpy2py(func_r_res)
-
-    if isinstance(r_result, ro.vectors.ListVector):
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            leaguetable, pscores, consist, netsplit, netsplit2, netsplit_all, netsplit_all2 = (ro.conversion.rpy2py(rf) for rf in r_result)
-        return leaguetable, pscores, consist, netsplit, netsplit2, netsplit_all, netsplit_all2
-    else:
-        df_result = r_result.reset_index(drop=True)  # Convert back to a pandas.DataFrame.
-        return df_result
 
 
 

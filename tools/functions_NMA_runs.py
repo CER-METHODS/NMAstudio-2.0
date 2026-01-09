@@ -148,12 +148,9 @@ def __modal_submit_checks_LT_new(pw_data_ts, num_outcome, modal_data_checks_is_o
             net_split_data=[[] for _ in range(num_outcome)]
             netsplit_all=[[] for _ in range(num_outcome)]
             
-           
-
             for i in range(num_outcome): 
                 LEAGUETABLE_OUTS[i] = generate_league_table(data, i)
                 LEAGUETABLE_data[i],ranking_data[i],consistency_data[i],net_split_data[i],netsplit_all[i] = [f.to_json( orient='split') for f in LEAGUETABLE_OUTS[i]]
-
             
             LEAGUETABLE_both = generate_league_table_both(data, outcome_idx1, outcome_idx2) if outcome_idx1 != outcome_idx2 else pd.DataFrame()
             # LEAGUETABLE_both.to_csv('db/league_test.csv')
