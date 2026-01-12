@@ -529,7 +529,18 @@ def __update_forest_pairwise(
         fig.update_yaxes(tickvals=[], ticktext=[], visible=False)
         fig.update_layout(
             margin=dict(l=100, r=100, t=12, b=80),
-            modebar=dict(orientation="v", bgcolor="rgba(0,0,0,0.5)"),
+            modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+            annotations=[
+                {
+                    "text": "Click on an edge in the network graph to display the pairwise forest plot",
+                    "font": {"size": 15, "color": "black", "family": "sans-serif"},
+                    "xref": "paper",
+                    "yref": "paper",
+                    "x": 0.5,
+                    "y": 0.5,
+                    "showarrow": False,
+                },
+            ],
         )
         fig.update_traces(hoverinfo="skip", hovertemplate=None)
 

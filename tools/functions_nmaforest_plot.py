@@ -119,7 +119,6 @@ def __TapNodeData_fig(
 
         effect_size = df.columns[1]
 
-
         # Guard: Safe tau2 access
         try:
             if "tau2" in df.columns and len(df) > 1 and not pd.isna(df["tau2"].iloc[1]):
@@ -514,7 +513,18 @@ def __TapNodeData_fig(
         fig.update_yaxes(tickvals=[], ticktext=[], visible=False)
         fig.update_layout(
             margin=dict(l=100, r=100, t=12, b=80),
-            modebar=dict(orientation="v", bgcolor="rgba(0,0,0,0.5)"),
+            modebar=dict(orientation="h", bgcolor="rgba(0,0,0,0.5)"),
+            annotations=[
+                {
+                    "text": "Click on a node in the network graph to display the forest plot",
+                    "font": {"size": 15, "color": "black", "family": "sans-serif"},
+                    "xref": "paper",
+                    "yref": "paper",
+                    "x": 0.5,
+                    "y": 0.5,
+                    "showarrow": False,
+                },
+            ],
         )
         fig.update_traces(hoverinfo="skip", hovertemplate=None)
 
@@ -675,6 +685,28 @@ def __TapNodeData_fig_bidim(
     df_second = df_second[df_second["Treatment"].isin(common_treatments)]
     df = df.sort_values(by="Treatment")
     df_second = df_second.sort_values(by="Treatment")
+
+    # Guard: Check if either dataframe is empty after filtering by common treatments
+    if df.empty or df_second.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No common treatments found between the two outcomes.<br>Select a different node.",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=14, color="gray"),
+            align="center",
+        )
+        fig.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+        )
+        return fig
+
     df["size"] = df.Treatment.astype("category").cat.codes
 
     df["label1"] = [label1] * len(df)
@@ -771,12 +803,12 @@ def __TapNodeData_fig_bidim(
     # # if 1 not in x_ticks:
     # #     x_ticks = np.insert(x_ticks, 0, 1)
 
-#     # if 1 not in y_ticks:
-#     #     y_ticks = np.insert(y_ticks, 0, 1)
+    #     # if 1 not in y_ticks:
+    #     #     y_ticks = np.insert(y_ticks, 0, 1)
 
-#     # Format the ticks for better readability
-#     x_ticktext = [f'{val:.2f}' for val in x_ticks]
-#     y_ticktext = [f'{val:.2f}' for val in y_ticks]
+    #     # Format the ticks for better readability
+    #     x_ticktext = [f'{val:.2f}' for val in x_ticks]
+    #     y_ticktext = [f'{val:.2f}' for val in y_ticks]
 
     # import plotly.graph_objects as go
     # # Prepare the scatter plot with individual traces for each data point
@@ -791,8 +823,8 @@ def __TapNodeData_fig_bidim(
     # # After sorting the DataFrame, create ordered treatment list
     # treatment_order = df['Treatment'].unique()  # Gets treatments in sorted order
 
-#     # Then group with sort=False
-#     grouped = df.groupby('Treatment', sort=False)  # <-- Add sort=False here
+    #     # Then group with sort=False
+    #     grouped = df.groupby('Treatment', sort=False)  # <-- Add sort=False here
 
     # for treatment in treatment_order:
     #     group = grouped.get_group(treatment)  # Get group for this treatment
@@ -931,7 +963,19 @@ def __TapNodeData_fig_bidim(
         )
         fig.update_yaxes(tickvals=[], ticktext=[], title="", visible=False)
         fig.update_layout(
-            margin=dict(l=100, r=100, t=12, b=80), coloraxis_showscale=False
+            margin=dict(l=100, r=100, t=12, b=80),
+            coloraxis_showscale=False,
+            annotations=[
+                {
+                    "text": "Click on a node in the network graph to display the bi-dimensional forest plot",
+                    "font": {"size": 15, "color": "black", "family": "sans-serif"},
+                    "xref": "paper",
+                    "yref": "paper",
+                    "x": 0.5,
+                    "y": 0.5,
+                    "showarrow": False,
+                },
+            ],
         )  ## remove visible=False to show initial axes
         fig.update_traces(hoverinfo="skip", hovertemplate=None)
     # if data and  "pscore2" not in df_ranking.columns:

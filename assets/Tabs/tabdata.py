@@ -35,36 +35,43 @@ YEARS_DEFAULT = np.array(
 
 def tab_data(years=YEARS_DEFAULT):
     y_max, y_min = years.max(), years.min()
+    # Use max year from data as initial value (not current year which may be out of range)
+    initial_value = int(y_max)
     return html.Div(
         [
             html.Div(
                 [
-                    dcc.Slider(
-                        min=y_min,
-                        max=y_max,
-                        step=50,
-                        marks=set_slider_marks(y_min, y_max, years),
-                        value=datetime.date.today().year,  # ymax
-                        updatemode="drag",
-                        id="slider-year",
-                        tooltip=dict(placement="top"),
+                    html.Div(
+                        [
+                            dcc.Slider(
+                                min=y_min,
+                                max=y_max,
+                                step=50,
+                                marks=set_slider_marks(y_min, y_max, years),
+                                value=initial_value,
+                                updatemode="drag",
+                                id="slider-year",
+                                tooltip=dict(placement="top"),
+                            ),
+                        ],
+                        style={
+                            "display": "inline-block",
+                            "width": "50%",
+                            "float": "right",
+                            "padding-top": "25px",
+                            "margin-right": "10px",
+                            "margin-left": "15px",
+                        },
                     ),
+                    infoYear,
+                    html.Br(),
+                    html.Br(),
+                    html.Br(),
                 ],
-                style={
-                    "display": "inline-block",
-                    "width": "50%",
-                    "float": "right",
-                    "color": CLR_BCKGRND2,
-                    "padding-top": "25px",
-                    "margin-right": "10px",
-                    "margin-left": "15px",
-                },
+                # Initially hidden - callback will show it if year data exists
+                style={"display": "none"},
                 id="slider-container",
             ),
-            infoYear,
-            html.Br(),
-            html.Br(),
-            html.Br(),
             dash_table.DataTable(
                 id="datatable-upload-container",
                 editable=False,
@@ -81,7 +88,7 @@ def tab_data(years=YEARS_DEFAULT):
                     "whiteSpace": "no-wrap",
                     "textOverflow": "ellipsis",
                     "font-family": "sans-serif",
-                    "fontSize": 'small',
+                    "fontSize": "small",
                 },
                 style_data_conditional=[
                     {"if": {"row_index": "odd"}, "backgroundColor": "rgba(0,0,0,0.1)"},
@@ -144,7 +151,7 @@ def raw_data():
                     "whiteSpace": "no-wrap",
                     "textOverflow": "ellipsis",
                     "font-family": "sans-serif",
-                    "fontSize": 'small',
+                    "fontSize": "small",
                 },
                 style_data_conditional=[
                     {"if": {"row_index": "odd"}, "backgroundColor": "rgba(0,0,0,0.1)"},

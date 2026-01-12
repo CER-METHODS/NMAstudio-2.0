@@ -490,6 +490,17 @@ def __data_modal(
                     }
 
         data_user.rename(columns=var_dict, inplace=True)
+
+        # Handle rob column: if not selected by user, set to NaN
+        # (even if CSV has a column named "rob" that wasn't mapped)
+        if "rob" not in var_dict.values():
+            data_user["rob"] = np.nan
+
+        # Handle year column: if not selected by user, set to NaN
+        # (even if CSV has a column named "year" that wasn't mapped)
+        if "year" not in var_dict.values():
+            data_user["year"] = np.nan
+
         var_outs = pd.Series(var_outcomes, index=var_outcomes.keys())
 
         if len(var_outcomes.keys()) == 2:
@@ -810,10 +821,14 @@ def __data_trans(
 
         data_user.rename(columns=var_dict, inplace=True)
 
-        # Add rob and year columns if they don't exist (i.e., if they were not provided)
-        if "rob" not in data_user.columns:
+        # Handle rob column: if not selected by user, set to NaN
+        # (even if CSV has a column named "rob" that wasn't mapped)
+        if "rob" not in var_dict.values():
             data_user["rob"] = np.nan
-        if "year" not in data_user.columns:
+
+        # Handle year column: if not selected by user, set to NaN
+        # (even if CSV has a column named "year" that wasn't mapped)
+        if "year" not in var_dict.values():
             data_user["year"] = np.nan
 
         var_outs = pd.Series(var_outcomes, index=var_outcomes.keys())

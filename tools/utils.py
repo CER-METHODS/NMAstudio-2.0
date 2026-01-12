@@ -267,6 +267,8 @@ def id_generator(chars=string.ascii_uppercase + string.digits):
 
 ## --------------------------------MISC-------------------------------------------- ##
 def set_slider_marks(y_min, y_max, years):
+    if years is None:
+        return None
     return {
         int(x): {
             "label": str(x),

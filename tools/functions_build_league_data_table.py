@@ -388,15 +388,21 @@ def __update_output_new(
     net_data = pd.read_json(net_data_json, orient="split").round(3)
     raw_data = pd.read_json(raw_data_json, orient="split").round(3)
 
-    # Set up slider values based on year column if it exists
-    if "year" in net_data.columns:
-        years = net_data.year  # if (not reset_btn_triggered) else YEARS_DEFAULT
+    # Set up slider values based on year column if it exists and has valid values
+    if "year" in net_data.columns and not net_data.year.isna().all():
+        years = net_data.year.dropna()  # Exclude NaN values for slider calculation
         slider_min, slider_max = years.min(), years.max()
         slider_marks = set_slider_marks(slider_min, slider_max, years)
+        slider_disabled = False
+        # Show the slider container (contains slider + infoYear)
+        slider_container_style = {"display": "block"}
     else:
-        slider_min, slider_max = 0, 0
-        slider_marks = {}
-    _out_slider = [slider_min, slider_max, slider_marks]
+        # Hide slider when year data is not available
+        years = None
+        slider_min = slider_max = None
+        slider_marks = set_slider_marks(slider_min, slider_max, years)
+        slider_disabled = True
+        slider_container_style = {"display": "none"}
 
     try:
         triggered = [tr["prop_id"] for tr in dash.callback_context.triggered]
@@ -407,6 +413,27 @@ def __update_output_new(
     except:
         # We're not in a callback context (e.g., testing), so skip trigger checks
         triggered = []
+
+    # Only update slider value on initial load or data change, not when slider itself changes
+    # This prevents resetting the user's slider position
+    slider_triggered = "slider-year.value" in triggered
+    if slider_triggered:
+        # User moved the slider - don't update the value output
+        slider_value_out = dash.no_update
+    elif slider_max is not None:
+        # Initial load or data change - set to max year
+        slider_value_out = int(slider_max)
+    else:
+        slider_value_out = None
+
+    _out_slider = [
+        slider_min,
+        slider_max,
+        slider_marks,
+        slider_value_out,
+        slider_disabled,
+        slider_container_style,
+    ]
 
     # Optimization for slider changes - DISABLED to avoid circular reference issues
     # Since we no longer cache OUTPUT (it contains Dash components), we need to regenerate
@@ -439,18 +466,21 @@ def __update_output_new(
     if league_table_data is None or data_and_league_table_DATA is None:
         # Simple return for data tables only
         data_cols = [{"name": c, "id": c} for c in net_data.columns]
-        if "year" in net_data.columns:
-            data_output = net_data[net_data.year <= slider_value].to_dict("records")
+        if "year" in net_data.columns and not net_data.year.isna().all():
+            # Include rows where year is NaN OR year <= slider_value
+            data_output = net_data[
+                (net_data.year.isna()) | (net_data.year <= slider_value)
+            ].to_dict("records")
         else:
             data_output = net_data.to_dict("records")
         data_raw_output = raw_data.to_dict("records")
         data_raw_cols = [{"name": c, "id": c} for c in raw_data.columns]
 
-        # Return: data, cols, data, cols, slider_min, slider_max, slider_marks, raw_data, raw_cols
+        # Return: data, cols, data, cols, slider_min, slider_max, slider_marks, slider_value, slider_disabled, slider_style, raw_data, raw_cols
         return (
             [data_output, data_cols]
             * 2  # For both upload-container and upload-container-expanded
-            + _out_slider  # [slider_min, slider_max, slider_marks]
+            + _out_slider  # [slider_min, slider_max, slider_marks, slider_value, slider_disabled, slider_container_style]
             + [data_raw_output, data_raw_cols]  # For raw-container
         )
 
@@ -759,7 +789,13 @@ def __update_output_new(
         ]
 
     data_cols = [{"name": c, "id": c} for c in net_data.columns]
-    data_output = net_data[net_data.year <= slider_value].to_dict("records")
+    # Include rows where year is NaN OR year <= slider_value
+    if "year" in net_data.columns and not net_data.year.isna().all():
+        data_output = net_data[
+            (net_data.year.isna()) | (net_data.year <= slider_value)
+        ].to_dict("records")
+    else:
+        data_output = net_data.to_dict("records")
     league_table = build_league_table(
         leaguetable, leaguetable_cols, league_table_styles, tooltip_values
     )

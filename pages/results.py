@@ -1522,10 +1522,20 @@ def update_layout_year_slider(net_data, slider_year, out_fun):
         outcome = min(outcome, max_outcome)
 
         net_data_df = pd.read_json(net_data_json, orient="split")
-        net_datajs2 = net_data_df[net_data_df.year <= slider_year]
+        # Only filter by year if year column exists and has valid (non-NaN) values
+        if "year" in net_data_df.columns and not net_data_df.year.isna().all():
+            net_datajs2 = net_data_df[
+                (net_data_df.year.isna()) | (net_data_df.year <= slider_year)
+            ]
+        else:
+            net_datajs2 = net_data_df
         elements = get_network_new(df=net_datajs2, i=outcome)
     else:
-        net_datajs = net_datajs[net_datajs.year <= slider_year]
+        # Only filter by year if year column exists and has valid (non-NaN) values
+        if "year" in net_datajs.columns and not net_datajs.year.isna().all():
+            net_datajs = net_datajs[
+                (net_datajs.year.isna()) | (net_datajs.year <= slider_year)
+            ]
         elements = get_network_new(df=net_datajs, i=0)
 
     return elements, elements
@@ -1690,6 +1700,9 @@ def update_boxplot(scatter, value, edges, net_data):
         Output("slider-year", "min"),
         Output("slider-year", "max"),
         Output("slider-year", "marks"),
+        Output("slider-year", "value"),
+        Output("slider-year", "disabled"),
+        Output("slider-container", "style"),
         # Output('data_and_league_table_DATA', 'data'),
         Output("datatable-raw-container", "data"),
         Output("datatable-raw-container", "columns"),
@@ -1727,8 +1740,22 @@ def updateput(
     raw_storage,
 ):
     # Guard: If no data is loaded yet, return empty tables
+    # Return includes: data, cols, data, cols, slider_min, slider_max, slider_marks, slider_value, slider_disabled, slider_style, raw_data, raw_cols
     if not net_data or not raw_data:
-        return [[], [], [], [], 0, 0, {}, [], []]
+        return [
+            [],
+            [],
+            [],
+            [],
+            None,
+            None,
+            None,
+            None,
+            True,
+            {"display": "none"},
+            [],
+            [],
+        ]
     return __update_output_new(
         slider_value,
         store_node,

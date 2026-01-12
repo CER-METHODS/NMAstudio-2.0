@@ -84,7 +84,5 @@ NMAstudio-app/
 
 ## Laws
 
-- ALWAYS check NMAstudio-app-main before editing a function
-- NEVER edit NMAstudio-app-main
 - Get library docs from MCP context7 when needed
 - Keep STORAGE schema consistent in localStorage
