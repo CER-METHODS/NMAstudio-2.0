@@ -613,6 +613,20 @@ layout = html.Div(
                 html.Br(),
             ],
         ),
+        # Message shown when uploader is hidden (project loaded)
+        html.Div(
+            html.P(
+                "In order to upload new csv you have to click the reset button",
+                style={
+                    "color": "#888",
+                    "fontStyle": "italic",
+                    "textAlign": "center",
+                    "padding": "20px",
+                },
+            ),
+            id="uploader-hidden-message",
+            style={"display": "none"},
+        ),
         # modal_checks moved to app.py global layout (dbc.Modal doesn't render in page layouts)
         # Error modals for R analysis failures
         R_errors_data,
@@ -1639,9 +1653,12 @@ def finalize_analysis(n_clicks):
     return dash.no_update, dash.no_update, dash.no_update
 
 
-# Hide uploader when results are ready
+# Hide uploader when results are ready and show message
 @callback(
-    Output("uploader", "style"),
+    [
+        Output("uploader", "style"),
+        Output("uploader-hidden-message", "style"),
+    ],
     [
         Input("results_ready_STORAGE", "data"),
         Input("setup_page_location", "pathname"),  # Also trigger on page navigation
@@ -1649,7 +1666,7 @@ def finalize_analysis(n_clicks):
     prevent_initial_call=False,  # Must run on initial load to check if results are already ready
 )
 def hide_uploader_when_results_ready(results_ready_STORAGE, pathname):
-    """Hide the uploader section when results are ready"""
+    """Hide the uploader section when results are ready and show informational message"""
     # Base style for the uploader element
     base_style = {
         "display": "grid",
@@ -1659,8 +1676,8 @@ def hide_uploader_when_results_ready(results_ready_STORAGE, pathname):
         "margin": "0 auto",
     }
     if results_ready_STORAGE:
-        return {"display": "none"}  # Hide completely
-    return base_style  # Show with full styling
+        return {"display": "none"}, {"display": "block"}  # Hide uploader, show message
+    return base_style, {"display": "none"}  # Show uploader, hide message
 
 
 # Populate project title input and label from STORAGE on page load
