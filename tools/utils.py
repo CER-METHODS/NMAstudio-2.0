@@ -186,7 +186,6 @@ def apply_r_func_new_lt(func, df, i, j):
 
 def apply_r_func_two_outcomes(func, df, num_outcomes):
     df = df.copy()
-
     df['rob'] = (
         df['rob'].astype("string")
                  .str.lower()
@@ -194,18 +193,15 @@ def apply_r_func_two_outcomes(func, df, num_outcomes):
                  .replace({'low': 'l', 'medium': 'm', 'high': 'h'})
                  .replace({'l': 1, 'm': 2, 'h': 3})
     )
-
     # Python → R
     with localconverter(ro.default_converter + pandas2ri.converter):
         df_r = ro.conversion.py2rpy(df.reset_index(drop=True))
 
     # Call R
     func_r_res = func(dat=df_r, num_outcome=num_outcomes)
-
     # R → Python (ONCE)
     with localconverter(ro.default_converter + pandas2ri.converter):
         r_result = ro.conversion.rpy2py(func_r_res)
-
     # Already Python here
     if isinstance(r_result, list):
         (
@@ -514,7 +510,6 @@ def adjust_data(data, value_format, number_outcomes):
         for c in data.columns:
             if data[c].dtype == object:
                 data[c].fillna('__NONE__', inplace=True)
-        
         data = apply_r_func_two_outcomes(func=run_pairwise_data_contrast_r, df=data, num_outcomes = number_outcomes)
         
         data[data=='__NONE__'] = np.nan
