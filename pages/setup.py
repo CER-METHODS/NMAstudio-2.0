@@ -1248,26 +1248,35 @@ def data_trans(
         # outcome_names_input is a list of outcome names from the input fields
         outcome_names_list = []
         number_outcomes_int = 0
+
+        # First, get the number of outcomes from the input
+        if number_outcomes:
+            try:
+                number_outcomes_int = int(number_outcomes)
+            except:
+                pass
+
         if outcome_names_input and len(outcome_names_input) > 0:
-            # Filter out empty names
-            outcome_names_list = [name for name in outcome_names_input if name]
-            number_outcomes_int = len(outcome_names_list)
+            # Filter out empty names and replace with defaults
+            outcome_names_list = []
+            for i, name in enumerate(outcome_names_input):
+                if name and name.strip():
+                    outcome_names_list.append(name.strip())
+                else:
+                    # Use default name for empty entries
+                    outcome_names_list.append(f"outcome {i + 1}")
             print(
                 f"[DEBUG data_trans] Outcome names: {outcome_names_list}, count: {number_outcomes_int}"
             )
         else:
             # If no names provided, use generic names based on number_outcomes
-            if number_outcomes:
-                try:
-                    number_outcomes_int = int(number_outcomes)
-                    outcome_names_list = [
-                        f"Outcome{i + 1}" for i in range(number_outcomes_int)
-                    ]
-                    print(
-                        f"[DEBUG data_trans] Using generic outcome names: {outcome_names_list}"
-                    )
-                except:
-                    pass
+            if number_outcomes_int > 0:
+                outcome_names_list = [
+                    f"outcome {i + 1}" for i in range(number_outcomes_int)
+                ]
+                print(
+                    f"[DEBUG data_trans] Using generic outcome names: {outcome_names_list}"
+                )
 
         # Return: modal_open, raw_data, net_data, error, alert_open, dropdown_options, effect_modifiers, outcome_names, number_outcomes
         # (skip filename_exists at index 3 and results_ready at index 7)
