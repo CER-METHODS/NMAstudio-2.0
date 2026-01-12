@@ -1264,20 +1264,19 @@ def update_outcome_options(stored_num, stored_names):
             )
             return []
 
-    # Use stored names (must be a list with proper length)
-    if not stored_names or not isinstance(stored_names, list):
+    # Use stored names or generate default names
+    if (
+        not stored_names
+        or not isinstance(stored_names, list)
+        or len(stored_names) < number_outcomes
+    ):
+        # Generate default names: "outcome 1", "outcome 2", etc.
+        outcome_names_list = [f"outcome {i + 1}" for i in range(number_outcomes)]
         print(
-            f"[DEBUG] update_outcome_options: stored_names invalid, returning empty []"
+            f"[DEBUG] update_outcome_options: Using default names: {outcome_names_list}"
         )
-        return []
-
-    if len(stored_names) < number_outcomes:
-        print(
-            f"[DEBUG] update_outcome_options: stored_names too short ({len(stored_names)} < {number_outcomes}), returning empty []"
-        )
-        return []
-
-    outcome_names_list = stored_names[:number_outcomes]
+    else:
+        outcome_names_list = stored_names[:number_outcomes]
 
     options_var = [
         {"label": outcome_names_list[i], "value": i} for i in range(number_outcomes)
