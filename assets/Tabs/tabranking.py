@@ -49,8 +49,8 @@ tab_style = {
     "height": "40%",
     "display": "flex",
     "justify-content": "center",
-    "alignItems": "center",
-    "font-size": "12px",
+    "align-items": "center",
+    "font-size": "medium",
     "color": "grey",
     "padding": "0",
 }
@@ -59,9 +59,9 @@ tab_selected_style = {
     "height": "40%",
     "display": "flex",
     "justify-content": "center",
-    "alignItems": "center",
+    "align-items": "center",
     "background-color": "#f5c198",
-    "font-size": "12px",
+    "font-size": "medium",
     "padding": "0",
 }
 
@@ -96,7 +96,8 @@ scatter_content = html.Div(
                             "display": "inline-block",
                             "text-align": "right",
                             "margin-left": "0px",
-                            "font-size": "12px",
+                            "font-size": "15px",
+                            "font-weight": "bold",
                         },
                     ),
                     dcc.Dropdown(
@@ -114,7 +115,7 @@ scatter_content = html.Div(
                             "margin-bottom": "2px",
                             "display": "inline-block",
                             "color": "black",
-                            "font-size": "10px",
+                            "font-size": "13px",
                             "margin-left": "-7px",
                         },
                     ),

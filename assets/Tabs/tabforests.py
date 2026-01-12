@@ -354,9 +354,10 @@ tab_forests = dcc.Tabs(
                                         style={
                                             "display": "flex",
                                             "text-align": "right",
-                                            "alignItems": "center",
+                                            "align-items": "center",
+                                            "font-weight": "bold",
                                             "margin-left": "10px",
-                                            "font-size": "12px",
+                                            "font-size": "15px",
                                         },
                                     ),
                                     dcc.Dropdown(
@@ -374,7 +375,7 @@ tab_forests = dcc.Tabs(
                                             "margin-bottom": "2px",
                                             "display": "inline-block",
                                             "color": "black",
-                                            "font-size": "10px",
+                                            "font-size": "13px",
                                             "margin-left": "-7px",
                                         },
                                     ),

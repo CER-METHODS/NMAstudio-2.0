@@ -293,22 +293,21 @@ layout = html.Div(
                                         html.Div(
                                             Dropdown_graphlayout,
                                             style={
-                                                "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         html.Div(
                                             modal,
                                             style={
                                                 "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         html.Div(
                                             modal_edges,
                                             style={
                                                 "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         #     html.Div(modal_data, style={'display': 'inline-block', 'font-size': '11px'}),
@@ -317,7 +316,7 @@ layout = html.Div(
                                             modal_data_table,
                                             style={
                                                 "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         html.Div(
@@ -325,14 +324,14 @@ layout = html.Div(
                                             id="modal_league_div",
                                             style={
                                                 "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         html.Div(
                                             modal_network,
                                             style={
                                                 "display": "inline-block",
-                                                "font-size": "11px",
+                                                "font-size": "15px",
                                             },
                                         ),
                                         html.A(
@@ -409,9 +408,9 @@ layout = html.Div(
                                         dbc.Col(
                                             [
                                                 html.H4(
-                                                    "Label size:",
+                                                    "Font size:",
                                                     style={
-                                                        "font-size": "13px",
+                                                        "font-size": "15px",
                                                         #     'margin-left':'60px',
                                                         "font-family": "system-ui",
                                                         "width": "90px",
@@ -420,7 +419,7 @@ layout = html.Div(
                                                 dcc.Input(
                                                     id="label_size_input",
                                                     type="text",
-                                                    name="Label size",
+                                                    name="Font size",
                                                     style={
                                                         "background-color": "white",
                                                         #      'margin-left':'60px',
@@ -433,16 +432,15 @@ layout = html.Div(
                                                 ),
                                             ],
                                             style={
-                                                "padding-left": "20px",
-                                                "margin-top": "-40px",
+                                                "padding-bottom": "7px",
                                             },
                                         ),
                                         dbc.Col(
                                             [
                                                 html.H4(
-                                                    "Intervention:",
+                                                    "Search an Intervention:",
                                                     style={
-                                                        "font-size": "13px",
+                                                        "font-size": "15px",
                                                         #      'margin-left':'150px',
                                                         "font-family": "system-ui",
                                                         "width": "90px",
@@ -452,7 +450,7 @@ layout = html.Div(
                                                 dcc.Input(
                                                     id="treat_name_input",
                                                     type="text",
-                                                    name="Label size",
+                                                    name="Font size",
                                                     style={
                                                         "background-color": "white",
                                                         #      'margin-left':'150px',
@@ -465,8 +463,7 @@ layout = html.Div(
                                                 ),
                                             ],
                                             style={
-                                                "margin-top": "-40px",
-                                                "padding-right": "5px",
+                                                "padding-bottom": "7px",
                                             },
                                         ),
                                         html.Div(
@@ -629,8 +626,10 @@ layout = html.Div(
                                         style={
                                             "display": "inline-block",
                                             "text-align": "right",
+                                            "font-weight": "bold",
+                                            "margin-right": "0px",
                                             "margin-left": "0px",
-                                            "font-size": "16px",
+                                            "font-size": "large",
                                             "white-space": "nowrap",
                                             "color": "#5c7780",
                                         },
@@ -643,14 +642,14 @@ layout = html.Div(
                                         clearable=False,
                                         value=0,
                                         style={
-                                            "width": "80px",  # 'height': '30px',
+                                            "width": "100px",  # 'height': '30px',
                                             "height": "30px",
                                             "vertical-align": "middle",
                                             "font-family": "sans-serif",
                                             "margin-bottom": "2px",
                                             "display": "inline-block",
                                             "color": "black",
-                                            "font-size": "10px",
+                                            "font-size": "large",
                                         },
                                     ),
                                 ],
@@ -658,7 +657,6 @@ layout = html.Div(
                                     "display": "flex",
                                     "align-items": "center",
                                     "justify-content": "space-around",
-                                    "width": "200px",
                                 },
                             ),
                             style={"display": "inline-block", "margin-left": "20px"},
@@ -676,7 +674,8 @@ layout = html.Div(
                                             value="data_tab",
                                             style={
                                                 "color": "grey",
-                                                "display": "flex",
+                                                "width": "auto",
+                                                "display": "none",
                                                 "justify-content": "center",
                                                 "align-items": "center",
                                             },
@@ -684,6 +683,8 @@ layout = html.Div(
                                                 "color": "grey",
                                                 "display": "flex",
                                                 "justify-content": "center",
+                                                "font-size": "large",
+                                                "width": "auto",
                                                 "background-color": "#f5c198",
                                                 "align-items": "center",
                                             },
@@ -708,7 +709,7 @@ layout = html.Div(
                                                                     "display": "flex",
                                                                     "justify-content": "center",
                                                                     "align-items": "center",
-                                                                    "font-size": "12px",
+                                                                    "font-size": "medium",
                                                                     "color": "black",
                                                                     "padding": "0",
                                                                 },
@@ -718,7 +719,7 @@ layout = html.Div(
                                                                     "justify-content": "center",
                                                                     "align-items": "center",
                                                                     "background-color": "#f5c198",
-                                                                    "font-size": "12px",
+                                                                    "font-size": "medium",
                                                                     "padding": "0",
                                                                 },
                                                             ),
@@ -733,7 +734,7 @@ layout = html.Div(
                                                                     "display": "flex",
                                                                     "justify-content": "center",
                                                                     "align-items": "center",
-                                                                    "font-size": "12px",
+                                                                    "font-size": "medium",
                                                                     "color": "black",
                                                                     "padding": "0",
                                                                 },
@@ -743,7 +744,7 @@ layout = html.Div(
                                                                     "justify-content": "center",
                                                                     "align-items": "center",
                                                                     "background-color": "#f5c198",
-                                                                    "font-size": "12px",
+                                                                    "font-size": "medium",
                                                                     "padding": "0",
                                                                 },
                                                             ),
@@ -942,13 +943,14 @@ layout = html.Div(
                                     persistence=True,
                                     children=[
                                         dcc.Tab(
-                                            label="Pairwise",
+                                            label="Forest plots for direct estimates",
                                             id="tab2",
                                             value="tab2",
                                             className="control-tab",
                                             style={
                                                 "color": "grey",
                                                 "display": "none",
+                                                "width": "auto",
                                                 "justify-content": "center",
                                                 "align-items": "center",
                                             },
@@ -956,6 +958,8 @@ layout = html.Div(
                                                 "color": "grey",
                                                 "display": "flex",
                                                 "justify-content": "center",
+                                                "font-size": "large",
+                                                "width": "auto",
                                                 "background-color": "#f5c198",
                                                 "align-items": "center",
                                             },
@@ -968,7 +972,6 @@ layout = html.Div(
                                                                     html.P(
                                                                         id="tapEdgeData-info",
                                                                         style={
-                                                                            "font-size": "12px",
                                                                             "margin-top": "0.8%",
                                                                         },
                                                                         className="box__title",
@@ -980,6 +983,10 @@ layout = html.Div(
                                                                 html.Br(),
                                                             ],
                                                             className="tab_row_all",
+                                                            style={
+                                                                "display": "flex",
+                                                                "justify-content": "center",
+                                                            },
                                                         )
                                                     ],
                                                     style={"height": "35px"},

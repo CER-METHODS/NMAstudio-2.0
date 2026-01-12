@@ -634,7 +634,6 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                         "display": "inline-block",
                                                         "text-align": "right",
                                                         "margin-left": "0px",
-                                                        "font-size": "12px",
                                                     },
                                                 ),
                                                 dcc.Dropdown(
@@ -646,7 +645,7 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                     searchable=True,
                                                     placeholder="...",
                                                     className="box",
-                                                    clearable=False,
+                                                    clearable=True,
                                                     style={
                                                         "width": "80px",  # 'height': '30px',
                                                         "height": "30px",
@@ -655,7 +654,6 @@ def __selectbox1_options(search_value_format, contents, filename):
                                                         "margin-bottom": "2px",
                                                         "display": "inline-block",
                                                         "color": "black",
-                                                        "font-size": "10px",
                                                         "margin-left": "-7px",
                                                     },
                                                 ),
@@ -726,9 +724,9 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
                         ],
                         style={
                             "display": "grid",
-                            "backgroundColor": "beige",
+                            "background-color": "beige",
                             "width": "500px",
-                            "justifyContent": "center",
+                            "justify-content": "center",
                         },
                     )
                 ],
@@ -776,9 +774,10 @@ def __primaryout_selection(number_outcomes, click):
                                             className="",
                                             style={
                                                 "display": "grid",
-                                                "gridTemplateColumns": "1fr 1fr 1fr",
-                                                "width": "400px",
-                                                "justifyContent": "center",
+                                                "grid-template-columns": "1fr 1fr 1fr",
+                                                "width": "450px",
+                                                "justify-content": "center",
+                                                "font-size": "x-large",
                                             },
                                         ),
                                         dcc.Checklist(
@@ -789,6 +788,7 @@ def __primaryout_selection(number_outcomes, click):
                                                 "display": "grid",
                                                 "color": "green",
                                                 "font-weight": "bold",
+                                                "font-size": "x-large",
                                             },
                                         ),
                                     ],
@@ -1004,7 +1004,6 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                                             "display": "inline-block",
                                                             "text-align": "right",
                                                             "margin-left": "0px",
-                                                            "font-size": "12px",
                                                         },
                                                     ),
                                                     dcc.Dropdown(
@@ -1025,7 +1024,6 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                                             "margin-bottom": "2px",
                                                             "display": "inline-block",
                                                             "color": "black",
-                                                            "font-size": "10px",
                                                             "margin-left": "-7px",
                                                         },
                                                     ),
@@ -1037,9 +1035,9 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                     ],
                                     style={
                                         "display": "grid",
-                                        "gridTemplateColumns": "1fr 1fr",
+                                        "grid-template-columns": "1fr 1fr",
                                         "width": "550px",
-                                        "justifyItems": "center",
+                                        "justify-items": "center",
                                     },
                                 )
                             ],
@@ -1130,9 +1128,10 @@ def __effect_modifier_options(search_value_format, contents, filename):
                                             className="",
                                             style={
                                                 "display": "grid",
-                                                "gridTemplateColumns": "1fr 1fr 1fr",
-                                                "width": "400px",
-                                                "justifyContent": "center",
+                                                "grid-template-columns": "1fr 1fr 1fr",
+                                                "font-size": "x-large",
+                                                "width": "620px",
+                                                "justify-content": "center",
                                             },
                                         ),
                                         dcc.Checklist(
@@ -1143,6 +1142,7 @@ def __effect_modifier_options(search_value_format, contents, filename):
                                                 "display": "grid",
                                                 "color": "green",
                                                 "font-weight": "bold",
+                                                "font-size": "x-large",
                                             },
                                         ),
                                     ],
