@@ -393,6 +393,7 @@ def get_network(df):
     cy_edges = [
         {
             "data": {
+                "id": f"{source}-{target}",
                 "source": source,
                 "target": target,
                 "weight": weight * 1
@@ -568,6 +569,7 @@ def get_network_new(df, i):
     cy_edges = [
         {
             "data": {
+                "id": f"{source}-{target}",
                 "source": source,
                 "target": target,
                 "weight": weight * 1

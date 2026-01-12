@@ -1,0 +1,14 @@
+StudyName,year,n1,n2,treat1,treat2,RatioAUC,SEAUC,ROB
+Browne,2000,6,6,levetiracetam 3000 mg,control,0.98,0.76,1
+Greene,2021,21,21,cenobamate 200 mg,control,1.137,0.1,1
+lai,1993,12,12,valproic acid 800 mg,control,0.93,0.35,1
+levi,2004,14,14,zonisamide 400 mg,control,1.06,0.53,1
+lutz,2018,24,24,carbamazepine 600 mg,control,0.714,0.14,1
+ragueneau,2001,26,26,levetiracetam 2000 mg,control,1.002,0.12,1
+sachdeo1,2002,12,12,topiramte 100 mg,control,1.11,0.16,1
+sachdeo2,2002,10,10,topiramte 200 mg,control,1.12,0.22,1
+sachdeo3,2002,6,6,topiramte 400 mg,control,1.1,0.22,1
+vaz de silva,2009,12,12,eslicarbazepine 1200 mg,control,0.96,0.14,1
+walzer,2012,18,18,clobazam 40 mg,control,0.89,0.1,1
+gustavson,1998,12,12,tiagabine 5 mg,control,1,0.96,1
+fda,2024,19,19,brivaracetam 10 mg,control,0.869,0.16,1
