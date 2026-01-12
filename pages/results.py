@@ -1818,26 +1818,35 @@ def update_league_table(
         if store_node and any("id" in nd for nd in store_node):
             slctd_trmnts = [nd["id"] for nd in store_node]
             if len(slctd_trmnts) > 0:
-                # Filter to selected treatments (before adding Treatment column)
-                treatments = slctd_trmnts
-                # Filter leaguetable to selected treatments
-                leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
+                # Filter selected treatments to only include those present in the league table
+                slctd_trmnts = [t for t in slctd_trmnts if t in leaguetable.index]
+                if len(slctd_trmnts) >= 2:
+                    # Enough treatments to show comparisons - apply filtering
+                    # Filter to selected treatments (before adding Treatment column)
+                    treatments = slctd_trmnts
+                    # Filter leaguetable to selected treatments
+                    leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
+                # else: Not enough selected treatments in league table - skip filtering, use default table
 
         # Add Treatment column by resetting index (matching main version behavior)
         leaguetable = leaguetable.reset_index().rename(columns={"index": "Treatment"})
 
-        # Get ROB data from net_data
-        net_data_df["rob"] = net_data_df["rob"].replace("__none__", "")
-        net_data_df["rob"] = net_data_df["rob"].replace(".", np.nan)
-        net_data_df["rob"] = net_data_df["rob"].replace("", np.nan)
+        # Get ROB data from net_data (only if ROB column exists and has non-NaN values)
+        if "rob" in net_data_df.columns and not net_data_df["rob"].isna().all():
+            net_data_df["rob"] = net_data_df["rob"].replace("__none__", "")
+            net_data_df["rob"] = net_data_df["rob"].replace(".", np.nan)
+            net_data_df["rob"] = net_data_df["rob"].replace("", np.nan)
 
-        robs = (
-            net_data_df.groupby(["treat1", "treat2"])
-            .rob.mean()
-            .reset_index()
-            .pivot_table(index="treat2", columns="treat1", values="rob")
-            .reindex(index=treatments, columns=treatments, fill_value=np.nan)
-        )
+            robs = (
+                net_data_df.groupby(["treat1", "treat2"])
+                .rob.mean()
+                .reset_index()
+                .pivot_table(index="treat2", columns="treat1", values="rob")
+                .reindex(index=treatments, columns=treatments, fill_value=np.nan)
+            )
+        else:
+            # Create empty ROB DataFrame when no ROB data available
+            robs = pd.DataFrame(np.nan, index=treatments, columns=treatments)
 
         # Initialize CINeMA confidence data
         comprs_conf_lt = None
@@ -2049,7 +2058,7 @@ def update_league_table(
                             rob_val = tip[col["id"]] if col["id"] in tip.index else None
                             if rob_val is not None and pd.notna(rob_val):
                                 row_tooltips[col["id"]] = {
-                                    "value": f"**Average ROB:** {rob_val}",
+                                    "value": f"**Average ROB:** {rob_val:.1f}",
                                     "type": "markdown",
                                 }
                             else:

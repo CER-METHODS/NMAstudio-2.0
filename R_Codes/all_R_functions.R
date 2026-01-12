@@ -912,6 +912,10 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
 
     names(final_dat1) <- c(names(final_dat),names(new_cols))
 
+    # Rename rob1/year1 back to rob/year (meta::pairwise adds "1" suffix to extra columns)
+    names(final_dat1)[names(final_dat1) == 'rob1'] <- 'rob'
+    names(final_dat1)[names(final_dat1) == 'year1'] <- 'year'
+
     return(final_dat1)
 }
 #----------------------------------- pairwise function to convert contrast data -----------------------------------------#
@@ -975,6 +979,10 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
     final_dat1 <- cbind.data.frame(final_dat,new_cols)
 
     names(final_dat1) <- c(names(final_dat),names(new_cols))
+
+    # Rename rob1/year1 back to rob/year (meta::pairwise adds "1" suffix to extra columns)
+    names(final_dat1)[names(final_dat1) == 'rob1'] <- 'rob'
+    names(final_dat1)[names(final_dat1) == 'year1'] <- 'year'
 
     return(final_dat1)
 }

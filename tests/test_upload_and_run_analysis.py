@@ -109,7 +109,11 @@ async def test_upload_and_run_analysis():
     """Test uploading CSV and running full analysis"""
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False, slow_mo=50)
+        browser = await p.chromium.launch(
+            headless=False,
+            slow_mo=50,
+            args=["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
+        )
         page = await browser.new_page()
 
         # Set longer default timeout
@@ -162,23 +166,25 @@ async def test_upload_and_run_analysis():
             print("🚀 Starting NMAstudio upload and analysis test...")
 
             # Navigate to the app
-            try:
-                await page.goto(
-                    "http://macas.lan:8050/setup",
-                    wait_until="networkidle",
-                    timeout=15000,
-                )
-            except:
+            connected = False
+            for url in ["http://localhost:8050/setup", "http://macas.lan:8050/setup"]:
                 try:
+                    print(f"Trying to connect to {url}...")
                     await page.goto(
-                        "http://localhost:8050/setup",
-                        wait_until="networkidle",
+                        url,
+                        wait_until="domcontentloaded",
                         timeout=15000,
                     )
-                except:
-                    print("❌ Could not connect to NMAstudio server")
-                    print("Please make sure the server is running with: python app.py")
-                    return None
+                    connected = True
+                    break
+                except Exception as e:
+                    print(f"Failed to connect to {url}: {e}")
+                    continue
+
+            if not connected:
+                print("❌ Could not connect to NMAstudio server")
+                print("Please make sure the server is running with: python app.py")
+                return None
 
             print(f"✅ Page loaded: {page.url}")
             await page.wait_for_timeout(1000)
@@ -442,50 +448,23 @@ async def test_upload_and_run_analysis():
             await page.wait_for_timeout(1000)
 
             # Step 13: Configure effect modifiers (age, weight)
+            # Effect modifiers are checkboxes, not dropdowns
             print("\n🔀 Step 13: Selecting effect modifiers (age, weight)...")
             await page.wait_for_timeout(1000)
 
-            # Find all dropdowns for effect modifiers
-            # We need to select 'age' and 'weight' from the available columns
             try:
-                # Get all dropdowns with effect_modifiers in their id
-                dropdowns = await page.query_selector_all(".dash-dropdown")
-                effect_mod_dropdowns = []
+                # Effect modifiers are checkboxes - click on "age" and "weight" checkbox labels
+                age_checkbox = page.locator('label:has-text("age")')
+                if await age_checkbox.count() > 0:
+                    await age_checkbox.first.click()
+                    print("   ✅ Effect modifier 1: age")
+                    await page.wait_for_timeout(300)
 
-                for dropdown in dropdowns:
-                    dropdown_id = await dropdown.get_attribute("id") or ""
-                    if "effect_modifiers" in dropdown_id:
-                        effect_mod_dropdowns.append(dropdown)
-
-                print(f"   Found {len(effect_mod_dropdowns)} effect modifier dropdowns")
-
-                # Select age in first dropdown
-                if len(effect_mod_dropdowns) > 0:
-                    select_control = await effect_mod_dropdowns[0].query_selector(
-                        ".Select-control"
-                    )
-                    if select_control:
-                        await select_control.click()
-                        await page.wait_for_timeout(300)
-                        await page.keyboard.type("age")
-                        await page.wait_for_timeout(200)
-                        await page.keyboard.press("Enter")
-                        print("   ✅ Effect modifier 1: age")
-                        await page.wait_for_timeout(300)
-
-                # Select weight in second dropdown
-                if len(effect_mod_dropdowns) > 1:
-                    select_control = await effect_mod_dropdowns[1].query_selector(
-                        ".Select-control"
-                    )
-                    if select_control:
-                        await select_control.click()
-                        await page.wait_for_timeout(300)
-                        await page.keyboard.type("weight")
-                        await page.wait_for_timeout(200)
-                        await page.keyboard.press("Enter")
-                        print("   ✅ Effect modifier 2: weight")
-                        await page.wait_for_timeout(300)
+                weight_checkbox = page.locator('label:has-text("weight")')
+                if await weight_checkbox.count() > 0:
+                    await weight_checkbox.first.click()
+                    print("   ✅ Effect modifier 2: weight")
+                    await page.wait_for_timeout(300)
 
             except Exception as e:
                 print(f"⚠️  Could not select effect modifiers: {e}")

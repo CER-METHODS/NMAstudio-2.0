@@ -460,20 +460,26 @@ def __update_output_new(
     confidence_map = {k: n for n, k in enumerate(["low", "medium", "high"])}
     treatments = np.unique(net_data[["treat1", "treat2"]].dropna().values.flatten())
 
-    net_data["rob"] = net_data["rob"].replace("__none__", "")
-    net_data["rob"] = net_data["rob"].replace(".", np.nan)
-    net_data["rob"] = net_data["rob"].replace("", np.nan)
-    # net_data['rob'] = net_data['rob'].astype(int)
+    # Process ROB data only if column exists and has non-NaN values
+    if "rob" in net_data.columns and not net_data["rob"].isna().all():
+        net_data["rob"] = net_data["rob"].replace("__none__", "")
+        net_data["rob"] = net_data["rob"].replace(".", np.nan)
+        net_data["rob"] = net_data["rob"].replace("", np.nan)
+        # net_data['rob'] = net_data['rob'].astype(int)
 
-    robs = (
-        net_data.groupby(["treat1", "treat2"])
-        .rob.mean()
-        .reset_index()
-        .pivot_table(index="treat2", columns="treat1", values="rob")
-        .reindex(index=treatments, columns=treatments, fill_value=np.nan)
-    )
+        robs = (
+            net_data.groupby(["treat1", "treat2"])
+            .rob.mean()
+            .reset_index()
+            .pivot_table(index="treat2", columns="treat1", values="rob")
+            .reindex(index=treatments, columns=treatments, fill_value=np.nan)
+        )
 
-    robs = robs.fillna(robs.T) if not toggle_cinema else robs
+        robs = robs.fillna(robs.T) if not toggle_cinema else robs
+    else:
+        # Create empty ROB DataFrame when no ROB data available
+        robs = pd.DataFrame(np.nan, index=treatments, columns=treatments)
+
     robs_slct = robs  # robs + robs.T - np.diag(np.diag(robs))  if not toggle_cinema else robs ## full rob table
 
     comprs_downgrade = pd.DataFrame()
@@ -533,88 +539,93 @@ def __update_output_new(
             # if 'pscore2' in ranking_data.columns:
             #     dataselectors += [forest_data_out2.columns[1], net_data["outcome2_direction"].iloc[1]]
 
-            leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
-            robs_slct = robs.loc[slctd_trmnts, slctd_trmnts]
-            leaguetable_bool = pd.DataFrame(
-                np.triu(np.ones(leaguetable.shape)).astype(bool),
-                columns=slctd_trmnts,
-                index=slctd_trmnts,
-            )  # define upper and lower triangle
+            # Filter selected treatments to only include those present in the league table
+            slctd_trmnts = [t for t in slctd_trmnts if t in leaguetable.index]
+            if len(slctd_trmnts) >= 2:
+                # Enough treatments to show comparisons - apply filtering
+                leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
+                robs_slct = robs.loc[slctd_trmnts, slctd_trmnts]
+                leaguetable_bool = pd.DataFrame(
+                    np.triu(np.ones(leaguetable.shape)).astype(bool),
+                    columns=slctd_trmnts,
+                    index=slctd_trmnts,
+                )  # define upper and lower triangle
 
-            ### pick correct comparison from FOREST_DATA and FOREST_DATA_OUT2
-            for treat_c in slctd_trmnts:
-                for treat_r in slctd_trmnts:
-                    if treat_c != treat_r:
-                        if not leaguetable_bool.loc[treat_r][treat_c]:
-                            effcsze = round(
-                                forest_data[dataselectors[0]][
-                                    (forest_data.Treatment == treat_c)
-                                    & (forest_data.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            ci_lower = round(
-                                forest_data["CI_lower"][
-                                    (forest_data.Treatment == treat_c)
-                                    & (forest_data.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            ci_upper = round(
-                                forest_data["CI_upper"][
-                                    (forest_data.Treatment == treat_c)
-                                    & (forest_data.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            leaguetable.loc[treat_r][treat_c] = (
-                                f"{effcsze}\n{ci_lower, ci_upper}"
-                            )
-                        else:
-                            pass
+                ### pick correct comparison from FOREST_DATA and FOREST_DATA_OUT2
+                for treat_c in slctd_trmnts:
+                    for treat_r in slctd_trmnts:
+                        if treat_c != treat_r:
+                            if not leaguetable_bool.loc[treat_r][treat_c]:
+                                effcsze = round(
+                                    forest_data[dataselectors[0]][
+                                        (forest_data.Treatment == treat_c)
+                                        & (forest_data.Reference == treat_r)
+                                    ].values[0],
+                                    2,
+                                )
+                                ci_lower = round(
+                                    forest_data["CI_lower"][
+                                        (forest_data.Treatment == treat_c)
+                                        & (forest_data.Reference == treat_r)
+                                    ].values[0],
+                                    2,
+                                )
+                                ci_upper = round(
+                                    forest_data["CI_upper"][
+                                        (forest_data.Treatment == treat_c)
+                                        & (forest_data.Reference == treat_r)
+                                    ].values[0],
+                                    2,
+                                )
+                                leaguetable.loc[treat_r][treat_c] = (
+                                    f"{effcsze}\n{ci_lower, ci_upper}"
+                                )
+                            else:
+                                pass
 
-                        if toggle_cinema:
-                            robs_slct.loc[treat_r][treat_c] = comprs_conf_lt[
-                                "Confidence"
-                            ][
-                                (comprs_conf_lt[0] == treat_c)
-                                & (comprs_conf_lt[1] == treat_r)
-                                | (comprs_conf_lt[0] == treat_r)
-                                & (comprs_conf_lt[1] == treat_c)
-                            ].values[0]
-                        else:
-                            robs_slct.loc[treat_r][treat_c] = (
-                                robs_slct[treat_r][treat_c]
-                                if not np.isnan(robs_slct[treat_r][treat_c])
-                                else robs_slct[treat_c][treat_r]
-                            )
+                            if toggle_cinema:
+                                robs_slct.loc[treat_r][treat_c] = comprs_conf_lt[
+                                    "Confidence"
+                                ][
+                                    (comprs_conf_lt[0] == treat_c)
+                                    & (comprs_conf_lt[1] == treat_r)
+                                    | (comprs_conf_lt[0] == treat_r)
+                                    & (comprs_conf_lt[1] == treat_c)
+                                ].values[0]
+                            else:
+                                robs_slct.loc[treat_r][treat_c] = (
+                                    robs_slct[treat_r][treat_c]
+                                    if not np.isnan(robs_slct[treat_r][treat_c])
+                                    else robs_slct[treat_c][treat_r]
+                                )
 
-            if not toggle_cinema:
-                robs_slct = robs_slct[leaguetable_bool.T]
-                leaguetable = leaguetable[leaguetable_bool.T]
-            else:
-                robs_slct = robs_slct[leaguetable_bool.T]
-                leaguetable = leaguetable[leaguetable_bool.T]
+                if not toggle_cinema:
+                    robs_slct = robs_slct[leaguetable_bool.T]
+                    leaguetable = leaguetable[leaguetable_bool.T]
+                else:
+                    robs_slct = robs_slct[leaguetable_bool.T]
+                    leaguetable = leaguetable[leaguetable_bool.T]
 
-            leaguetable.replace(0, np.nan)  # inplace
+                leaguetable.replace(0, np.nan)  # inplace
 
-            tril_order = pd.DataFrame(
-                np.tril(np.ones(leaguetable.shape)),
-                columns=leaguetable.columns,
-                index=leaguetable.columns,
-            )
-            tril_order = tril_order.loc[slctd_trmnts, slctd_trmnts]
-            filter = np.tril(tril_order == 0)
-            filter += (
-                filter.T
-            )  # inverting of rows and columns common in meta-analysis visualissation
+                tril_order = pd.DataFrame(
+                    np.tril(np.ones(leaguetable.shape)),
+                    columns=leaguetable.columns,
+                    index=leaguetable.columns,
+                )
+                tril_order = tril_order.loc[slctd_trmnts, slctd_trmnts]
+                filter = np.tril(tril_order == 0)
+                filter += filter.T  # inverting of rows and columns common in meta-analysis visualissation
 
-            robs = robs.loc[slctd_trmnts, slctd_trmnts]
-            robs_values = robs.values
-            # robs_values[filter] = robs_values.T[filter]
-            robs = pd.DataFrame(robs_values, columns=robs.columns, index=robs.columns)
+                robs = robs.loc[slctd_trmnts, slctd_trmnts]
+                robs_values = robs.values
+                # robs_values[filter] = robs_values.T[filter]
+                robs = pd.DataFrame(
+                    robs_values, columns=robs.columns, index=robs.columns
+                )
 
-            treatments = slctd_trmnts
+                treatments = slctd_trmnts
+            # else: Not enough selected treatments in league table - skip filtering, use default table
 
     #####   Add style colouring and legend
     N_BINS = 3 if not toggle_cinema else 4
@@ -720,7 +731,9 @@ def __update_output_new(
     tooltip_values = [
         {
             col["id"]: {
-                "value": f"**Average ROB:** {tip[col['id']]}",
+                "value": f"**Average ROB:** {tip[col['id']]:.1f}"
+                if pd.notna(tip[col["id"]])
+                else "**Average ROB:** N/A",
                 "type": "markdown",
             }
             if col["id"] != "Treatment"
@@ -900,20 +913,26 @@ def __update_output_bothout(
     confidence_map = {k: n for n, k in enumerate(["low", "medium", "high"])}
     treatments = np.unique(net_data[["treat1", "treat2"]].dropna().values.flatten())
 
-    net_data["rob"] = net_data["rob"].replace("__none__", "")
-    net_data["rob"] = net_data["rob"].replace(".", np.nan)
-    net_data["rob"] = net_data["rob"].replace("", np.nan)
-    # net_data['rob'] = net_data['rob'].astype(int)
+    # Process ROB data only if column exists and has non-NaN values
+    if "rob" in net_data.columns and not net_data["rob"].isna().all():
+        net_data["rob"] = net_data["rob"].replace("__none__", "")
+        net_data["rob"] = net_data["rob"].replace(".", np.nan)
+        net_data["rob"] = net_data["rob"].replace("", np.nan)
+        # net_data['rob'] = net_data['rob'].astype(int)
 
-    robs = (
-        net_data.groupby(["treat1", "treat2"])
-        .rob.mean()
-        .reset_index()
-        .pivot_table(index="treat2", columns="treat1", values="rob")
-        .reindex(index=treatments, columns=treatments, fill_value=np.nan)
-    )
+        robs = (
+            net_data.groupby(["treat1", "treat2"])
+            .rob.mean()
+            .reset_index()
+            .pivot_table(index="treat2", columns="treat1", values="rob")
+            .reindex(index=treatments, columns=treatments, fill_value=np.nan)
+        )
 
-    robs = robs.fillna(robs.T) if not toggle_cinema else robs
+        robs = robs.fillna(robs.T) if not toggle_cinema else robs
+    else:
+        # Create empty ROB DataFrame when no ROB data available
+        robs = pd.DataFrame(np.nan, index=treatments, columns=treatments)
+
     robs_slct = robs  # robs + robs.T - np.diag(np.diag(robs))  if not toggle_cinema else robs ## full rob table
 
     comprs_downgrade = pd.DataFrame()
@@ -997,124 +1016,130 @@ def __update_output_bothout(
                 net_data["outcome2_direction"].iloc[1],
             ]
 
-            leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
-            robs_slct = robs.loc[slctd_trmnts, slctd_trmnts]
-            leaguetable_bool = pd.DataFrame(
-                np.triu(np.ones(leaguetable.shape)).astype(bool),
-                columns=slctd_trmnts,
-                index=slctd_trmnts,
-            )  # define upper and lower triangle
+            # Filter selected treatments to only include those present in the league table
+            # (league table for "both" outcomes may have fewer treatments than the network)
+            slctd_trmnts = [t for t in slctd_trmnts if t in leaguetable.index]
+            if len(slctd_trmnts) >= 2:
+                # Enough treatments to show comparisons - apply filtering
+                leaguetable = leaguetable.loc[slctd_trmnts, slctd_trmnts]
+                robs_slct = robs.loc[slctd_trmnts, slctd_trmnts]
+                leaguetable_bool = pd.DataFrame(
+                    np.triu(np.ones(leaguetable.shape)).astype(bool),
+                    columns=slctd_trmnts,
+                    index=slctd_trmnts,
+                )  # define upper and lower triangle
 
-            ### pick correct comparison from FOREST_DATA and FOREST_DATA_OUT2
-            for treat_c in slctd_trmnts:
-                for treat_r in slctd_trmnts:
-                    if treat_c != treat_r:
-                        if not leaguetable_bool.loc[treat_r][treat_c]:
-                            effcsze = round(
-                                forest_data1[dataselectors[0]][
-                                    (forest_data1.Treatment == treat_c)
-                                    & (forest_data1.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            ci_lower = round(
-                                forest_data1["CI_lower"][
-                                    (forest_data1.Treatment == treat_c)
-                                    & (forest_data1.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            ci_upper = round(
-                                forest_data1["CI_upper"][
-                                    (forest_data1.Treatment == treat_c)
-                                    & (forest_data1.Reference == treat_r)
-                                ].values[0],
-                                2,
-                            )
-                            leaguetable.loc[treat_r][treat_c] = (
-                                f"{effcsze}\n{ci_lower, ci_upper}"
-                            )
-                        else:
-                            pass
-
-                        effcsze2 = round(
-                            forest_data_out2[dataselectors[2]][
-                                (forest_data_out2.Treatment == treat_r)
-                                & (forest_data_out2.Reference == treat_c)
-                            ].values[0],
-                            2,
-                        )
-                        ci_lower2 = round(
-                            forest_data_out2["CI_lower"][
-                                (forest_data_out2.Treatment == treat_r)
-                                & (forest_data_out2.Reference == treat_c)
-                            ].values[0],
-                            2,
-                        )
-                        ci_upper2 = round(
-                            forest_data_out2["CI_upper"][
-                                (forest_data_out2.Treatment == treat_r)
-                                & (forest_data_out2.Reference == treat_c)
-                            ].values[0],
-                            2,
-                        )
-
-                        if leaguetable_bool.loc[treat_r][treat_c]:
-                            leaguetable.loc[treat_r][treat_c] = (
-                                f"{effcsze2}\n{ci_lower2, ci_upper2}"
-                            )
-                            if toggle_cinema:
-                                robs_slct.loc[treat_r][treat_c] = comprs_conf_ut[
-                                    "Confidence"
-                                ][
-                                    (comprs_conf_ut[0] == treat_c)
-                                    & (comprs_conf_ut[1] == treat_r)
-                                    | (comprs_conf_ut[0] == treat_r)
-                                    & (comprs_conf_ut[1] == treat_c)
-                                ].values[0]
-                            else:
-                                robs_slct.loc[treat_r][treat_c] = (
-                                    robs_slct[treat_r][treat_c]
-                                    if not np.isnan(robs_slct[treat_r][treat_c])
-                                    else robs_slct[treat_c][treat_r]
+                ### pick correct comparison from FOREST_DATA and FOREST_DATA_OUT2
+                for treat_c in slctd_trmnts:
+                    for treat_r in slctd_trmnts:
+                        if treat_c != treat_r:
+                            if not leaguetable_bool.loc[treat_r][treat_c]:
+                                effcsze = round(
+                                    forest_data1[dataselectors[0]][
+                                        (forest_data1.Treatment == treat_c)
+                                        & (forest_data1.Reference == treat_r)
+                                    ].values[0],
+                                    2,
                                 )
-
-                        else:
-                            if toggle_cinema:
-                                robs_slct.loc[treat_r][treat_c] = comprs_conf_lt[
-                                    "Confidence"
-                                ][
-                                    (comprs_conf_lt[0] == treat_c)
-                                    & (comprs_conf_lt[1] == treat_r)
-                                    | (comprs_conf_lt[0] == treat_r)
-                                    & (comprs_conf_lt[1] == treat_c)
-                                ].values[0]
-                            else:
-                                robs_slct.loc[treat_r][treat_c] = (
-                                    robs_slct[treat_r][treat_c]
-                                    if not np.isnan(robs_slct[treat_r][treat_c])
-                                    else robs_slct[treat_c][treat_r]
+                                ci_lower = round(
+                                    forest_data1["CI_lower"][
+                                        (forest_data1.Treatment == treat_c)
+                                        & (forest_data1.Reference == treat_r)
+                                    ].values[0],
+                                    2,
                                 )
+                                ci_upper = round(
+                                    forest_data1["CI_upper"][
+                                        (forest_data1.Treatment == treat_c)
+                                        & (forest_data1.Reference == treat_r)
+                                    ].values[0],
+                                    2,
+                                )
+                                leaguetable.loc[treat_r][treat_c] = (
+                                    f"{effcsze}\n{ci_lower, ci_upper}"
+                                )
+                            else:
+                                pass
 
-            leaguetable.replace(0, np.nan)  # inplace
+                            effcsze2 = round(
+                                forest_data_out2[dataselectors[2]][
+                                    (forest_data_out2.Treatment == treat_r)
+                                    & (forest_data_out2.Reference == treat_c)
+                                ].values[0],
+                                2,
+                            )
+                            ci_lower2 = round(
+                                forest_data_out2["CI_lower"][
+                                    (forest_data_out2.Treatment == treat_r)
+                                    & (forest_data_out2.Reference == treat_c)
+                                ].values[0],
+                                2,
+                            )
+                            ci_upper2 = round(
+                                forest_data_out2["CI_upper"][
+                                    (forest_data_out2.Treatment == treat_r)
+                                    & (forest_data_out2.Reference == treat_c)
+                                ].values[0],
+                                2,
+                            )
 
-            tril_order = pd.DataFrame(
-                np.tril(np.ones(leaguetable.shape)),
-                columns=leaguetable.columns,
-                index=leaguetable.columns,
-            )
-            tril_order = tril_order.loc[slctd_trmnts, slctd_trmnts]
-            filter = np.tril(tril_order == 0)
-            filter += (
-                filter.T
-            )  # inverting of rows and columns common in meta-analysis visualissation
+                            if leaguetable_bool.loc[treat_r][treat_c]:
+                                leaguetable.loc[treat_r][treat_c] = (
+                                    f"{effcsze2}\n{ci_lower2, ci_upper2}"
+                                )
+                                if toggle_cinema:
+                                    robs_slct.loc[treat_r][treat_c] = comprs_conf_ut[
+                                        "Confidence"
+                                    ][
+                                        (comprs_conf_ut[0] == treat_c)
+                                        & (comprs_conf_ut[1] == treat_r)
+                                        | (comprs_conf_ut[0] == treat_r)
+                                        & (comprs_conf_ut[1] == treat_c)
+                                    ].values[0]
+                                else:
+                                    robs_slct.loc[treat_r][treat_c] = (
+                                        robs_slct[treat_r][treat_c]
+                                        if not np.isnan(robs_slct[treat_r][treat_c])
+                                        else robs_slct[treat_c][treat_r]
+                                    )
 
-            robs = robs.loc[slctd_trmnts, slctd_trmnts]
-            robs_values = robs.values
-            # robs_values[filter] = robs_values.T[filter]
-            robs = pd.DataFrame(robs_values, columns=robs.columns, index=robs.columns)
+                            else:
+                                if toggle_cinema:
+                                    robs_slct.loc[treat_r][treat_c] = comprs_conf_lt[
+                                        "Confidence"
+                                    ][
+                                        (comprs_conf_lt[0] == treat_c)
+                                        & (comprs_conf_lt[1] == treat_r)
+                                        | (comprs_conf_lt[0] == treat_r)
+                                        & (comprs_conf_lt[1] == treat_c)
+                                    ].values[0]
+                                else:
+                                    robs_slct.loc[treat_r][treat_c] = (
+                                        robs_slct[treat_r][treat_c]
+                                        if not np.isnan(robs_slct[treat_r][treat_c])
+                                        else robs_slct[treat_c][treat_r]
+                                    )
 
-            treatments = slctd_trmnts
+                leaguetable.replace(0, np.nan)  # inplace
+
+                tril_order = pd.DataFrame(
+                    np.tril(np.ones(leaguetable.shape)),
+                    columns=leaguetable.columns,
+                    index=leaguetable.columns,
+                )
+                tril_order = tril_order.loc[slctd_trmnts, slctd_trmnts]
+                filter = np.tril(tril_order == 0)
+                filter += filter.T  # inverting of rows and columns common in meta-analysis visualissation
+
+                robs = robs.loc[slctd_trmnts, slctd_trmnts]
+                robs_values = robs.values
+                # robs_values[filter] = robs_values.T[filter]
+                robs = pd.DataFrame(
+                    robs_values, columns=robs.columns, index=robs.columns
+                )
+
+                treatments = slctd_trmnts
+            # else: Not enough selected treatments in league table - skip filtering, use default table
 
     #####   Add style colouring and legend
     N_BINS = 3 if not toggle_cinema else 4
@@ -1243,9 +1268,9 @@ def __update_output_bothout(
                     rob_v = None
 
                 # Add a tooltip value for this column
-                if rob_v is not None:  # If value exists
+                if rob_v is not None and pd.notna(rob_v):  # If value exists
                     row_tooltips[col["id"]] = {
-                        "value": f"**Average ROB:** {rob_v}",
+                        "value": f"**Average ROB:** {rob_v:.1f}",
                         "type": "markdown",
                     }
                 else:  # If value is missing or causes an error

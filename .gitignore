@@ -20,3 +20,4 @@ db_old/*
 # Environment variables
 .env
 .DS_Store
+notes/*
