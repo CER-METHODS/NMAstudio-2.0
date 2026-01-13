@@ -643,7 +643,7 @@ def update_kt_plots_scale(value_effect, value_change, lower, rowData, effect_siz
     # 1. value_effect changed → update ALL rows
     #    even if value_effect == []
     # --------------------------------------------------
-    if triggered == "checklist_effects":
+    if triggered == "checklist_effects" or triggered == "range_lower":
         for i in range(len(df)):
             row = df.iloc[i]
 
