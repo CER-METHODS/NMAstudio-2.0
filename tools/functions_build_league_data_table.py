@@ -398,9 +398,11 @@ def __update_output_new(
         slider_container_style = {"display": "block"}
     else:
         # Hide slider when year data is not available
+        # Use valid default values to prevent NaN in SVG path rendering
         years = None
-        slider_min = slider_max = None
-        slider_marks = set_slider_marks(slider_min, slider_max, years)
+        slider_min = 2000
+        slider_max = 2025
+        slider_marks = {}  # Empty marks since slider is hidden
         slider_disabled = True
         slider_container_style = {"display": "none"}
 
@@ -420,11 +422,12 @@ def __update_output_new(
     if slider_triggered:
         # User moved the slider - don't update the value output
         slider_value_out = dash.no_update
-    elif slider_max is not None:
-        # Initial load or data change - set to max year
+    elif years is not None:
+        # Initial load or data change - set to max year from actual data
         slider_value_out = int(slider_max)
     else:
-        slider_value_out = None
+        # No year data - use default value matching slider_max
+        slider_value_out = slider_max
 
     _out_slider = [
         slider_min,
