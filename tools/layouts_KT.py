@@ -13,32 +13,204 @@ from assets.dropdowns_values import *
 from tools.functions_ranking_plots import __ranking_plot_skt
 
 
+from dash import html
+import dash_bootstrap_components as dbc
+
 FAQ_total = html.Div([
-                      dbc.Button(
-                                "How can I use this tool for my own project?",
-                                id="faq_ques1",
-                                className="faq_ques",
-                                n_clicks=0,
-                                ),
-                      dbc.Collapse(
-                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
-                                id="faq_ans1",
-                                is_open=False,
-                                className="faq_ans",
-                            ),
-                      dbc.Button(
-                                "How can I ......",
-                                id="faq_ques2",
-                                className="faq_ques",
-                                n_clicks=0,
-                                ),
-                      dbc.Collapse(
-                                dbc.Card(dbc.CardBody("This content is hidden in the collapse")),
-                                id="faq_ans2",
-                                is_open=False,
-                                className="faq_ans",
-                            ),
-                        ])
+
+    # ===== General =====
+    dbc.Button("General", id="faq_sub1", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is this tool?", id="faq_ques1", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "This tool is an interactive knowledge translation tool designed to help users explore, understand, and communicate results from network meta-analyses."
+                )),
+                id="faq_ans1",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Who is this tool for?", id="faq_ques2", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The tool is intended for clinicians, guideline developers, policymakers, researchers, and students."
+                )),
+                id="faq_ans2",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block1",
+        is_open=False,
+    ),
+
+    # ===== About Network Meta-Analysis =====
+    dbc.Button("About Network Meta-Analysis", id="faq_sub2", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is a network meta-analysis?", id="faq_ques3", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "A network meta-analysis compares multiple treatments at the same time by combining direct and indirect evidence from many studies."
+                )),
+                id="faq_ans3",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Do I need to be an NMA expert to use this tool?", id="faq_ques4", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "No. The Standard version is designed for users with limited experience, while the Advanced version is for experienced users."
+                )),
+                id="faq_ans4",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block2",
+        is_open=False,
+    ),
+
+    # ===== Versions of the Tool =====
+    dbc.Button("Versions of the Tool", id="faq_sub3", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What is the Standard version?", id="faq_ques5", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The Standard version focuses on key results, rankings, and certainty of evidence in a simple and clear format."
+                )),
+                id="faq_ans5",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("What is the Advanced version?", id="faq_ques6", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The Advanced version provides detailed statistical results, including direct and indirect effects and inconsistency checks."
+                )),
+                id="faq_ans6",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block3",
+        is_open=False,
+    ),
+
+    # ===== Using the App =====
+    dbc.Button("Using the App", id="faq_sub4", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("How can I use this tool for my own project?", id="faq_ques7", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "You must upload your dataset and run the analysis in NMAstudio. The results will then appear automatically in this tool."
+                )),
+                id="faq_ans7",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Can I focus on specific treatments or comparisons?", id="faq_ques8", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. You can click treatments or comparisons in the network diagram to filter the results table."
+                )),
+                id="faq_ans8",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block4",
+        is_open=False,
+    ),
+
+    # ===== Help and Guidance =====
+    dbc.Button("Help and Guidance", id="faq_sub5", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("Is there a tutorial or help available?", id="faq_ques9", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. The tool includes a tutorial video, a floating FAQ window, info icons, and hover tips."
+                )),
+                id="faq_ans9",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block5",
+        is_open=False,
+    ),
+
+    # ===== Data and Access =====
+    dbc.Button("Data and Access", id="faq_sub6", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("Who can upload data and access results?", id="faq_ques10", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "NMA authors can upload data and run analyses. Reviewers can request access to explore the results."
+                )),
+                id="faq_ans10",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block6",
+        is_open=False,
+    ),
+
+    # ===== Limitations and Future Plans =====
+    dbc.Button("Limitations and Future Plans", id="faq_sub7", className="faq_subtitle", n_clicks=0),
+    dbc.Collapse(
+        html.Div([
+
+            dbc.Button("What are the current limitations of the tool?", id="faq_ques11", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "The tool supports standard NMAs with binary and continuous outcomes. Other analysis types are not supported yet."
+                )),
+                id="faq_ans11",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+            dbc.Button("Will the tool be updated in the future?", id="faq_ques12", className="faq_ques", n_clicks=0),
+            dbc.Collapse(
+                dbc.Card(dbc.CardBody(
+                    "Yes. New features and improvements will be added based on user feedback."
+                )),
+                id="faq_ans12",
+                is_open=False,
+                className="faq_ans",
+            ),
+
+        ]),
+        id="faq_block7",
+        is_open=False,
+    ),
+
+])
+
+
 
 def Sktpage():
     return html.Div([
@@ -57,7 +229,7 @@ def Sktpage():
                                                 html.P("Frequently Asked Questions", id = 'faq_head'),
                                                 html.Img(src="/assets/icons/cancel.png", id ='close_faq')
                                                 ], className='faq-header'),
-                                        FAQ_total],
+                                        html.Div(FAQ_total, className="faq-scroll")],
                                     id="faq_toast",
                                     # header="Frequently Asked Questions",
                                     is_open=False,
@@ -92,7 +264,7 @@ def switch_table():
                                     'padding-left': '0px'}),
                             daq.ToggleSwitch(
                                 id='toggle_grid_select',
-                                value = True,
+                                value = False,
                                 color='green', size=50, vertical=False,
                                 label={'label': "",
                                         'style': dict(color='white', font='0.5em')},
@@ -130,38 +302,37 @@ def skt_nonexpert():
                                             #         'width': '90%'
                                             #            }),
                                             html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'), 
-                                                               html.Div([ html.P("editable, put your project title here",
-                                                                                 id='title-instruction'),
-                                                                            html.A(
-                                                                            html.Img(
-                                                                                src="/assets/icons/query.png",
-                                                                                style={
-                                                                                    "width": "16px",
-                                                                                    # "float":"right",
-                                                                                    },
-                                                                            )),],id="query-title",),
-                                                              dbc.Col(dcc.Input(id='title_skt',
-                                                                            value='Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis', 
+                                                               html.Div([ dbc.Popover(
+                                                                                    "This should be filled in the 'SETUP' page.",
+                                                                                    target="infoicon-standard-title",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-standard-title",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                            html.A("ⓘ",id="infoicon-standard-title", className='kt-info-icon'),]
+                                                                            ,id="query-title",),
+                                                              dbc.Col(html.Span(id='title_skt',
                                                                             style={'width':'800px'}
                                                                             ),className='title_col2')],
                                                                        className='row_skt'),
                                                       dbc.Row([dbc.Col([
                                                           dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
-                                                                              html.Div([ html.P("editable, add more PICOS information",
-                                                                                id='PICOS-instruction'),
-                                                                                html.A(
-                                                                                    html.Img(
-                                                                                            src="/assets/icons/query.png",
-                                                                                            style={
-                                                                                                "width": "16px",
-                                                                                                # "float":"right",
-                                                                                                },
-                                                                                                )),],id="query-PICOS",)
-                                                                                                ]),
-                                                                     dcc.Textarea(value ='Patients: patients with psoriasis\n'+
-                                                                                'Primary outcome: PASI90, SAE\n'+
-                                                                                'Study design: randomized control trial'
-                                                                                ,className='skt_span1', style={'width':'200%'}),
+                                                                              html.Div([ 
+                                                                                dbc.Popover(
+                                                                                    "Editable, add more PICOS information here.",
+                                                                                    target="infoicon-standard-picos",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-standard-picos",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                                html.A("ⓘ",id="infoicon-standard-picos", className='kt-info-icon'),],id="query-PICOS",)
+                                                                                ]),
+                                                                     dcc.Textarea(placeholder ='Patients: (e.g. patients with psoriasis)\n'+
+                                                                                'Primary outcome: (e.g. PASI90, SAE)\n'+
+                                                                                'Study design: (e.g. randomized control trial)'
+                                                                                ,className='skt_span1', style={'width':'200%', 'height':'126px'},),
                                                                             #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                             #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                               ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')
@@ -201,16 +372,17 @@ def skt_nonexpert():
                                                             dbc.Col([
                                                                         dbc.Row([
                                                                             dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
-                                                                            html.Div([html.P("Select nodes/edges to display results for specific interventions or comparisons in the table below.",
-                                                                                            id='diagram-instruction'),
-                                                                                            html.A(
-                                                                                                html.Img(
-                                                                                                        src="/assets/icons/query.png",
-                                                                                                        style={
-                                                                                                            "width": "16px",
-                                                                                                            # "float":"right",
-                                                                                                            },
-                                                                                                            )),],id="query-diagram",),
+                                                                            html.Div([
+                                                                                    dbc.Popover(
+                                                                                        "Select nodes/edges to display results for specific interventions or comparisons in the table below.",
+                                                                                        target="infoicon-standard-diagram",
+                                                                                        trigger="hover",
+                                                                                        placement="top",
+                                                                                        id="popover-standard-diagram",
+                                                                                        className="popover-grid",
+                                                                                    ),
+                                                                                    html.A("ⓘ",id="infoicon-standard-diagram", className='kt-info-icon')
+                                                                                    ],id="query-diagram",),
                                                                             dbc.Col([
                                                                                     html.P(f"Select outcome:",className="", style={'display': 'flex',  
                                                                                                 'align-items': 'center',
@@ -223,11 +395,21 @@ def skt_nonexpert():
                                                                                                                             ),
                                                                             html.Div(KT_Dropdown_graphlayout, style={'font-size': '11px','justify-self': 'end', 'margin-right':'20px'})],
                                                                             style={'display': 'grid', 'grid-template-columns':'1fr 0.1fr 3fr 3fr'}),
-                                                                            dbc.Row([html.Span('Ask Dr.Bot',className='skt_span1', 
+                                                                            dbc.Row([
+                                                                                     html.Div([ dbc.Popover(
+                                                                                                "This chatbot is powered by the LLaMA API and is designed to answer practical questions about the interventions.",
+                                                                                                target="infoicon-standard-chatbot",
+                                                                                                trigger="hover",
+                                                                                                placement="top",
+                                                                                                id="popover-standard-chatbot",
+                                                                                                className="popover-grid",),
+                                                                                                html.A("ⓘ",id="infoicon-standard-chatbot", className='kt-info-icon'),]
+                                                                                                ,id="query-chatbot",),
+                                                                                    html.Span('Ask Dr.Bot',className='skt_span1', 
                                                                                               style={'color': '#B85042', 'font-weight': 'bold'}),
-                                                                                              html.Img(src="/assets/icons/chatbot.png",
-                                                                                                       style={ "height": 30, 
-                                                                                                              'margin-left': '7px'})
+                                                                                    html.Img(src="/assets/icons/chatbot.png",
+                                                                                            style={ "height": 30, 
+                                                                                                    'margin-left': '7px'}),
                                                                                               ], style={'justify-content':'center',
                                                                                                         'align-items': 'center'}),
                                                                             #  html.Span('Please tick to select the reference treatment', className='note_tick')
@@ -282,46 +464,7 @@ def skt_nonexpert():
                                                       dbc.Row(
                                                         [dbc.Col(
                                                             [
-                                                                 dbc.Popover(
-                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
-                                                                        target="info-icon-RR",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-RR",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
-                                                                        target="info-icon-RR_out2",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-RR2",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Click switch button to switch treament and comparator.",
-                                                                        target="info-icon-switch",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-switch",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Hover your mouse over a cell to view detailed information for each field.",
-                                                                        target="info-icon-Certainty_out1",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-certainty1",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                                 dbc.Popover(
-                                                                        "Hover your mouse over a cell to view detailed information for each field.",
-                                                                        target="info-icon-Certainty_out2",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-certainty2",
-                                                                        className= 'popover-grid'
-                                                                    ),
+                                                                 html.Div(id="popover-container-standard"),
                                                                 model_skt_compare_simple,
                                                                 dbc.Row(treat_compare_grid, 
                                                                         style={'width':'95%', 'justify-self':'center'}),
@@ -403,38 +546,39 @@ def skt_layout():
                                     className="sktdropdown-out")], id='outselect_row'),
                                 html.Br(),
                                 html.Div([dbc.Row([dbc.Col(html.Span('Project Title', className='title_first'),className='title_col1'),
-                                                    html.Div([ html.P("editable, put your project title here",
-                                                                        id='title-instruction'),
-                                                                html.A(
-                                                                html.Img(
-                                                                    src="/assets/icons/query.png",
-                                                                    style={
-                                                                        "width": "16px",
-                                                                        # "float":"right",
-                                                                        },
-                                                                )),],id="query-title",), 
-                                                    dbc.Col(dcc.Input(id='title_skt',
-                                                                value='Systematic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis', 
+                                                    html.Div([ 
+                                                              dbc.Popover(
+                                                                        "This should be filled in the 'SETUP' page.",
+                                                                        target="infoicon-advanced-title",
+                                                                        trigger="hover",
+                                                                        placement="top",
+                                                                        id="popover-advanced-title",
+                                                                        className="popover-grid",
+                                                                    ),
+                                                              html.A("ⓘ",id="infoicon-advanced-title", className='kt-info-icon')
+                                                                ],id="query-title",), 
+                                                    dbc.Col(html.Span(id='title_skt_advacned',
                                                                 style={'width':'800px'}
                                                                 ),className='title_col2')],
                                                             className='row_skt'),
-                                            dbc.Row([dbc.Col([
-                                                dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
-                                                                    html.Div([ html.P("editable, add more PICOS information",
-                                                                    id='PICOS-instruction'),
-                                                                    html.A(
-                                                                        html.Img(
-                                                                                src="/assets/icons/query.png",
-                                                                                style={
-                                                                                    "width": "16px",
-                                                                                    # "float":"right",
-                                                                                    },
-                                                                                    )),],id="query-PICOS",)
+                                            dbc.Row([
+                                                dbc.Col([
+                                                        dbc.Toast([dbc.Row([html.Span('PICOS', className='study_design'),
+                                                                    html.Div([dbc.Popover(
+                                                                                    "Editable, add more PICOS information here.",
+                                                                                    target="infoicon-advanced-picos",
+                                                                                    trigger="hover",
+                                                                                    placement="top",
+                                                                                    id="popover-advanced-picos",
+                                                                                    className="popover-grid",
+                                                                                ),
+                                                                    html.A("ⓘ",id="infoicon-advanced-picos", className='kt-info-icon'),
+                                                                    ],id="query-PICOS",)
                                                                                     ]),
-                                                            dcc.Textarea(value ='Patients: patients with psoriasis\n'+
-                                                                    'Primary outcome: PASI90\n'+
-                                                                    'Study design: randomized controlled trial'
-                                                                    ,className='skt_span1', style={'width':'160%'}),
+                                                            dcc.Textarea(placeholder ='Patients: (e.g., patients with psoriasis)\n'+
+                                                                    'Primary outcome: (e.g., PASI90)\n'+
+                                                                    'Study design: (e.g., randomized controlled trial)'
+                                                                    ,className='skt_span1', style={'width':'160%', 'height':'50vh'}),
                                                                 #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                 #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                     ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')
@@ -482,7 +626,32 @@ def skt_layout():
                                                                     ], 
                                                                     style={'border-right': '3px solid #B85042',
                                                                             'width': '50%'}),
-                                                                    dbc.Col(html.Span(id='trigger_info'),
+                                                                    dbc.Col([
+                                                                            dbc.Toast(
+                                                                                [
+                                                                                dcc.Upload(
+                                                                                            html.A('Upload treatments instructions',
+                                                                                                className = 'treat-instruct'),
+                                                                                        id='treat-instruction-upload', 
+                                                                                        multiple=False,
+                                                                                        style={'display': 'inline-block', 
+                                                                                            'font-size': '12px', }),
+                                                                                html.Span(id ='treat-instruction-filename',
+                                                                                            style={'font-size':'12px', 
+                                                                                                   'color':'blue', 
+                                                                                                   'margin-left':'10px'}),
+                                                                                html.Br(), html.Br(),
+                                                                                html.Span('First, upload a CSV file with two columns: one for the treatment name (treatment) and one for the treatment description (description).',
+                                                                                          id='treat-instruct-span'),
+                                                                                ],
+                                                                                style={
+                                                                                    'justify-items': 'center',
+                                                                                    'align-items': 'center',
+                                                                                    'text-align': 'center',
+                                                                                    'font-weight': 'bold'
+                                                                                }, id='toast_upload',
+                                                                            ),
+                                                                            html.Span([],id='trigger_info')],
                                                                             style={'width': '50%','align-items': 'center', 'display': 'grid'})
                                                                         ]),
                                                                     ], className='tab3_col')               
@@ -544,56 +713,8 @@ def skt_layout():
                                                              grid, 
                                                              model_skt_stand1, 
                                                              model_skt_stand2,
+                                                             html.Div(id="popover-container-master"),
                                                              html.Div(id="popover-container"),
-                                                             dbc.Popover(
-                                                                        "Clicking a cell will open a nested table, where the corresponding treatment will be a reference treatment.",
-                                                                        target="info-icon-Reference",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-ref",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "This is the range of risk per 1000 in your original dataset. This can be a reference when you enter the number in 'Risk per 1000' column.",
-                                                                        target="info-icon-risk_range",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-range",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             
-                                                             dbc.Popover(
-                                                                        "You can enter a risk for the reference treatment, then the corresponding nested table will include effects in absolute scale.",
-                                                                        target="info-icon-risk",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-risk",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Please explain why you specified this particular risk for the reference treatment.",
-                                                                        target="info-icon-rationality",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-rationality",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Here you can specify the lower limit of the x-axis range for the forest plot in the nested table.",
-                                                                        target="info-icon-Scale_lower",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-Scale_lower",
-                                                                        className= 'popover-grid'
-                                                                    ),
-                                                             dbc.Popover(
-                                                                        "Here you can specify the upper limit of the x-axis range for the forest plot in the nested table.",
-                                                                        target="info-icon-Scale_upper",  # this must match the icon's ID
-                                                                        trigger="click",
-                                                                        placement="top",
-                                                                        id="popover-advance-Scale_upper",
-                                                                        className= 'popover-grid'
-                                                                    )
                                                              ],className='skt_col2', id = 'grid_type'),
                                                                     ],className='skt_rowtable'),
                                             html.Br(), html.Br(),
@@ -691,6 +812,22 @@ model_fullname = dbc.Modal(
         
         dbc.ModalBody(
             [
+                dbc.Row([
+                    dcc.Upload(
+                                html.A('Upload treatments fullnames',
+                                    className = 'treat-instruct'),
+                                id='treat-fullname-upload', 
+                                multiple=False,
+                                style={'display': 'inline-block', 
+                                    'font-size': '12px', }),
+                                html.Span(id ='treat-fullname-filename',
+                                            style={'font-size':'12px', 
+                                                   'color':'blue',
+                                                   'margin-top':'10px', 
+                                                   'margin-left':'10px'}),
+                                html.Br(), html.Br(),
+                                html.Span('Upload a CSV file with two columns: one for the treatment abbreviation (abbreviation) and one for the full treatment name (fullname).')
+                                    ]),
                 dbc.Row([modal_fullname_grid],
                         style={'width':'95%', 'justify-self':'center',
                                'justify-content':'center'}),

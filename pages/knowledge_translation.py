@@ -6,22 +6,9 @@ from dash import html, dcc, callback, Input, Output, State, ctx, no_update, clie
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 from dash.exceptions import PreventUpdate
+import base64
+import io
 
-# from tools.skt_layout import (
-#     Sktpage,
-#     switch_table,
-#     skt_layout,
-#     skt_nonexpert,
-#     model_transitivity,
-#     model_skt_stand1,
-#     model_skt_stand2,
-#     model_skt_compare_simple,
-#     model_fullname,
-#     model_ranking,
-#     grid,
-#     row_data,
-#     row_data_default,
-# )
 
 from tools.layouts_KT import *
 
@@ -279,7 +266,7 @@ def display_transitivity(cell, _):
               Input('ddskt-trans', 'value'),
               State('net_data_STORAGE', 'data'),
               )
-def update_boxplot(scatter, value, net_data):
+def update_boxplot_scatter(scatter, value, net_data):
     if scatter:
         return __show_scatter(value, net_data)
     return __show_boxplot(value, net_data)
@@ -349,14 +336,96 @@ def update_cytoscape_layout(layout):
 
 
 
+
 from tools.functions_generate_text_info import __generate_text_info__
 @callback(
     Output('trigger_info', 'children'),
     Input('cytoscape_skt', 'selectedNodeData'),
-    Input('cytoscape_skt', 'selectedEdgeData')
+    Input('cytoscape_skt', 'selectedEdgeData'),
+    State("treat_instruction", "data"),
+    State("sktdropdown-out", "value"),
+    State("net_data_STORAGE", "data"),
+    State("effect_modifiers_STORAGE", "data")
 )
-def generate_text_info(nodedata, edgedata):
-    return __generate_text_info__(nodedata, edgedata)
+def generate_text_info(nodedata, edgedata,  instruct_data, out_idx, net_data, effect_modifiers):
+    return __generate_text_info__(nodedata, edgedata, instruct_data, out_idx, net_data, effect_modifiers)
+
+
+@callback(
+    Output('treat_instruction', 'data'),
+    Output('treat-instruction-filename', 'children'),
+    Input("treat-instruction-upload", "contents"),
+    State("treat-instruction-upload", "filename"),
+    prevent_initial_call=True
+)
+def display_upload_instructon(contents, filename):
+
+    
+    if not contents or not filename:
+        raise PreventUpdate
+
+    # only allow csv
+    if not filename.lower().endswith(".csv"):
+        return  None, None
+
+    try:
+        _, content_string = contents.split(",")
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+        filename_display = f"Uploaded file: {filename}"
+    except Exception:
+        return  None, None
+
+    # success → hide toast, store data
+    return  df.to_dict("records"), filename_display
+
+
+@callback(
+    Output('treat_fullname', 'data'),
+    Output('treat-fullname-filename', 'children'),
+    Input("treat-fullname-upload", "contents"),
+    State("treat-fullname-upload", "filename"),
+    State('modal_fullname', 'rowData'),
+    prevent_initial_call=True
+)
+def display_upload_fullname(contents, filename, rowdata):
+
+    # nothing uploaded
+    if not contents or not filename:
+        raise PreventUpdate
+
+    # only allow csv
+    if not filename.lower().endswith(".csv"):
+        return  rowdata, None
+
+    try:
+        _, content_string = contents.split(",")
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+        filename_display = f"Uploaded file: {filename}"
+    except Exception:
+        return  rowdata, None
+
+
+    return  df.to_dict("records"), filename_display
+
+
+
+
+@callback(
+    Output('modal_fullname', 'rowData'),
+    Input('treat_fullname', 'data'),
+    prevent_initial_call=True
+)
+def display_fullname_data(rowdata):
+
+
+    if isinstance(rowdata, list) and len(rowdata) > 0:
+        rowdata = pd.DataFrame(rowdata)
+        return rowdata.to_dict('records')
+       
+    raise PreventUpdate
+
 
 
 @callback(
@@ -621,15 +690,17 @@ from tools.functions_modal_info import display_modal_text
     # Output("risk_range", "children"),
     Output("text_info_col", "children"),
     Output("enter_label", "children"),
+    Output("risk_range", "children"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
     State("outcome_names_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
     prevent_initial_call=True
 )
 
-def display_textinfo(cell,value,rowdata, outcome_names):
-    return display_modal_text(cell,value,rowdata, outcome_names)
+def display_textinfo(cell,value,rowdata, outcome_names, net_data):
+    return display_modal_text(cell,value,rowdata, outcome_names, net_data)
 
 from tools.functions_modal_info import display_modal_data, display_modal_column
 
@@ -646,7 +717,7 @@ from tools.functions_modal_info import display_modal_data, display_modal_column
 
 def display_modaldata(cell,rowdata, net_data, effect_modifiers):
     if not cell or len(cell) == 0:
-        return PreventUpdate
+        raise PreventUpdate
     
     from tools.utils import get_net_data_json
     # Load modal data
@@ -657,7 +728,7 @@ def display_modaldata(cell,rowdata, net_data, effect_modifiers):
     m = re.fullmatch(r"(RR|OR|MD|SMD)_out(\d+)(?:_label)?", colid)
     if not m:
         # not an outcome metric column we handle
-        return PreventUpdate
+        raise PreventUpdate
     
     data = display_modal_data(cell, rowdata, df_modal, m)
     colunmdef = display_modal_column( m, effect_modifiers, df_modal)
@@ -691,16 +762,38 @@ def open_toast(cell, _):
         return True
     return no_update
 
-for ans in range(1, 3):
+
+def make_sub_callback(i):
     @callback(
-        Output(f"faq_ans{ans}", "is_open"),
-        [Input(f"faq_ques{ans}", "n_clicks")],
-        [State(f"faq_ans{ans}", "is_open")],
+        Output(f"faq_block{i}", "is_open"),
+        Input(f"faq_sub{i}", "n_clicks"),
+        State(f"faq_block{i}", "is_open"),
     )
-    def toggle_collapse(n, is_open):
+    def toggle_sub(n, is_open):
         if n:
             return not is_open
         return is_open
+
+
+for i in range(1, 8):
+    make_sub_callback(i)
+
+
+def make_ques_callback(i):
+    @callback(
+        Output(f"faq_ans{i}", "is_open"),
+        Input(f"faq_ques{i}", "n_clicks"),
+        State(f"faq_ans{i}", "is_open"),
+    )
+    def toggle_ans(n, is_open):
+        if n:
+            return not is_open
+        return is_open
+
+
+for i in range(1, 13):
+    make_ques_callback(i)
+
 
 
 # Unified clientside callback to manage AG Grid events
@@ -733,6 +826,71 @@ clientside_callback(
 
 
 import time
+
+
+@callback(
+    Output("popover-container-master", "children"),
+    Input("KT_advanced_data_STORAGE", "data"),
+    prevent_initial_call=True
+)
+def show_popover_master(data):
+    if data:
+        children = [
+            dbc.Popover(
+                        "Clicking a cell will open a nested table, where the corresponding treatment will be a reference treatment.",
+                        target="info-icon-Reference",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-ref",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "This is the range of risk per 1000 in your original dataset. This can be a reference when you enter the number in 'Risk per 1000' column.",
+                        target="info-icon-risk_range",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-range",
+                        className= 'popover-grid'
+                    ),
+                
+                dbc.Popover(
+                        "You can enter a risk for the reference treatment, then the corresponding nested table will include effects in absolute scale.",
+                        target="info-icon-risk",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-risk",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Please explain why you specified this particular risk for the reference treatment.",
+                        target="info-icon-rationality",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-rationality",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Here you can specify the lower limit of the x-axis range for the forest plot in the nested table.",
+                        target="info-icon-Scale_lower",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-Scale_lower",
+                        className= 'popover-grid'
+                    ),
+                dbc.Popover(
+                        "Here you can specify the upper limit of the x-axis range for the forest plot in the nested table.",
+                        target="info-icon-Scale_upper",  # this must match the icon's ID
+                        trigger="click",
+                        placement="top",
+                        id="popover-advance-Scale_upper",
+                        className= 'popover-grid'
+                    )
+        ]
+        # Still uses the same target, so may not work if multiple icons exist
+        return children
+    return None
+
+
 
 @callback(
     Output("popover-container", "children"),
@@ -947,6 +1105,64 @@ def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STO
         data.to_dict("records"),
         ColumnDefs_treat_compare
     )
+
+
+@callback(
+    Output("popover-container-standard", "children"),
+    Input("KT_standard_data_STORAGE", "data"),
+    State("net_data_STORAGE", "data"),
+    State("number_outcomes_STORAGE", "data"),
+    prevent_initial_call="initial_duplicate",
+)
+def generate_kt_standad_popover(data, net_data, num_outcomes):
+    if data:
+        from tools.utils import get_net_data_json
+
+        net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+
+        num_outcomes = int(num_outcomes or 0)
+        effect_sizes = [
+            net_df[f"effect_size{i+1}"].iloc[0]
+            for i in range(num_outcomes)
+            if f"effect_size{i+1}" in net_df.columns
+        ]
+
+        children = [
+            dbc.Popover(
+                "Click switch button to switch treatment and comparator.",
+                target="info-icon-switch",
+                trigger="click",
+                placement="top",
+                id="popover-switch",
+                className="popover-grid",
+            )
+        ]
+
+        for i, effect_size in enumerate(effect_sizes):
+            children.extend([
+                dbc.Popover(
+                    "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
+                    target=f"info-icon-{effect_size}_out{i+1}_label",
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-{effect_size}_out{i+1}_label",
+                    className="popover-grid",
+                ),
+                dbc.Popover(
+                    "Hover your mouse over a cell to view detailed information for each field.",
+                    target=f"info-icon-Certainty_out{i+1}",
+                    trigger="click",
+                    placement="top",
+                    id=f"popover-certainty{i+1}",
+                    className="popover-grid",
+                ),
+            ])
+        
+        return children
+
+    return None
+
+    
 
 
 
@@ -1367,7 +1583,8 @@ def update_skt_protocol_link(protocol_link):
     return "#", "Not provided"
 
 @callback(
-    Output("title_skt", "value"),
+    Output("title_skt", "children"),
+    Output("title_skt_advacned", "children"),
     Input("project_title_STORAGE", "data"),
     prevent_initial_call=False,
 )
@@ -1376,5 +1593,5 @@ def update_skt_title_input(project_title):
     Update the editable project title input in SKT page from STORAGE.
     """
     if project_title and isinstance(project_title, str) and project_title.strip():
-        return project_title.strip()
-    return ""
+        return project_title.strip(), project_title.strip()
+    return "", ""

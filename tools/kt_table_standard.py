@@ -182,7 +182,9 @@ treat_compare_grid = dag.AgGrid(
     columnDefs=ColumnDefs_treat_compare,
     rowData = df.to_dict("records"),
     dangerously_allow_code=True,
-    dashGridOptions = {"rowHeight": 60},
+    dashGridOptions = {"rowHeight": 60,
+                       "domLayout": "autoHeight"
+                       },
     defaultColDef={
                     'filter':False,
                     'suppressHeaderMenuButton': True,
@@ -211,7 +213,9 @@ treat_compare_grid = dag.AgGrid(
     columnSize="sizeToFit", 
     style={ 
            "width": "100%",
-           'height':f'{45.5 *30}px'
+           "maxHeight": "1000px",   # set your max
+            "overflowY": "auto",    # enable scrolling
+        #    'height':f'{45.5 *30}px'
            }
 )
 ############################# Modal Grid ####################################################
@@ -358,20 +362,24 @@ modal_compare_grid = dag.AgGrid(
 )
 
 
+
+
+
 ############################# Full names Grid ####################################################
-# Empty placeholder DataFrame for fullname grid
-# Real data will be populated from STORAGE via callbacks
+# data_fullname = pd.read_csv('db/skt/fullname.csv')
+# fullname_df = pd.DataFrame(data_fullname)
+
 fullname_df = pd.DataFrame(
     {
-        "Abbreviation": [],
-        "Treatment": [],
+        "abbreviation": [],
+        "fullname": [],
     }
 )
 
 modal_fullname_column = [
    
      {"headerName": "Abbreviation", 
-     "field": "Abbreviation",
+     "field": "abbreviation",
      "suppressHeaderMenuButton": True,
      "editable": False,
      "resizable": False,
@@ -380,8 +388,8 @@ modal_fullname_column = [
         }
      },
 
-     {"headerName": "Treatment", 
-     "field": "Treatment",
+     {"headerName": "Full Name", 
+     "field": "fullname",
      "suppressHeaderMenuButton": True,
      "editable": False,
      "resizable": False,
@@ -390,7 +398,6 @@ modal_fullname_column = [
         }
      }
 ]
-
 
 
 modal_fullname_grid = dag.AgGrid(
@@ -408,6 +415,7 @@ modal_fullname_grid = dag.AgGrid(
                     "floatingFilter": False,
                     "resizable": False,
                     "wrapText": True, 
+                    "flex": 1,
                     # 'autoHeight': True,
                     "enableRowGroup": False,
                     "enableValue": False,
@@ -421,76 +429,7 @@ modal_fullname_grid = dag.AgGrid(
                     "animateRows": False,
                     # "tooltipComponent": "CustomTooltip"
                     },
-    columnSize="autoSize", 
-    getRowId='params.data.studlab', 
-    style={ 
-        # "width": "100%",
-        #    'height':f'{45.5 *30}px'
-           }
-)
-
-
-
-
-
-############################# Full names Grid ####################################################
-data_fullname = pd.read_csv('db/skt/fullname.csv')
-fullname_df = pd.DataFrame(data_fullname)
-
-modal_fullname_column = [
-   
-     {"headerName": "Abbreviation", 
-     "field": "Abbreviation",
-     "suppressHeaderMenuButton": True,
-     "editable": False,
-     "resizable": False,
-     'cellStyle': {
-        'background-color': '#ffecb3',
-        }
-     },
-
-     {"headerName": "Treatment", 
-     "field": "Treatment",
-     "suppressHeaderMenuButton": True,
-     "editable": False,
-     "resizable": False,
-     'cellStyle': {
-        'background-color': '#ffecb3',
-        }
-     }
-]
-
-
-
-modal_fullname_grid = dag.AgGrid(
-    id="modal_fullname",
-    # className="ag-theme-alpine color-fonts",
-    enableEnterpriseModules=True,
-    licenseKey=os.environ["AG_GRID_KEY"],
-    columnDefs=modal_fullname_column,
-    rowData = fullname_df.to_dict("records"),
-    dangerously_allow_code=True,
-    dashGridOptions = {"rowHeight": 60},
-    suppressDragLeaveHidesColumns=False,
-    defaultColDef={
-                    'filter':True,
-                    "floatingFilter": False,
-                    "resizable": False,
-                    "wrapText": True, 
-                    # 'autoHeight': True,
-                    "enableRowGroup": False,
-                    "enableValue": False,
-                    "enablePivot": False,
-                    'cellStyle': {'white-space': 'pre',
-                                  'display': 'grid',
-                                  'text-align': 'center',
-                                  'align-items': 'center',
-                                  'line-height': 'normal'
-                                  },
-                    "animateRows": False,
-                    # "tooltipComponent": "CustomTooltip"
-                    },
-    columnSize="autoSize", 
+    columnSize="sizeToFit",  
     getRowId='params.data.studlab', 
     style={ 
         # "width": "100%",

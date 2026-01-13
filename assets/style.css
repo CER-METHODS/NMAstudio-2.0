@@ -2460,13 +2460,13 @@ margin: 10px
   }
 
   .faq_ques{
-    margin: 2px;
+    margin-left: 1%;
     border: none !important;
     font-family: "Segoe UI", Arial, sans-serif !important; /* or whatever your app uses */
     letter-spacing: normal !important;
     word-spacing: normal !important;
     font-size: medium;
-    display: grid;
+    display: block;
     
   }
 
@@ -2488,10 +2488,13 @@ margin: 10px
 
 
 .faq_ans{
-    margin: 0% 2% 2% 2%;
+    /* margin: 1% 2% 2% 2%; */
+    margin-left: 7%;
     padding: 1%;
     border: 0.7px solid #02ad9c; 
-    color: gray;
+    color: rgb(1 97 88);
+    margin-bottom: 2%;
+    background-color: rgb(237 247 246)
 
   }
 
@@ -2540,4 +2543,58 @@ margin: 10px
 /* Ensures the column menu is not shown in the `grid_treat_compare` grid. */
 #grid_treat_compare .ag-header-cell-menu-button {
     display: none !important;
+}
+
+
+.kt-info-icon {
+    cursor: pointer;
+    font-size: 16px;
+    color: rgb(184, 80, 67);
+    font-weight: bold;
+    padding: unset;
+}
+
+.kt-info-icon:hover {
+    color: rgb(228, 28, 2);
+    font-weight: bolder;
+}
+
+#query-chatbot{
+    margin-right: 1%;
+}
+
+#treat-instruct-span{
+    color: #B85042;
+}
+
+.toast-faq {
+    max-height: 80vh;      /* limit toast height */
+    overflow: hidden;     /* prevent overflow outside */
+}
+
+.faq-scroll {
+    max-height: 40vh;     /*space below header */
+    overflow-y: auto;     /* vertical scrollbar */
+    padding-right: 8px;   /* space for scrollbar */
+    scroll-behavior: smooth;
+}
+
+.faq_subtitle{
+    font-size: medium;
+    font-weight: bold;
+    text-align: left;
+    width: 100%;
+    background-color: #02ad9c17;
+    padding-left: 2%;
+    color: #01877a !important;
+    margin-bottom: 2%;
+}
+
+.faq_subtitle:hover {
+    background-color: #02ad9c17 !important;
+    color: rgb(2 173 156) !important;
+}
+
+.faq_subtitle:focus{
+    background-color: #02ad9c17 !important;
 }
