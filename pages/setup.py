@@ -35,6 +35,7 @@ from tools.functions_project_setup import (
     __update_options,
     __primaryout_selection,
     __outcomes_type,
+    __upload_cinema,
     __variable_selection,
     __effect_modifier_options,
 )  # type: ignore
@@ -535,6 +536,32 @@ layout = html.Div(
                 dbc.Row(
                     html.Img(src="/assets/icons/arrow.png", style={"width": "60px"}),
                     style={"display": "none", "justifyContent": "center"},
+                    id="arrow_step_cinema",
+                ),
+                html.Br(),
+                html.Div(
+                    dbc.Row(
+                        [
+                            dbc.Col(id="cinema_file"),
+                            dbc.Col(
+                                html.Div(
+                                    html.Span(
+                                        "* If you want to include CINeMA certainty of evidence in the league tables and the knowledge translation tool for multiple outcomes, you must upload the CINeMA reporting files for the corresponding outcomes here.",
+                                        className="upload_instuspan",
+                                    )
+                                ),
+                                className="upload_instrucol",
+                            ),
+                        ],
+                        className="upload_row",
+                    ),
+                    style={"display": "none", "justifyContent": "center"},
+                    id="cinema-file-upload",
+                ),   
+                html.Br(),
+                dbc.Row(
+                    html.Img(src="/assets/icons/arrow.png", style={"width": "60px"}),
+                    style={"display": "none", "justifyContent": "center"},
                     id="arrow_step_5",
                 ),
                 html.Br(),
@@ -822,6 +849,27 @@ def update_primary_outcomes(number_outcomes, click):
 )
 def update_outcomes_type(number_outcomes, primary_out, noprimary):
     return __outcomes_type(number_outcomes, primary_out, noprimary)
+
+
+
+@callback(
+    [
+        Output("cinema_file", "children"),
+        Output("arrow_step_cinema", "style"),
+        Output("cinema-file-upload", "style"),
+    ],
+    [
+        Input("number-outcomes", "value"),
+        Input({"type": "outcometype", "index": ALL}, "value")
+    ]
+)
+def update_cinema_selection(
+    number_outcomes, outcometype
+):
+    return __upload_cinema(
+        number_outcomes, outcometype
+    )
+
 
 
 @callback(
@@ -1159,7 +1207,7 @@ def is_data_file_uploaded(filename):
         Output("outcome_names_STORAGE", "data", allow_duplicate=True),
         Output("number_outcomes_STORAGE", "data", allow_duplicate=True),
         # Clear CINeMA and SKT stores when running new analysis
-        Output("cinema_net_data_STORAGE", "data", allow_duplicate=True),
+        # Output("cinema_net_data_STORAGE", "data", allow_duplicate=True),
         Output("cinema_net_data_STORAGE2", "data", allow_duplicate=True),
         Output("treatment_fullnames_SKT", "data", allow_duplicate=True),
     ],
@@ -1205,11 +1253,11 @@ def data_trans(
 ):
     # Guard: Check if this is a genuine button click (not from persisted session state)
     if not upload or upload == 0:
-        return [dash.no_update] * 12  # 9 original + 3 new (cinema*2 + skt)
+        return [dash.no_update] * 11  # 9 original + 3 new (cinema*2 + skt)
 
     # Guard: Check if file has been uploaded
     if contents is None:
-        return [dash.no_update] * 12
+        return [dash.no_update] * 11
 
     try:
         print(f"[DEBUG data_trans] Called!")
@@ -1315,7 +1363,7 @@ def data_trans(
             outcome_names_list,
             number_outcomes_int,
             # Clear CINeMA and SKT stores when running new analysis
-            [],  # cinema_net_data_STORAGE
+            # [],  # cinema_net_data_STORAGE
             [],  # cinema_net_data_STORAGE2
             SKT_EMPTY_STORAGE["treatment_fullnames_SKT"],  # treatment_fullnames_SKT
         )
@@ -1336,7 +1384,7 @@ def data_trans(
             [],  # empty outcome names
             0,  # zero outcomes
             # Still clear CINeMA and SKT on error to avoid stale data
-            [],  # cinema_net_data_STORAGE
+            # [],  # cinema_net_data_STORAGE
             [],  # cinema_net_data_STORAGE2
             SKT_EMPTY_STORAGE["treatment_fullnames_SKT"],  # treatment_fullnames_SKT
         )

@@ -920,22 +920,30 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
 }
 #----------------------------------- pairwise function to convert contrast data -----------------------------------------#
 
-
-    
 get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
    pairwise_dat <- list()
-   pair_add <- list()
+   extra_cols_list <- list()
    for (i in 1:num_outcome){
-    sm <- dat[[paste0("effect_size", i)]][1] 
+    sm <- dat[[paste0("effect_size", i)]][1]
+
     if(sm %in% c('RR','OR')) {
-        pair_dat <- meta::pairwise(data=dat,
-                                       event=list(dat[[paste0("r1", i)]], dat[[paste0("r2", i)]]),
-                                       n=list(dat[[paste0("n1", i)]], dat[[paste0("n2", i)]]),
-                                       studlab=studlab,
-                                       treat=list(treat1,treat2),
-                                       incr=0.5,
-                                       sm=sm)
-        pair_add[[i]]  <-  pair_dat
+        dat_i <- dat[complete.cases(
+                  dat[[paste0("r1", i)]],
+                  dat[[paste0("r2", i)]],
+                  dat[[paste0("n1", i)]],
+                  dat[[paste0("n2", i)]],
+                  dat$treat1,
+                  dat$treat2,
+                  dat$studlab
+                ), ]
+
+        pair_dat <- meta::pairwise(data=dat_i,
+                           event=list(dat_i[[paste0("r1", i)]], dat_i[[paste0("r2", i)]]),
+                           n=list(dat_i[[paste0("n1", i)]], dat_i[[paste0("n2", i)]]),
+                           studlab=studlab,
+                           treat=list(treat1,treat2),
+                           sm=sm)
+
         pairwise_dat[[i]] <- pair_dat[,1:9]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
@@ -946,16 +954,23 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class1'] <- paste0("treat_class1", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
     }else {
-        
-        pair_dat <- meta::pairwise(data=dat,
-                                            mean=list(dat[[paste0("y1", i)]], dat[[paste0("y2", i)]]),
-                                            sd=list(dat[[paste0("sd1", i)]], dat[[paste0("sd2", i)]]),
-                                            n=list(dat[[paste0("n1", i)]], dat[[paste0("n2", i)]]),
-                                            studlab=studlab,
-                                            treat=list(treat1,treat2),
-                                            incr=0.5,
-                                            sm=sm)
-        pair_add[[i]]  <-  pair_dat
+        dat_i <- dat[complete.cases(
+                  dat[[paste0("y1",  i)]],
+                  dat[[paste0("y2",  i)]],
+                  dat[[paste0("sd1", i)]],
+                  dat[[paste0("sd2", i)]],
+                  dat[[paste0("n1",  i)]],
+                  dat[[paste0("n2",  i)]],
+                  dat$studlab,
+                  dat$treat1,
+                  dat$treat2
+                ), ]
+        pair_dat <- meta::pairwise(data=dat_i,
+                           event=list(dat_i[[paste0("r1", i)]], dat_i[[paste0("r2", i)]]),
+                           n=list(dat_i[[paste0("n1", i)]], dat_i[[paste0("n2", i)]]),
+                           studlab=studlab,
+                           treat=list(treat1,treat2),
+                           sm=sm)
         pairwise_dat[[i]] <- pair_dat[,1:9]                                   
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
@@ -966,24 +981,27 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class1'] <- paste0("treat_class1", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
         }
+    ## extract extra columns (everything after column 9) and store in a list
+    add_columns <- pair_dat[, c(3:5, 10:ncol(pair_dat)), drop = FALSE]
+    extra_cols_list[[i]] <- add_columns
     }
+    # pick the longest (max rows)
+    combined_data <- do.call(rbind, extra_cols_list)
+    new_cols <- combined_data[!duplicated(combined_data[c("studlab", "treat1", "treat2")]), ]
     final_dat = reduce(pairwise_dat, full_join, by = c("studlab","treat1","treat2"))
-    final_dat <- final_dat %>%select(studlab, treat1, treat2, everything())
-    combined_df <- bind_rows(pair_add)
-    final_add <- combined_df %>% distinct(studlab, treat1, treat2, .keep_all = TRUE)
-    add_columns <- names(final_add)[10:length(names(final_add))]
-    
-    new_cols <- final_add %>%
-    dplyr::select(add_columns)
+    final_dat <- final_dat %>% select(studlab, treat1, treat2, everything())
+    final_dat1 <- left_join(
+                            final_dat,
+                            new_cols,
+                            by = c("studlab", "treat1", "treat2")
+                          )
+    # # combine safely
+    # final_dat1 <- cbind(final_dat, new_cols)
 
-    final_dat1 <- cbind.data.frame(final_dat,new_cols)
-
-    names(final_dat1) <- c(names(final_dat),names(new_cols))
-
+    names(final_dat1) <- c(names(final_dat), names(new_cols)[4:length(new_cols)])
     # Rename rob1/year1 back to rob/year (meta::pairwise adds "1" suffix to extra columns)
     names(final_dat1)[names(final_dat1) == 'rob1'] <- 'rob'
     names(final_dat1)[names(final_dat1) == 'year1'] <- 'year'
 
     return(final_dat1)
 }
- 

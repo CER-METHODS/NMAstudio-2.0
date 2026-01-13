@@ -229,7 +229,7 @@ def display_modal_text(cell, value, rowdata, outcome_names, net_data):
         and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell["colId"]))
         and cell.get("value") is not None
     ):
-        return "",""
+        return "","",""
 
     row_idx = cell["rowIndex"]
 

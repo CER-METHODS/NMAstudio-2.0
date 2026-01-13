@@ -748,6 +748,85 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
         {"display": "none", "justifyContent": "center"},
     )
 
+def __upload_cinema(number_outcomes, outcometype):
+    # print(primary_out)
+    # print(outcometype)
+    if not number_outcomes or not outcometype or not all(outcometype):
+        return (
+            None,
+            {"display": "none", "justifyContent": "center"},
+            {"display": "none", "justifyContent": "center"},
+        )
+
+    number_outcomes = int(number_outcomes)
+    cinema_file_upload = [
+        html.Div(
+            [
+                dbc.Row(
+                    [
+                        html.P(
+                            f"Upload CINeMA file for outcome {i + 1}:",
+                            className="selcect_title",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Upload(
+                                    [
+                                        "Drag and Drop or ",
+                                        html.A(
+                                            "Select a File",
+                                            style={"color": "#1EAEDB"},
+                                        ),
+                                    ],
+                                    id= {"type": "cinemafile", "index": f"{i}"},
+                                    multiple=False,
+                                    className="control-upload",
+                                    style={
+                                        "width": "100%",
+                                        "height": "60px",
+                                        "textAlign": "center",
+                                        "font-size": "x-large",
+                                        "color": "black",
+                                    },
+                                ),
+                                dbc.Col(
+                                        [
+                                        html.P(
+                                            "",
+                                            id={"type": "uploaded_cinema", "index": f"{i}"},
+                                            style={
+                                                "color": "violet",
+                                                "padding-left": "20px",
+                                                "font-size": "large",
+                                            },
+                                        ),
+                                        ],
+                                        style={"display": "inline-block"},
+                                    ),
+                            ]
+                        ),
+                    ],
+                    style={
+                        "display": "grid",
+                        "background-color": "beige",
+                        "width": "500px",
+                        "justify-content": "center",
+                    },
+                )
+            ],
+            style={"display": "grid"},
+            id={"type": "cinema_display", "index": f"{i}"},
+        )
+        for i in range(number_outcomes)
+    ]
+
+    return (
+        cinema_file_upload,
+        {"display": "grid", "justifyContent": "center"},
+        {"display": "grid", "justifyContent": "center"},
+    )
+
+
 
 def __primaryout_selection(number_outcomes, click):
     if click:

@@ -648,7 +648,7 @@ def update_kt_plots_scale(value_effect, value_change, lower, rowData, effect_siz
             row = df.iloc[i]
 
             row_scale_lower = _first_number(row.get("Scale_lower"))
-            row_scale_upper = _first_number(row.get("Scale_upper"))
+            row_scale_upper = _first_number(row.get("Scale_upper"))            
 
             df.iloc[i] = __kt_options_forstplot_row(
                 value_effect,
@@ -676,6 +676,7 @@ def update_kt_plots_scale(value_effect, value_change, lower, rowData, effect_siz
             row_scale_lower = _first_number(value_change[0]["value"])
         elif col_id == "Scale_upper":
             row_scale_upper = _first_number(value_change[0]["value"])
+        
 
         df.iloc[row_idx] = __kt_options_forstplot_row(
             value_effect,
