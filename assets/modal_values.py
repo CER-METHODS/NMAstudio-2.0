@@ -280,7 +280,7 @@ file_upload_controls2 = [
 
 modal_checks = dbc.Modal(is_open=False, children=[
                    dbc.ModalHeader("Running data analysis", style={'font-size': 'x-large'}),
-                   dbc.ModalBody([html.P("* Network meta-analyses are conducted using the netmeta package with a random-effects model. Heterogeneity is estimated using the default netmeta setting (method.tau = 'DL').\n* No continuity correction is applied for zero-event data; studies or treatment arms with zero events are excluded.",
+                   dbc.ModalBody([html.P("* Network meta-analyses are conducted using the netmeta package with a random-effects model. Heterogeneity is estimated using the default netmeta setting (method.tau = 'DL').\n* A continuity correction (0.5) was applied to studies with a single zero-event arm, while studies with zero events in both treatment arms were excluded.",
                                          style={"color":"red", 'font-size': 'large', 'white-space': 'pre-line'}),
                                   html.Div(id='data_checks_div', style={"color":"black"}),
                                   html.Br(),
