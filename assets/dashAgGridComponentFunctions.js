@@ -105,12 +105,61 @@ dagcomponentfuncs.DCC_GraphClickData = function (props) {
 // };
 
 
-
-
-
-
-
 dagcomponentfuncs.CustomTooltip = function (props) {
+    // outcomeIndex should be set depending on which outcome column is hovered
+    const outcomeIndex = props.outcomeIndex || 1; // default to 1 if not provided
+
+    const certainty = props.data[`Certainty_out${outcomeIndex}`];
+    const withinstudy = props.data[`within_study_out${outcomeIndex}`];
+    const reporting = props.data[`reporting_out${outcomeIndex}`];
+    const indirectness = props.data[`indirectness_out${outcomeIndex}`];
+    const imprecision = props.data[`imprecision_out${outcomeIndex}`];
+    const heterogeneity = props.data[`heterogeneity_out${outcomeIndex}`];
+    const incoherence = props.data[`incoherence_out${outcomeIndex}`];
+
+    const backgroundColor = getBackgroundColorForCertainty(certainty);
+
+    const info = [
+        React.createElement('h4', {}, "Certainty of evidence: " + certainty),
+        React.createElement('div', { style: { marginBottom: 8 } }, ''),
+        React.createElement('div', {}, 'Within-study bias: ' + withinstudy),
+        React.createElement('div', {}, 'Reporting bias: ' + reporting),
+        React.createElement('div', {}, 'Indirectness: ' + indirectness),
+        React.createElement('div', {}, 'Imprecision: ' + imprecision),
+        React.createElement('div', {}, 'Heterogeneity: ' + heterogeneity),
+        React.createElement('div', {}, 'Incoherence: ' + incoherence),
+    ];
+
+    return React.createElement(
+        'div',
+        {
+            style: {
+                border: '1pt solid white',
+                backgroundColor: backgroundColor,
+                padding: 10,
+                lineHeight: '20px',
+            },
+        },
+        info
+    );
+};
+
+// helper function for background color
+function getBackgroundColorForCertainty(certainty) {
+    switch (certainty) {
+        case 'Low':
+            return '#B85042';
+        case 'Moderate':
+            return 'rgb(248, 212, 157)';
+        case 'High':
+            return 'rgb(90, 164, 105)';
+        default:
+            return 'lightgrey';
+    }
+};
+
+
+dagcomponentfuncs.CustomTooltip2 = function (props) {
     const certainty = props.data.Certainty;
     const withinstudy = props.data.within_study;
     const reporting = props.data.reporting;
@@ -163,84 +212,82 @@ function getBackgroundColorForCertainty(certainty) {
 
 
 
+// dagcomponentfuncs.CustomTooltip2 = function (props) {
+//     const certainty = props.data.Certainty_out1;
+//     const withinstudy = props.data.within_study_out1;
+//     const reporting = props.data.reporting_out1;
+//     const indirectness = props.data.indirectness_out1;
+//     const imprecision = props.data.imprecision_out1;
+//     const heterogeneity = props.data.heterogeneity_out1;
+//     const incoherence = props.data.incoherence_out1;
 
 
-dagcomponentfuncs.CustomTooltip2 = function (props) {
-    const certainty = props.data.Certainty_out1;
-    const withinstudy = props.data.within_study_out1;
-    const reporting = props.data.reporting_out1;
-    const indirectness = props.data.indirectness_out1;
-    const imprecision = props.data.imprecision_out1;
-    const heterogeneity = props.data.heterogeneity_out1;
-    const incoherence = props.data.incoherence_out1;
+//     const backgroundColor = getBackgroundColorForCertainty(certainty);
+
+//     const info = [
+//         React.createElement('h4', {}, "Certainty of evidence: " + certainty),
+//         React.createElement('div', { style: { marginBottom: 8 } }, ''),
+//         React.createElement('div', {}, 'Within-study bias: '+ withinstudy),
+//         React.createElement('div', {}, 'Reporting bias: '+reporting),
+//         React.createElement('div', {}, 'Indirectness: '+indirectness),
+//         React.createElement('div', {}, 'Imprecision: '+imprecision),
+//         React.createElement('div', {}, 'Heterogeneity: '+heterogeneity),
+//         React.createElement('div', {}, 'Incoherence: '+incoherence),
+
+//     ];
+
+//     return React.createElement(
+//         'div',
+//         {
+//             style: {
+//                 border: '1pt solid white',
+//                 backgroundColor: backgroundColor,
+//                 padding: 10,
+//                 lineHeight: '20px',
+//             },
+//         },
+//         info
+//     );
+// };
 
 
-    const backgroundColor = getBackgroundColorForCertainty(certainty);
-
-    const info = [
-        React.createElement('h4', {}, "Certainty of evidence: " + certainty),
-        React.createElement('div', { style: { marginBottom: 8 } }, ''),
-        React.createElement('div', {}, 'Within-study bias: '+ withinstudy),
-        React.createElement('div', {}, 'Reporting bias: '+reporting),
-        React.createElement('div', {}, 'Indirectness: '+indirectness),
-        React.createElement('div', {}, 'Imprecision: '+imprecision),
-        React.createElement('div', {}, 'Heterogeneity: '+heterogeneity),
-        React.createElement('div', {}, 'Incoherence: '+incoherence),
-
-    ];
-
-    return React.createElement(
-        'div',
-        {
-            style: {
-                border: '1pt solid white',
-                backgroundColor: backgroundColor,
-                padding: 10,
-                lineHeight: '20px',
-            },
-        },
-        info
-    );
-};
+// dagcomponentfuncs.CustomTooltip3 = function (props) {
+//     const certainty = props.data.Certainty_out2;
+//     const withinstudy = props.data.within_study_out2;
+//     const reporting = props.data.reporting_out2;
+//     const indirectness = props.data.indirectness_out2;
+//     const imprecision = props.data.imprecision_out2;
+//     const heterogeneity = props.data.heterogeneity_out2;
+//     const incoherence = props.data.incoherence_out2;
 
 
-dagcomponentfuncs.CustomTooltip3 = function (props) {
-    const certainty = props.data.Certainty_out2;
-    const withinstudy = props.data.within_study_out2;
-    const reporting = props.data.reporting_out2;
-    const indirectness = props.data.indirectness_out2;
-    const imprecision = props.data.imprecision_out2;
-    const heterogeneity = props.data.heterogeneity_out2;
-    const incoherence = props.data.incoherence_out2;
+//     const backgroundColor = getBackgroundColorForCertainty(certainty);
 
+//     const info = [
+//         React.createElement('h4', {}, "Certainty of evidence: " + certainty),
+//         React.createElement('div', { style: { marginBottom: 8 } }, ''),
+//         React.createElement('div', {}, 'Within-study bias: '+ withinstudy),
+//         React.createElement('div', {}, 'Reporting bias: '+reporting),
+//         React.createElement('div', {}, 'Indirectness: '+indirectness),
+//         React.createElement('div', {}, 'Imprecision: '+imprecision),
+//         React.createElement('div', {}, 'Heterogeneity: '+heterogeneity),
+//         React.createElement('div', {}, 'Incoherence: '+incoherence),
 
-    const backgroundColor = getBackgroundColorForCertainty(certainty);
+//     ];
 
-    const info = [
-        React.createElement('h4', {}, "Certainty of evidence: " + certainty),
-        React.createElement('div', { style: { marginBottom: 8 } }, ''),
-        React.createElement('div', {}, 'Within-study bias: '+ withinstudy),
-        React.createElement('div', {}, 'Reporting bias: '+reporting),
-        React.createElement('div', {}, 'Indirectness: '+indirectness),
-        React.createElement('div', {}, 'Imprecision: '+imprecision),
-        React.createElement('div', {}, 'Heterogeneity: '+heterogeneity),
-        React.createElement('div', {}, 'Incoherence: '+incoherence),
-
-    ];
-
-    return React.createElement(
-        'div',
-        {
-            style: {
-                border: '1pt solid white',
-                backgroundColor: backgroundColor,
-                padding: 10,
-                lineHeight: '20px',
-            },
-        },
-        info
-    );
-};
+//     return React.createElement(
+//         'div',
+//         {
+//             style: {
+//                 border: '1pt solid white',
+//                 backgroundColor: backgroundColor,
+//                 padding: 10,
+//                 lineHeight: '20px',
+//             },
+//         },
+//         info
+//     );
+// };
 
 
 

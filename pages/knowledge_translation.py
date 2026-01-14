@@ -1066,6 +1066,49 @@ def redirect_kt_on_reset(current_path, results_ready):
 # ================================
 # DATA LOADING FROM STORAGE CALLBACKS
 # ================================
+# @callback(
+#     Output("KT_standard_data_STORAGE", "data"),
+#     Output("grid_treat_compare", "rowData"),
+#     Output("grid_treat_compare", "columnDefs"),
+#     Input("kt_page_location", "pathname"),
+#     State("results_ready_STORAGE", "data"),
+#     State("net_data_STORAGE", "data"),
+#     State("forest_data_STORAGE", "data"),
+#     State("number_outcomes_STORAGE", "data"),
+#     State("outcome_names_STORAGE", "data"),
+#     State("KT_standard_data_STORAGE", "data"),
+#     State("cinema_net_data_STORAGE", "data"),
+#     prevent_initial_call="initial_duplicate",
+# )
+# def generate_kt_standad_data(curr_path, results_ready, net_data, 
+#                              forest_data_STORAGE, num_outcomes, 
+#                              outcome_names, kt_standard_data, cinema_data):
+#     if not results_ready or not net_data or not forest_data_STORAGE:
+#         raise PreventUpdate
+    
+#     from tools.utils import get_net_data_json
+
+#     net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+
+#     num_outcomes = int(num_outcomes or 0)
+#     effect_sizes = [
+#         net_df[f"effect_size{i+1}"].iloc[0]
+#         for i in range(num_outcomes)
+#         if f"effect_size{i+1}" in net_df.columns
+#     ]
+    
+#     data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
+#     data["index"] = data.index
+    
+#     # data.to_csv('db/test_kt_standard_data.csv', index=False)
+
+#     ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
+#     return (
+#         data.to_dict("records"),
+#         data.to_dict("records"),
+#         ColumnDefs_treat_compare
+#     )
+
 @callback(
     Output("KT_standard_data_STORAGE", "data"),
     Output("grid_treat_compare", "rowData"),
@@ -1077,33 +1120,56 @@ def redirect_kt_on_reset(current_path, results_ready):
     State("number_outcomes_STORAGE", "data"),
     State("outcome_names_STORAGE", "data"),
     State("KT_standard_data_STORAGE", "data"),
+    State("cinema_net_data_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def generate_kt_standad_data(curr_path, results_ready, net_data, forest_data_STORAGE, num_outcomes, outcome_names, kt_standard_data):
+def generate_kt_standad_data(
+    curr_path,
+    results_ready,
+    net_data,
+    forest_data_STORAGE,
+    num_outcomes,
+    outcome_names,
+    kt_standard_data,
+    cinema_data,
+):
     if not results_ready or not net_data or not forest_data_STORAGE:
         raise PreventUpdate
-    
+
     from tools.utils import get_net_data_json
 
-    net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+    net_df = pd.read_json(
+        get_net_data_json(net_data),
+        orient="split"
+    ).round(3)
 
     num_outcomes = int(num_outcomes or 0)
+
     effect_sizes = [
         net_df[f"effect_size{i+1}"].iloc[0]
         for i in range(num_outcomes)
         if f"effect_size{i+1}" in net_df.columns
     ]
-    
-    data = Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes)
-    data["index"] = data.index
-    
-    # data.to_csv('db/test_kt_standard_data.csv', index=False)
 
-    ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes)
+    data = Generate_kt_standad_data(
+        forest_data_STORAGE,
+        num_outcomes,
+        effect_sizes,
+        cinema_data,
+    )
+
+    data["index"] = data.index
+
+    ColumnDefs_treat_compare = Generate_kt_standad_columnDefs(
+        num_outcomes,
+        outcome_names,
+        effect_sizes,
+    )
+
     return (
         data.to_dict("records"),
         data.to_dict("records"),
-        ColumnDefs_treat_compare
+        ColumnDefs_treat_compare,
     )
 
 
@@ -1199,8 +1265,10 @@ def generate_kt_diagram_data(curr_path, out_idx,results_ready, net_data):
     State("results_ready_STORAGE", "data"),
     State("net_data_STORAGE", "data"),
     State("consistency_data_STORAGE", "data"),
+    State("net_split_ALL_data_STORAGE", "data"),
     State("ranking_data_STORAGE", "data"),
     State("forest_data_STORAGE", "data"),
+    State("cinema_net_data_STORAGE", "data"),
     prevent_initial_call=True,
 )
 def generate_kt_advanced_data(
@@ -1210,8 +1278,10 @@ def generate_kt_advanced_data(
     results_ready,
     net_data,
     consistency_data,
+    net_split_data,
     ranking_data,
-    forest_data_storage
+    forest_data_storage,
+    cinema_data,
 ):
     if not results_ready or not net_data or not forest_data_storage:
         raise PreventUpdate
@@ -1231,7 +1301,7 @@ def generate_kt_advanced_data(
         consistency_data[out_idx],
         orient="split"
     )
-
+    
     forest_df = pd.read_json(
         forest_data_storage[out_idx],
         orient="split"
@@ -1249,7 +1319,9 @@ def generate_kt_advanced_data(
         effect_size,
         out_idx,
         consistency_data,
-        lower
+        net_split_data [out_idx] if net_split_data and len(net_split_data) > out_idx else None,
+        lower,
+        cinema_data[out_idx] if cinema_data and len(cinema_data) > out_idx else None
     )
 
     data["index"] = data.index

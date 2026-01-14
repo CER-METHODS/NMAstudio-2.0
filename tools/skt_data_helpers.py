@@ -12,14 +12,93 @@ from tools.utils import get_net_data_json, get_league_table_data_list
 
 
 
-def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
+# def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes, cinema_data):
+#     if not forest_data_STORAGE:
+#         return pd.DataFrame()
+    
+#     def to_df(item):
+#         if isinstance(item, pd.DataFrame):
+#             return item.copy()
+#         if isinstance(item, str):
+#             for orient in ("split", None):
+#                 try:
+#                     return pd.read_json(StringIO(item), orient=orient) if orient else pd.read_json(item)
+#                 except Exception:
+#                     pass
+#         return None
+
+#     dfs = []
+
+#     for i in range(min(num_outcomes, len(forest_data_STORAGE))):
+#         df = to_df(forest_data_STORAGE[i])
+#         if df is None or not {"Treatment", "Reference"}.issubset(df.columns):
+#             continue
+#         effect_s = effect_sizes[i]
+#         suf = f"_out{i+1}"
+#         col_map = {
+#             f"{effect_s}": f"{effect_s}{suf}",
+#             "CI_lower": f"CI_lower{suf}",
+#             "CI_upper": f"CI_upper{suf}",
+#         }
+
+#         keep = ["Treatment", "Reference"] + [c for c in col_map if c in df.columns]
+        
+#         dfs.append(df[keep].rename(columns=col_map))
+    
+   
+
+#     if not dfs:
+#         return pd.DataFrame()
+
+#     merged = dfs[0]
+#     for df in dfs[1:]:
+#         merged = merged.merge(df, on=["Treatment", "Reference"], how="outer")
+
+#     # remove duplicate unordered pairs + self comparisons
+#     merged["_k"] = merged.apply(
+#         lambda r: "::".join(sorted(map(str, [r["Treatment"], r["Reference"]]))),
+#         axis=1,
+#     )
+
+#     merged = (
+#         merged[merged["Treatment"] != merged["Reference"]]
+#         .sort_values(["_k"])
+#         .drop_duplicates("_k")
+#         .drop(columns="_k")
+#         .reset_index(drop=True)
+#     )
+
+#     # build display labels
+#     for i in range(1, int(num_outcomes or 1) + 1):
+#         effect_s = effect_sizes[i-1]
+#         rr, lo, hi = f"{effect_s}_out{i}", f"CI_lower_out{i}", f"CI_upper_out{i}"
+#         lbl = f"{rr}_label"
+
+#         if rr not in merged.columns:
+#             continue
+
+#         def fmt(r):
+#             try:
+#                 if pd.notna(r[rr]) and pd.notna(r.get(lo)) and pd.notna(r.get(hi)):
+#                     return f"{float(r[rr]):.2f} \n({float(r[lo]):.2f}, {float(r[hi]):.2f})"
+#                 if pd.notna(r[rr]):
+#                     return f"{float(r[rr]):.2f}"
+#             except Exception:
+#                 pass
+#             return ""
+
+#         merged[lbl] = merged.apply(fmt, axis=1)
+
+#     return merged
+
+def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes, cinema_data_STORAGE):
     if not forest_data_STORAGE:
         return pd.DataFrame()
-    
+
     def to_df(item):
         if isinstance(item, pd.DataFrame):
             return item.copy()
-        if isinstance(item, str):
+        if isinstance(item, str) and item.strip():
             for orient in ("split", None):
                 try:
                     return pd.read_json(StringIO(item), orient=orient) if orient else pd.read_json(item)
@@ -29,23 +108,59 @@ def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
 
     dfs = []
 
-    for i in range(min(num_outcomes, len(forest_data_STORAGE))):
+    cinema_cols = {
+        "Certainty": "Confidence rating",
+        "within_study": "Within-study bias",
+        "reporting": "Reporting bias",
+        "indirectness": "Indirectness",
+        "imprecision": "Imprecision",
+        "heterogeneity": "Heterogeneity",
+        "incoherence": "Incoherence",
+    }
+
+    for i in range(num_outcomes):
+        if i >= len(forest_data_STORAGE):
+            continue
         df = to_df(forest_data_STORAGE[i])
         if df is None or not {"Treatment", "Reference"}.issubset(df.columns):
             continue
-        effect_s = effect_sizes[i]
+
+        effect_s = effect_sizes[i] if i < len(effect_sizes) else f"Effect{i+1}"
         suf = f"_out{i+1}"
+
         col_map = {
-            f"{effect_s}": f"{effect_s}{suf}",
+            effect_s: f"{effect_s}{suf}",
             "CI_lower": f"CI_lower{suf}",
             "CI_upper": f"CI_upper{suf}",
         }
 
         keep = ["Treatment", "Reference"] + [c for c in col_map if c in df.columns]
-        
-        dfs.append(df[keep].rename(columns=col_map))
-    
-   
+        out = df[keep].rename(columns=col_map)
+
+        # ---------- CINEMA ----------
+        for k in cinema_cols:
+            out[f"{k}{suf}"] = ""
+
+        if i < len(cinema_data_STORAGE):
+            cdf = to_df(cinema_data_STORAGE[i])
+            if cdf is not None and "Comparison" in cdf.columns:
+                lookup = {}
+                for _, r in cdf.iterrows():
+                    try:
+                        t, r2 = r["Comparison"].split(":")
+                        lookup[(t, r2)] = r
+                    except Exception:
+                        pass
+
+                def fill(row, key):
+                    r = lookup.get((row["Treatment"], row["Reference"]),
+                                   lookup.get((row["Reference"], row["Treatment"])))
+                    return r.get(cinema_cols[key], "") if r is not None else ""
+
+                for k in cinema_cols:
+                    out[f"{k}{suf}"] = out.apply(lambda r: fill(r, k), axis=1)
+
+        dfs.append(out)
 
     if not dfs:
         return pd.DataFrame()
@@ -62,15 +177,15 @@ def Generate_kt_standad_data(forest_data_STORAGE, num_outcomes, effect_sizes):
 
     merged = (
         merged[merged["Treatment"] != merged["Reference"]]
-        .sort_values(["_k"])
+        .sort_values("_k")
         .drop_duplicates("_k")
         .drop(columns="_k")
         .reset_index(drop=True)
     )
 
-    # build display labels
-    for i in range(1, int(num_outcomes or 1) + 1):
-        effect_s = effect_sizes[i-1]
+    # ---------- EFFECT LABELS ----------
+    for i in range(1, num_outcomes + 1):
+        effect_s = effect_sizes[i - 1] if i - 1 < len(effect_sizes) else f"Effect{i}"
         rr, lo, hi = f"{effect_s}_out{i}", f"CI_lower_out{i}", f"CI_upper_out{i}"
         lbl = f"{rr}_label"
 
@@ -178,7 +293,7 @@ def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
                 "resizable": False,
                 "headerComponent": "HeaderWithIcon",
                 "tooltipField": cert_field,
-                "tooltipComponentParams": {"color": "#d8f0d3"},
+                "tooltipComponentParams": {"color": "#d8f0d3", "outcomeIndex": i},
                 "tooltipComponent": "CustomTooltip",
                 "cellStyle": {
                     "styleConditions": [
@@ -249,9 +364,14 @@ def get_skt_network_data(net_data_storage):
 
 
 #####################skt advanced data helpers #########################
-def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx, consistency_data,lower):
+def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx, consistency_data, net_split_data, lower, cinema_data):
     n_treatments = len(p_score)
-    df = prepare_base_dataframe(data)
+    
+    # Parse cinema_data and build lookup
+    cinema_lookup = _build_cinema_lookup(cinema_data)
+    net_split_data_lookup = _build_split_lookup(net_split_data)
+    
+    df = prepare_base_dataframe(data, cinema_lookup, net_split_data_lookup)
     df = add_stat_columns(df, effect_size)
     df = apply_forest_plot_options(df, effect_size, n_treatments, consistency_data, lower)
     if effect_size in ['RR', 'OR', 'HR']:
@@ -269,7 +389,89 @@ def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx, consist
     
     return row_data_default
 
-def prepare_base_dataframe(data):
+def _build_cinema_lookup(cinema_data):
+    """Build a lookup dict from cinema_data for quick access by comparison pair."""
+    lookup = {}
+    if not cinema_data:
+        return lookup
+    
+    # Parse cinema_data (could be JSON string or DataFrame)
+    if isinstance(cinema_data, str) and cinema_data.strip():
+        try:
+            cdf = pd.read_json(StringIO(cinema_data), orient="split")
+        except Exception:
+            try:
+                cdf = pd.read_json(cinema_data)
+            except Exception:
+                return lookup
+    elif isinstance(cinema_data, pd.DataFrame):
+        cdf = cinema_data
+    else:
+        return lookup
+    
+    if "Comparison" not in cdf.columns:
+        return lookup
+    
+    cinema_cols = {
+        "Certainty": "Confidence rating",
+        "within_study": "Within-study bias",
+        "reporting": "Reporting bias",
+        "indirectness": "Indirectness",
+        "imprecision": "Imprecision",
+        "heterogeneity": "Heterogeneity",
+        "incoherence": "Incoherence",
+    }
+    
+    for _, r in cdf.iterrows():
+        try:
+            t1, t2 = r["Comparison"].split(":")
+            row_data = {k: r.get(v, "") for k, v in cinema_cols.items()}
+            lookup[(t1, t2)] = row_data
+            lookup[(t2, t1)] = row_data  # both directions
+        except Exception:
+            pass
+    
+    return lookup
+
+def _build_split_lookup(net_split_data):
+    """Build a lookup dict from cinema_data for quick access by comparison pair."""
+    lookup = {}
+    if not net_split_data:
+        return lookup
+    
+    # Parse cinema_data (could be JSON string or DataFrame)
+    if isinstance(net_split_data, str) and net_split_data.strip():
+        try:
+            cdf = pd.read_json(StringIO(net_split_data), orient="split")
+        except Exception:
+            try:
+                cdf = pd.read_json(net_split_data)
+            except Exception:
+                return lookup
+    elif isinstance(net_split_data, pd.DataFrame):
+        cdf = net_split_data
+    else:
+        return lookup
+    
+    if "comparison" not in cdf.columns:
+        return lookup
+    
+    split_cols = {
+        "p-value": "p-value",
+    }
+    
+    for _, r in cdf.iterrows():
+        try:
+            t1, t2 = r["comparison"].split(":")
+            row_data = {k: r.get(v, "") for k, v in split_cols.items()}
+            lookup[(t1, t2)] = row_data
+            lookup[(t2, t1)] = row_data  # both directions
+        except Exception:
+            pass
+    return lookup
+
+
+def prepare_base_dataframe(data, cinema_lookup=None, net_split_data_lookup = None):
     df = pd.DataFrame(data)
 
     default_cols = [
@@ -277,8 +479,32 @@ def prepare_base_dataframe(data):
         'indirectness', 'imprecision',
         'heterogeneity', 'incoherence'
     ]
+    pvalue_cols = [
+        'p-value'
+    ]
+    # Initialize with empty strings
     for col in default_cols:
         df[col] = ''
+    for col in pvalue_cols:
+        df[col] = ''
+    
+    # Fill in CINEMA data if available
+    if cinema_lookup:
+        for idx, row in df.iterrows():
+            key = (row.get("Treatment"), row.get("Reference"))
+            cinema_info = cinema_lookup.get(key)
+            if cinema_info:
+                for col in default_cols:
+                    df.at[idx, col] = cinema_info.get(col, '')
+
+    if net_split_data_lookup:
+        for idx, row in df.iterrows():
+            key = (row.get("Treatment"), row.get("Reference"))
+            split_info = net_split_data_lookup.get(key)
+            if split_info:
+                for col in pvalue_cols:
+                    df.at[idx, col] = round(split_info.get(col, ''), 2)
+
 
     df['Graph'] = ''
     df['risk'] = 'Enter a number'
@@ -547,7 +773,7 @@ def Generate_advanced_detailColumnDefs(effect_size):
 
         {"field": "Certainty", "headerName": "Certainty", "headerComponent": "HeaderWithIcon", "filter": True,
          "width": 110, "resizable": True, "tooltipField": 'Certainty',
-         "tooltipComponentParams": {"color": '#d8f0d3'}, "tooltipComponent": "CustomTooltip",
+         "tooltipComponentParams": {"color": '#d8f0d3'}, "tooltipComponent": "CustomTooltip2",
          'cellStyle': {"styleConditions": [
              {"condition": "params.value == 'High'", "style": {"backgroundColor": "rgb(90, 164, 105)", **style_certainty}},
              {"condition": "params.value == 'Moderate'", "style": {"backgroundColor": "rgb(248, 212, 157)", **style_certainty}},
