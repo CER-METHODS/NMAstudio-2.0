@@ -26,7 +26,7 @@ def _parse_first_numeric(val):
 
 def display_modal_barplot(cell, value, rowdata):
     if cell is None or len(cell) == 0:
-        return go.Figure(data=[], layout={}), html.P("")
+        return go.Figure(data=[], layout={}), html.P(""), {"display": "none"}, {"display": "none"}
 
     rowdata = pd.DataFrame(rowdata)
 
@@ -35,19 +35,30 @@ def display_modal_barplot(cell, value, rowdata):
         and re.fullmatch(r"(RR|OR|MD|SMD)_out\d+(?:_label)?", str(cell["colId"]))
         and cell.get("value") is not None
     ):
-        return go.Figure(data=[], layout={}), html.P("")
+        return go.Figure(data=[], layout={}), html.P(""), {"display": "none"}, {"display": "none"}
 
     colid = str(cell["colId"])
     m = re.search(r"(RR|OR|MD|SMD)_out\d+", colid)
     metric = m.group(1)
 
-    first_part = cell["value"].split("\n")[0]
-    effect = _parse_first_numeric(first_part)
-
     row_idx = cell["rowIndex"]
     treatment = rowdata.loc[row_idx, "Treatment"]
     compare = rowdata.loc[row_idx, "Reference"]
     header = html.P(f"{treatment} VS {compare}")
+
+    # Only display barplot for RR/OR metrics
+    if metric not in ["RR", "OR"]:
+        empty_fig = go.Figure()
+        empty_fig.update_layout(
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+        )
+        return empty_fig, header, {"display": "none"}, {"display": "none"}
+
+    first_part = cell["value"].split("\n")[0]
+    effect = _parse_first_numeric(first_part)
 
     if value is None:
         value = 20
@@ -64,7 +75,7 @@ def display_modal_barplot(cell, value, rowdata):
         for y, x in zip(y_data, x_data):
             annotations.append(
                 dict(
-                    x=x / 2,
+                    x=500,
                     y=y,
                     xref="x",
                     yref="y",
@@ -96,16 +107,31 @@ def display_modal_barplot(cell, value, rowdata):
                 )
             )
 
-    fig = go.Figure(
-        go.Bar(
-            x=x_data,
+    fig = go.Figure()
+
+    # --- gray background bar (1000) ---
+    if metric in ["RR", "OR"]:
+        fig.add_bar(
+            x=[1000, 1000],
             y=y_data,
             orientation="h",
-            marker_color=["rgb(241,197,13)", "rgb(128,191,69)"],
+            marker_color="lightgray",
+            opacity=1,
+            hoverinfo="skip",
         )
+
+    # --- actual values bar ---
+    fig.add_bar(
+        x=x_data,
+        y=y_data,
+        orientation="h",
+        marker_color=["rgb(241,197,13)", "rgb(128,191,69)"],
     )
 
+
     fig.update_layout(
+        showlegend=False,
+        barmode="overlay",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin=dict(l=20, r=20, t=20, b=20),
@@ -119,11 +145,13 @@ def display_modal_barplot(cell, value, rowdata):
             showline=False,
             showticklabels=False,
             zeroline=False,
+            range=[0, 1000] if metric in ["RR", "OR"] else None,
         ),
         yaxis=dict(showgrid=False, showline=False),
     )
 
-    return fig, header
+
+    return fig, header, {"display": "block"}, {"display": "block"}
 
 
 

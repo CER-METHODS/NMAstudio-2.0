@@ -444,14 +444,14 @@ def skt_nonexpert():
                                                                                                                     'border': 'unset',
                                                                                                                     'margin-left':'2%',
                                                                                                                     'padding': '4px'}),
-                                                                            html.Button('Upload CINeMA files', id='cinema_button',className='sub-button',
-                                                                                                            style={'color': 'rgb(118 135 123)',
-                                                                                                                'background-color':'#dedecf',
-                                                                                                                    'display': 'inline-block',
-                                                                                                                    'justify-self':'center',
-                                                                                                                    'border': 'unset',
-                                                                                                                    'margin-left':'2%',
-                                                                                                                    'padding': '4px'})
+                                                                            # html.Button('Upload CINeMA files', id='cinema_button',className='sub-button',
+                                                                            #                                 style={'color': 'rgb(118 135 123)',
+                                                                            #                                     'background-color':'#dedecf',
+                                                                            #                                         'display': 'inline-block',
+                                                                            #                                         'justify-self':'center',
+                                                                            #                                         'border': 'unset',
+                                                                            #                                         'margin-left':'2%',
+                                                                            #                                         'padding': '4px'})
                                                                                                                     ], 
                                                                             style={'border-right': '3px solid #B85042',
                                                                                     'width': '50%'},),
@@ -930,29 +930,13 @@ model_skt_compare_simple = dbc.Modal(
                                 html.Br(),
                             ]
                         ),
-                    ]
+                    ], id='risk_input_row',
                 ),
 
                 # Second row for displaying other information
                 dbc.Row(
                     [
-                        dbc.Col(
-                            [
-                                # html.Span("Outcome: PASI90", className="skt_span_info2", id="treat_comp"),
-                                # html.Span("Treatment: ADA", className="skt_span_info2", id="num_RCT"),
-                                # html.Span("Comparator: PBO", className="skt_span_info2", id="num_RCT"),
-                                # html.Span(
-                                #     "Absolute difference: 30 more per 1000", 
-                                #     className="skt_span_info2", 
-                                #     id="num_sample"
-                                # ),
-                                # html.Span(
-                                #     "CI: 10 per 1000 to 40 per 1000",
-                                #     className="skt_span_info2",
-                                #     id="mean_modif",
-                                # ),
-                            ], style={'margin-right': '20px'}, id= 'text_info_col'
-                        ),
+                        dbc.Col(style={'margin-right': '20px'}, id= 'text_info_col'),
                         dbc.Col(dcc.Loading(
                                     html.Div([
                                         dcc.Graph(
@@ -976,7 +960,7 @@ model_skt_compare_simple = dbc.Modal(
                                                     # Multiply title/legend/axis/canvas sizes by this factor
                                                 },
                                                 'displaylogo': False})], style={'width':'100%'})
-                                             ),),  # Empty column for alignment
+                                             ), id = 'barchart-col'),  # Empty column for alignment
                     ], 
                     style={'display': 'grid', 
                            'grid-template-columns': '1fr 1fr', 
@@ -1053,10 +1037,10 @@ model_skt_stand2 = dbc.Modal(
         [dbc.ModalHeader("Detail information",className='skt_info_head'),
             dbc.ModalBody(
                 [
-                html.Span('Treatment: FUM, Comparator: PBO',className='skt_span_info', id = 'treat_comp'),
-                html.Span('Randomized controlled trial: 3',className='skt_span_info', id = 'num_RCT'),
-                html.Span('Total participants: 1929',className='skt_span_info', id = 'num_sample'), 
-                html.Span('Mean age: xxx', className='skt_span_info', id = 'mean_modif'),
+                html.Span('',className='skt_span_info', id = 'treat_comp'),
+                html.Span('',className='skt_span_info', id = 'num_RCT'),
+                html.Span('',className='skt_span_info', id = 'num_sample'), 
+                html.Span('', className='skt_span_info', id = 'mean_modif'),
                 ],className='skt_info_body'),
             dbc.ModalFooter(dbc.Button( "Close", id="close_compare", className="ms-auto", n_clicks=0), className='skt_info_close'),
     ],id="skt_modal_copareinfo", is_open=False, scrollable=True,contentClassName="forest_content")

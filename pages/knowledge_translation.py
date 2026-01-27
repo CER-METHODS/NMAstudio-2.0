@@ -222,7 +222,7 @@ def display_sktinfo3(cell, out_idx, net_data, effect_modifiers):
     # Count number of RCTs for this comparison
     n_rct = df_net[
         ((df_net['treat1'] == treat) & (df_net['treat2'] == refer)) |
-        ((df_net['treat2'] == refer) & (df_net['treat1'] == treat))
+        ((df_net['treat2'] == treat) & (df_net['treat1'] == refer))
     ]
     num_RCT = f'Randomized controlled trials: {len(n_rct)}'
 
@@ -673,6 +673,8 @@ from tools.functions_modal_info import display_modal_barplot
 @callback(
     Output("barplot_compare", "figure"),
     Output("modal_info_head", "children"),
+    Output("barchart-col", "style"),
+    Output("risk_input_row", "style"),
     Input("grid_treat_compare", "cellClicked"), 
     Input("simple_abvalue", "value"),
     State('grid_treat_compare','rowData'),
