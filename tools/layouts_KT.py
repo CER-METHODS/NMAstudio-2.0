@@ -327,12 +327,22 @@ def skt_nonexpert():
                                                                                     id="popover-standard-picos",
                                                                                     className="popover-grid",
                                                                                 ),
-                                                                                html.A("ⓘ",id="infoicon-standard-picos", className='kt-info-icon'),],id="query-PICOS",)
-                                                                                ]),
+                                                                                html.A("ⓘ",id="infoicon-standard-picos", className='kt-info-icon'),],id="query-PICOS",),
+                                                                                html.Button('Save', id='save_picos',className='sub-button',
+                                                                                                        style={'color': 'white',
+                                                                                                                'background-color':'rgb(0 172 156)',
+                                                                                                                'display': 'inline-block',
+                                                                                                                'justify-self':'end',
+                                                                                                                'border': 'unset',
+                                                                                                                'padding': '4px'}),
+                                                                                ], id='picos_row'),
                                                                      dcc.Textarea(placeholder ='Patients: (e.g. patients with psoriasis)\n'+
                                                                                 'Primary outcome: (e.g. PASI90, SAE)\n'+
                                                                                 'Study design: (e.g. randomized control trial)'
-                                                                                ,className='skt_span1', style={'width':'200%', 'height':'126px'},),
+                                                                                ,className='skt_span1', 
+                                                                                style={'width':'200%', 'height':'126px'},
+                                                                                id='picos_textarea'
+                                                                                ),
                                                                             #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                             #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                               ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')
@@ -573,12 +583,20 @@ def skt_layout():
                                                                                     className="popover-grid",
                                                                                 ),
                                                                     html.A("ⓘ",id="infoicon-advanced-picos", className='kt-info-icon'),
-                                                                    ],id="query-PICOS",)
-                                                                                    ]),
+                                                                    ],id="query-PICOS",),
+                                                                    html.Button('Save', id='save_picos_advanced',className='sub-button',
+                                                                                                        style={'color': 'white',
+                                                                                                                'background-color':'rgb(0 172 156)',
+                                                                                                                'display': 'inline-block',
+                                                                                                                'justify-self':'end',
+                                                                                                                'border': 'unset',
+                                                                                                                'padding': '4px'}),
+                                                                                    ], id='picos_row_advanced'),
                                                             dcc.Textarea(placeholder ='Patients: (e.g., patients with psoriasis)\n'+
                                                                     'Primary outcome: (e.g., PASI90)\n'+
                                                                     'Study design: (e.g., randomized controlled trial)'
-                                                                    ,className='skt_span1', style={'width':'160%', 'height':'50vh'}),
+                                                                    ,className='skt_span1', style={'width':'160%', 'height':'50vh'},
+                                                                    id='picos_textarea_advanced'),
                                                                 #   html.Span('Primary outcome: PASI90',className='skt_span1'), 
                                                                 #   html.Span('Study design: randomized control study', className='skt_span1'),
                                                                     ], className='tab1',headerClassName='headtab1',bodyClassName='bodytab1')

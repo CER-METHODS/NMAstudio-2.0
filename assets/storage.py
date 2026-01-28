@@ -83,6 +83,11 @@ STORAGE_SCHEMA = {
     "cinema_net_data_STORAGE2": "list",  # CINeMA data for "both outcomes" league table [outcome1_json, outcome2_json]
     "protocol_link_STORAGE": "strng",  # Protocol link URL
     "project_title_STORAGE": "strng",  # Project title
+    "picos_text_STORAGE": "strng",  # PICOS textarea content
+    "treat_fullname_STORAGE": "list",  # Treatment full names data (list of records)
+    "treat_fullname_filename_STORAGE": "strng",  # Uploaded filename for treatment full names
+    "treat_instruction_STORAGE": "list",  # Treatment instructions data (list of records)
+    "treat_instruction_filename_STORAGE": "strng",  # Uploaded filename for treatment instructions
 }
 
 EMPTY_STORAGE = {
@@ -109,6 +114,11 @@ EMPTY_STORAGE = {
     "cinema_net_data_STORAGE2": [],  # CINeMA data for "both outcomes" league table
     "protocol_link_STORAGE": "",  # Protocol link URL
     "project_title_STORAGE": "",  # Project title
+    "picos_text_STORAGE": "",  # PICOS textarea content
+    "treat_fullname_STORAGE": [],  # Treatment full names data
+    "treat_fullname_filename_STORAGE": "",  # Uploaded filename for treatment full names
+    "treat_instruction_STORAGE": [],  # Treatment instructions data
+    "treat_instruction_filename_STORAGE": "",  # Uploaded filename for treatment instructions
 }
 
 
@@ -176,6 +186,11 @@ def __empty_project():
         dcc.Store(id="cinema_net_data_STORAGE2", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="protocol_link_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="project_title_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="picos_text_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="treat_fullname_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="treat_fullname_filename_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="treat_instruction_STORAGE", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="treat_instruction_filename_STORAGE", data=None, storage_type=SESSION_TYPE),
     ]
 
 

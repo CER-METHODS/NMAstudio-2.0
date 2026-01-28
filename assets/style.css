@@ -995,6 +995,14 @@ h6 {margin-top: 0;}
     color: white!important;
 }
 
+.sub-button.disabled-btn,
+.sub-button.disabled-btn:hover {
+    background-color: #ccc !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
 #profile_row{
     width: 80%;
     justify-content: space-evenly;
@@ -2598,4 +2606,14 @@ margin: 10px
 
 .faq_subtitle:focus{
     background-color: #02ad9c17 !important;
+}
+
+#picos_row{
+    grid-template-columns: 0fr 0fr 1fr;
+    display: grid;
+}
+
+#picos_row_simple{
+    display: grid;
+    grid-template-columns: 0.1fr 0.1fr 0.5fr;
 }

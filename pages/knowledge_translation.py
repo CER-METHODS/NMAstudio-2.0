@@ -258,7 +258,143 @@ def display_transitivity(cell, _):
         return False
     if ctx.triggered_id == "trans_button":
         return True
-    return no_update
+
+
+# Callback for save_picos button (Standard version) - disable after click, re-enable when textarea is edited
+@callback(
+    Output("save_picos", "disabled"),
+    Output("save_picos", "style"),
+    Output("save_picos", "className"),
+    Output("picos_text_STORAGE", "data", allow_duplicate=True),
+    Output("picos_textarea_advanced", "value", allow_duplicate=True),
+    Input("save_picos", "n_clicks"),
+    Input("picos_textarea", "value"),
+    State("save_picos", "style"),
+    State("picos_text_STORAGE", "data"),
+    State("picos_textarea_advanced", "value"),
+    prevent_initial_call=True,
+)
+def toggle_save_picos_button(n_clicks, textarea_value, current_style, current_storage, advanced_value):
+    """
+    Disable the save_picos button after clicking it (turns gray).
+    Re-enable it when the picos_textarea is edited (and content differs from storage).
+    Save textarea content to storage when save button is clicked.
+    Sync with advanced textarea.
+    """
+    triggered_id = ctx.triggered_id
+    
+    # Base style from layout
+    base_style = {
+        'color': 'white',
+        'background-color': 'rgb(0 172 156)',
+        'display': 'inline-block',
+        'justify-self': 'end',
+        'border': 'unset',
+        'padding': '4px'
+    }
+    
+    disabled_style = {
+        'color': '#999',
+        'background-color': '#ccc',
+        'display': 'inline-block',
+        'justify-self': 'end',
+        'border': 'unset',
+        'padding': '4px',
+        'cursor': 'not-allowed',
+        'pointer-events': 'none'
+    }
+    
+    if triggered_id == "save_picos":
+        # Button was clicked - disable it, save text to storage, sync advanced textarea
+        # Only sync if values differ to avoid unnecessary triggers
+        sync_value = textarea_value if textarea_value != advanced_value else no_update
+        return True, disabled_style, "sub-button disabled-btn", textarea_value, sync_value
+    elif triggered_id == "picos_textarea":
+        # Only re-enable if textarea content differs from stored value (actual edit, not load/sync)
+        if textarea_value != current_storage:
+            return False, base_style, "sub-button", no_update, no_update
+        # Content matches storage (this is a load or sync), keep disabled
+        return no_update, no_update, no_update, no_update, no_update
+    
+    return no_update, no_update, no_update, no_update, no_update
+
+
+# Callback for save_picos_advanced button (Advanced version) - disable after click, re-enable when textarea is edited
+@callback(
+    Output("save_picos_advanced", "disabled"),
+    Output("save_picos_advanced", "style"),
+    Output("save_picos_advanced", "className"),
+    Output("picos_text_STORAGE", "data", allow_duplicate=True),
+    Output("picos_textarea", "value", allow_duplicate=True),
+    Input("save_picos_advanced", "n_clicks"),
+    Input("picos_textarea_advanced", "value"),
+    State("save_picos_advanced", "style"),
+    State("picos_text_STORAGE", "data"),
+    State("picos_textarea", "value"),
+    prevent_initial_call=True,
+)
+def toggle_save_picos_advanced_button(n_clicks, textarea_value, current_style, current_storage, standard_value):
+    """
+    Disable the save_picos_advanced button after clicking it (turns gray).
+    Re-enable it when the picos_textarea_advanced is edited (and content differs from storage).
+    Save textarea content to storage when save button is clicked.
+    Sync with standard textarea.
+    """
+    triggered_id = ctx.triggered_id
+    
+    # Base style from layout
+    base_style = {
+        'color': 'white',
+        'background-color': 'rgb(0 172 156)',
+        'display': 'inline-block',
+        'justify-self': 'end',
+        'border': 'unset',
+        'padding': '4px'
+    }
+    
+    disabled_style = {
+        'color': '#999',
+        'background-color': '#ccc',
+        'display': 'inline-block',
+        'justify-self': 'end',
+        'border': 'unset',
+        'padding': '4px',
+        'cursor': 'not-allowed',
+        'pointer-events': 'none'
+    }
+    
+    if triggered_id == "save_picos_advanced":
+        # Button was clicked - disable it, save text to storage, sync standard textarea
+        # Only sync if values differ to avoid unnecessary triggers
+        sync_value = textarea_value if textarea_value != standard_value else no_update
+        return True, disabled_style, "sub-button disabled-btn", textarea_value, sync_value
+    elif triggered_id == "picos_textarea_advanced":
+        # Only re-enable if textarea content differs from stored value (actual edit, not load/sync)
+        if textarea_value != current_storage:
+            return False, base_style, "sub-button", no_update, no_update
+        # Content matches storage (this is a load or sync), keep disabled
+        return no_update, no_update, no_update, no_update, no_update
+    
+    return no_update, no_update, no_update, no_update, no_update
+
+
+# Callback to load PICOS text from storage when page loads (both textareas)
+@callback(
+    Output("picos_textarea", "value"),
+    Output("picos_textarea_advanced", "value"),
+    Input("kt_page_location", "pathname"),
+    State("picos_text_STORAGE", "data"),
+    prevent_initial_call=False,
+)
+def load_picos_text(pathname, stored_text):
+    """
+    Load PICOS text from storage when the KT page is loaded.
+    Populates both standard and advanced textareas.
+    """
+    if pathname == "/knowledge-translation" and stored_text:
+        return stored_text, stored_text
+    return no_update, no_update
+    
 
 
 @callback(Output('boxplot_skt', 'figure'),
@@ -354,19 +490,23 @@ def generate_text_info(nodedata, edgedata,  instruct_data, out_idx, net_data, ef
 @callback(
     Output('treat_instruction', 'data'),
     Output('treat-instruction-filename', 'children'),
+    Output('treat_instruction_STORAGE', 'data'),
+    Output('treat_instruction_filename_STORAGE', 'data'),
     Input("treat-instruction-upload", "contents"),
     State("treat-instruction-upload", "filename"),
     prevent_initial_call=True
 )
 def display_upload_instructon(contents, filename):
-
-    
+    """
+    Handle upload of treatment instructions CSV file.
+    Saves data to both SKT storage (treat_instruction) and main STORAGE for export/import.
+    """
     if not contents or not filename:
         raise PreventUpdate
 
     # only allow csv
     if not filename.lower().endswith(".csv"):
-        return  None, None
+        return None, None, no_update, no_update
 
     try:
         _, content_string = contents.split(",")
@@ -374,29 +514,60 @@ def display_upload_instructon(contents, filename):
         df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
         filename_display = f"Uploaded file: {filename}"
     except Exception:
-        return  None, None
+        return None, None, no_update, no_update
 
-    # success → hide toast, store data
-    return  df.to_dict("records"), filename_display
+    data_records = df.to_dict("records")
+    # Save to both SKT storage and main STORAGE (for export/import)
+    return data_records, filename_display, data_records, filename
+
+
+# Callback to load treat_instruction from STORAGE when project is imported
+@callback(
+    Output('treat_instruction', 'data', allow_duplicate=True),
+    Output('treat-instruction-filename', 'children', allow_duplicate=True),
+    Input("kt_page_location", "pathname"),
+    State("treat_instruction_STORAGE", "data"),
+    State("treat_instruction_filename_STORAGE", "data"),
+    prevent_initial_call=True,
+)
+def load_treat_instruction_from_storage(pathname, stored_data, stored_filename):
+    """
+    Load treatment instruction data from STORAGE when navigating to KT page.
+    This restores the data when a project is imported.
+    """
+    if pathname != "/knowledge-translation":
+        raise PreventUpdate
+    
+    # Only update if there's stored data
+    if stored_data and isinstance(stored_data, list) and len(stored_data) > 0:
+        filename_display = f"Uploaded file: {stored_filename}" if stored_filename else None
+        return stored_data, filename_display
+    
+    return no_update, no_update
 
 
 @callback(
     Output('treat_fullname', 'data'),
     Output('treat-fullname-filename', 'children'),
+    Output('treat_fullname_STORAGE', 'data'),
+    Output('treat_fullname_filename_STORAGE', 'data'),
     Input("treat-fullname-upload", "contents"),
     State("treat-fullname-upload", "filename"),
     State('modal_fullname', 'rowData'),
     prevent_initial_call=True
 )
 def display_upload_fullname(contents, filename, rowdata):
-
+    """
+    Handle upload of treatment fullname CSV file.
+    Saves data to both SKT storage (treat_fullname) and main STORAGE for export/import.
+    """
     # nothing uploaded
     if not contents or not filename:
         raise PreventUpdate
 
     # only allow csv
     if not filename.lower().endswith(".csv"):
-        return  rowdata, None
+        return rowdata, None, no_update, no_update
 
     try:
         _, content_string = contents.split(",")
@@ -404,10 +575,36 @@ def display_upload_fullname(contents, filename, rowdata):
         df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
         filename_display = f"Uploaded file: {filename}"
     except Exception:
-        return  rowdata, None
+        return rowdata, None, no_update, no_update
+
+    data_records = df.to_dict("records")
+    # Save to both SKT storage and main STORAGE (for export/import)
+    return data_records, filename_display, data_records, filename
 
 
-    return  df.to_dict("records"), filename_display
+# Callback to load treat_fullname from STORAGE when project is imported
+@callback(
+    Output('treat_fullname', 'data', allow_duplicate=True),
+    Output('treat-fullname-filename', 'children', allow_duplicate=True),
+    Input("kt_page_location", "pathname"),
+    State("treat_fullname_STORAGE", "data"),
+    State("treat_fullname_filename_STORAGE", "data"),
+    prevent_initial_call=True,
+)
+def load_treat_fullname_from_storage(pathname, stored_data, stored_filename):
+    """
+    Load treatment fullname data from STORAGE when navigating to KT page.
+    This restores the data when a project is imported.
+    """
+    if pathname != "/knowledge-translation":
+        raise PreventUpdate
+    
+    # Only update if there's stored data
+    if stored_data and isinstance(stored_data, list) and len(stored_data) > 0:
+        filename_display = f"Uploaded file: {stored_filename}" if stored_filename else None
+        return stored_data, filename_display
+    
+    return no_update, no_update
 
 
 
