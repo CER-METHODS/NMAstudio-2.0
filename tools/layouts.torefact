@@ -1160,7 +1160,7 @@ html.Br(), html.Br(),
 
 
 ############################################  NEWS PAGE  #######################################################
-ICON  = "/assets/icons/favicon_nmastudio.ico"
+ICON  = "/assets/icons/NMAstudio_logo.ico"
 
 list_forthcmg_features=['A system of warnings', 'Sensitivity analyses',
                         'Fully connected network', 'More options for node size', 'More options for edge size']

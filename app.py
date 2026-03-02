@@ -60,8 +60,8 @@ def get_new_layout():
             # Global Alert modals - available on all pages for callbacks
             html.Div(
                 [
-                    R_errors_data,
                     R_errors_nma,
+                    R_errors_data,
                     R_errors_pair,
                     R_errors_league,
                     R_errors_funnel,
