@@ -271,8 +271,6 @@ def real_homelayout():
 
                                                 dcc.Markdown('NMAstudio is a web application to produce and visualise interactive outputs from network meta-analyses. NMAstudio is written in Python, and linked to the R-package netmeta for performing network meta analysis.',
                                                         className="markdown_style",style={"color": "black", "margin-right":"10%"}),
-                                                dcc.Markdown('NMAstudio is a web application to produce and visualise interactive outputs from network meta-analyses. NMAstudio is written in Python, and linked to the R-package netmeta for performing network meta analysis.',
-                                                        className="markdown_style",style={"color": "black", "margin-right":"10%"}),
                                                 dbc.NavLink('Balduzzi, S., Rücker, G., Nikolakopoulou, A., Papakonstantinou, T., Salanti, G., Efthimiou, O., & Schwarzer, G. (2023). netmeta: An R Package for Network Meta-Analysis Using Frequentist Methods. Journal of Statistical Software, 106(2), 1-40. https://doi.org/10.18637/jss.v106.i02'
                                                         , href='https://www.jstatsoft.org/article/view/v106i02', external_link=True,className="markdown_style", style={"font-size":"14px", "color": "#3498db"}),
 
