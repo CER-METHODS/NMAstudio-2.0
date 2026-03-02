@@ -244,7 +244,7 @@ def Sktpage():
 def switch_table():
     return html.Div([
                     html.Br(),
-                    dcc.Markdown('Knowledge Translation Tool',
+                    dcc.Markdown('NMA-KIT Report',
                                                 className="markdown_style_main",
                                                 style={
                                                     "font-weight": 'bold',
@@ -708,7 +708,7 @@ def skt_layout():
                                                 dbc.Col(
                                                         [dbc.Row(html.Span('Options (For the forest plots in the table)', className='option_select'), style={'display':'grid', 'padding-top':'unset'}),
                                                             dbc.Col([dbc.Toast([
-                                                                html.Span('Enter the minimum clinical difference value:',className='select_outcome'),
+                                                                html.Span('Enter the smallest worthwhile difference:',className='select_outcome'),
                                                                 dcc.Input(id="range_lower",
                                                                             type="text",
                                                                             name='risk',

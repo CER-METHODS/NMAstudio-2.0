@@ -429,17 +429,103 @@ dagcomponentfuncs.StudyLink = function (props) {
 
 // Keep AG Grid column menu available: add a small menu button that calls
 // the grid-provided `showColumnMenu` function with the clicked element.
+// dagcomponentfuncs.HeaderWithIcon = function (props) {
+//     const [hover, setHover] = React.useState(false);
+//     const iconId = "info-icon-" + props.column.colId;
+//     // small menu button handler — AG Grid expects the target element to anchor the menu
+//     function onMenuClick(e) {
+//         if (typeof props.showColumnMenu === 'function') {
+//             // use the currentTarget so AG Grid anchors correctly
+//             props.showColumnMenu(e.currentTarget);
+//             e.stopPropagation();
+//         }
+//     }
+
+//     return React.createElement(
+//         "div",
+//         {
+//             style: {
+//                 display: "flex",
+//                 alignItems: "center",
+//                 gap: "6px",
+//                 paddingRight: "4px",
+//                 width: '100%',
+//                 boxSizing: 'border-box'
+//             }
+//         },
+//         [
+//             React.createElement("span", { key: "label", style: { flex: 1, textAlign: 'center' } }, props.displayName),
+//             React.createElement(
+//                 "span",
+//                 {
+//                     key: "info",
+//                     id: iconId,
+//                     onMouseEnter: () => setHover(true),
+//                     onMouseLeave: () => setHover(false),
+//                     style: {
+//                         cursor: "pointer",
+//                         fontSize: "16px",
+//                         color: hover ? "rgb(228, 28, 2)" : "rgb(184, 80, 67)",
+//                         fontWeight: hover ? "bolder" : "bold",
+//                         marginLeft: "4px"
+//                     },
+//                 },
+//                 "ⓘ"
+//             ),
+//             // Menu button: only render when the grid/column allows it. AG Grid
+//             // columns can set `suppressHeaderMenuButton: true` (or the grid-level
+//             // default can be set). If suppression is requested, do not render
+//             // the menu button here so the header stays clean.
+//             (props.suppressHeaderMenuButton ? null : React.createElement(
+//                 "span",
+//                 {
+//                     key: "menu",
+//                     className: "ag-header-icon ag-header-cell-menu-button",
+//                     title: "Column menu",
+//                     onClick: onMenuClick,
+//                     style: {
+//                         cursor: 'pointer',
+//                         padding: '0 6px',
+//                         fontSize: '14px',
+//                         color: '#666'
+//                     }
+//                 },
+//                 "⋮"
+//             ))
+//         ]
+//     );
+// };
+
+
 dagcomponentfuncs.HeaderWithIcon = function (props) {
     const [hover, setHover] = React.useState(false);
     const iconId = "info-icon-" + props.column.colId;
-    // small menu button handler — AG Grid expects the target element to anchor the menu
+
+    // Function to open column menu (AG Grid standard)
     function onMenuClick(e) {
         if (typeof props.showColumnMenu === 'function') {
-            // use the currentTarget so AG Grid anchors correctly
             props.showColumnMenu(e.currentTarget);
             e.stopPropagation();
         }
     }
+
+    // Auto-set column width based on header text + icon
+    React.useEffect(() => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        // Match the font style used in your header
+        ctx.font = 'bold 14px Arial';
+        const textWidth = ctx.measureText(props.displayName).width;
+
+        const iconWidth = 20; // approximate width for your info icon + gap
+        const padding = 16;   // header padding/margin
+        const totalWidth = Math.ceil(textWidth + iconWidth + padding);
+
+        // Set column width dynamically
+        if (props.columnApi) {
+            props.columnApi.setColumnWidth(props.column.colId, totalWidth);
+        }
+    }, [props.displayName, props.columnApi, props.column.colId]);
 
     return React.createElement(
         "div",
@@ -449,12 +535,25 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                 alignItems: "center",
                 gap: "6px",
                 paddingRight: "4px",
-                width: '100%',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                width: 'auto',  // allow container to fit content
             }
         },
         [
-            React.createElement("span", { key: "label", style: { flex: 1, textAlign: 'center' } }, props.displayName),
+            // Header label
+            React.createElement(
+                "span",
+                {
+                    key: "label",
+                    style: {
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap', // prevent wrapping
+                    }
+                },
+                props.displayName
+            ),
+
+            // Info icon
             React.createElement(
                 "span",
                 {
@@ -472,11 +571,9 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                 },
                 "ⓘ"
             ),
-            // Menu button: only render when the grid/column allows it. AG Grid
-            // columns can set `suppressHeaderMenuButton: true` (or the grid-level
-            // default can be set). If suppression is requested, do not render
-            // the menu button here so the header stays clean.
-            (props.suppressHeaderMenuButton ? null : React.createElement(
+
+            // Menu button (optional, based on AG Grid suppressHeaderMenuButton)
+            (!props.suppressHeaderMenuButton ? React.createElement(
                 "span",
                 {
                     key: "menu",
@@ -491,10 +588,8 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                     }
                 },
                 "⋮"
-            ))
+            ) : null)
         ]
     );
 };
-
-
 

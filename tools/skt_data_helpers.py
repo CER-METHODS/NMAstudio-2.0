@@ -242,7 +242,7 @@ def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
     # Switch column (button)
     cols.append(
         {
-            "headerName": "Switch",
+            "headerName": "vs",
             "suppressHeaderMenuButton": True,
             "field": "switch",
             "editable": False,
@@ -289,8 +289,9 @@ def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
             {
                 "field": cert_field,
                 "suppressHeaderMenuButton": True,
-                "headerName": "Certainty",
-                "resizable": False,
+                "headerName": "Confidence of the evidence",
+                "resizable": True,
+                "suppressSizeToFit": True,
                 "headerComponent": "HeaderWithIcon",
                 "tooltipField": cert_field,
                 "tooltipComponentParams": {"color": "#d8f0d3", "outcomeIndex": i},
@@ -698,7 +699,7 @@ def Generate_advanced_columnDefs(effect_size):
             {"headerName": "Risk per 1000", "field": "risk", "editable": True,
              "headerComponent": "HeaderWithIcon",
              'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}},
-            {"headerName": "The rationality of selecting the risk", "field": "rationality",
+            {"headerName": "Rationale for the specified risk", "field": "rationality",
              "editable": True, "headerComponent": "HeaderWithIcon",
              'cellStyle': {'color': 'grey', 'border-right': 'solid 0.8px'}}
         ])
@@ -771,7 +772,7 @@ def Generate_advanced_detailColumnDefs(effect_size):
         {"field": "p-value", "headerName": "p-value\n(Consistency)", "width": 140, "resizable": True,
          'cellStyle': {'text-align': 'center', 'display': 'grid', 'line-height': 'normal', 'white-space': 'pre', 'align-items': 'center'}},
 
-        {"field": "Certainty", "headerName": "Certainty", "headerComponent": "HeaderWithIcon", "filter": True,
+        {"field": "Certainty", "headerName": "confidence of the evidence", "headerComponent": "HeaderWithIcon", "filter": True,
          "width": 110, "resizable": True, "tooltipField": 'Certainty',
          "tooltipComponentParams": {"color": '#d8f0d3'}, "tooltipComponent": "CustomTooltip2",
          'cellStyle': {"styleConditions": [
@@ -807,6 +808,16 @@ def _first_number(x):
     return float(m.group()) if m else None
 
 
+def treated_risk(base_risk, eff, measure):
+    if measure == "RR":
+        return base_risk * eff
+    elif measure == "OR":
+        odds_c = base_risk / (1 - base_risk)
+        odds_t = odds_c * eff
+        return odds_t / (1 + odds_t)
+    else:
+        return None
+    
 def _change_abs_diff(change, rowData, effect_size):
     df = pd.DataFrame(rowData).reset_index(drop=True)
     row_idx = change["rowIndex"]
@@ -814,7 +825,7 @@ def _change_abs_diff(change, rowData, effect_size):
 
     df.at[row_idx, "risk"] = base_risk
     treatments = pd.DataFrame(df.at[row_idx, "Treatments"])
-
+    
     for i in range(1, len(treatments)):
         eff = _first_number(treatments.at[i, effect_size])
         ci_lo = _first_number(treatments.at[i, "CI_lower"])
@@ -823,16 +834,18 @@ def _change_abs_diff(change, rowData, effect_size):
         if eff is None or ci_lo is None or ci_up is None:
             continue
 
-        risk_t = int(base_risk * eff)
+        risk_t = int(treated_risk(base_risk, eff, effect_size))
         diff = risk_t - base_risk
         sign = "more" if diff > 0 else "less"
 
-        lo = int(base_risk * ci_lo) - base_risk
-        up = int(base_risk * ci_up) - base_risk
+        lo = int(treated_risk(base_risk, ci_lo, effect_size)) - base_risk
+        up = int(treated_risk(base_risk, ci_up, effect_size)) - base_risk
+        sign_l = "more" if lo > 0 else "less"
+        sign_u = "more" if up > 0 else "less"
 
         treatments.at[i, "ab_difference"] = (
             f"\n{abs(diff)} {sign} per 1000\n"
-            f"({abs(lo)} to {abs(up)})"
+            f"({abs(lo)} {sign_l} to {abs(up)} {sign_u})"
         )
 
         for k in ["direct", "indirect"]:
@@ -842,6 +855,7 @@ def _change_abs_diff(change, rowData, effect_size):
             treatments.at[i, k] = (
                 f"{val}\n({lo_k}, {up_k})" if val is not None else ""
             )
+
 
     df.at[row_idx, "Treatments"] = treatments.to_dict("records")
     return df.to_dict("records")

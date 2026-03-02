@@ -625,7 +625,7 @@ def __TapNodeData_fig_bidim(
         df_second = forest_data_out2[forest_data_out2.Reference == treatment]
         effect_size_2 = df_second.columns[1]
         df_second["CI_width"] = df_second.CI_upper - df_second.CI_lower
-        df_second["lower_error_2"] = df_second[effect_size] - df_second.CI_lower
+        df_second["lower_error_2"] = df_second[effect_size_2] - df_second.CI_lower
         df_second["CI_width_hf"] = df_second["CI_width"] / 2
         CI_lower2, CI_upper2 = (
             df_second["CI_lower"].map("{:,.2f}".format),
@@ -659,7 +659,7 @@ def __TapNodeData_fig_bidim(
             [[0] * 8],
             columns=[
                 "Treatment",
-                effect_size,
+                effect_size_2,
                 "CI_lower",
                 "CI_upper",
                 "WEIGHT",
@@ -670,6 +670,7 @@ def __TapNodeData_fig_bidim(
         )
 
     xlog = effect_size in ("RR", "OR")
+    xlog2 = effect_size_2 in ("RR", "OR")
     up_rng_raw, low_rng_raw = df.CI_upper.max(), df.CI_lower.min()
     up_rng = 10 ** np.floor(np.log10(up_rng_raw)) if xlog else up_rng_raw
     low_rng = 10 ** np.floor(np.log10(low_rng_raw)) if xlog else low_rng_raw
@@ -717,7 +718,7 @@ def __TapNodeData_fig_bidim(
     ]
     df["value2"] = [
         "" + "{:.2f} {:<17}".format(x, y)
-        for x, y in zip(df_second[effect_size].values, df_second["CI"].values)
+        for x, y in zip(df_second[effect_size_2].values, df_second["CI"].values)
     ]
 
     # Safe range calculations for xlog case
@@ -735,10 +736,10 @@ def __TapNodeData_fig_bidim(
         color=df.Treatment,
         error_x_minus=df["lower_error_1"] if xlog else None,
         error_x="CI_width_hf" if xlog else "CI_width" if data else None,
-        error_y_minus=df_second["lower_error_2"] if xlog else None,
-        error_y=df_second.CI_width_hf if xlog else df_second.CI_width if data else None,
+        error_y_minus=df_second["lower_error_2"] if xlog2 else None,
+        error_y=df_second.CI_width_hf if xlog2 else df_second.CI_width if data else None,
         log_x=xlog,
-        log_y=xlog,
+        log_y=xlog2,
         size_max=10,
         color_discrete_sequence=None,
         custom_data=["Treatment", "label1", "label2", "value1", "value2"]

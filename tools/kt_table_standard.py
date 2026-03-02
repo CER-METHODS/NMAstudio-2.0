@@ -129,7 +129,7 @@ ColumnDefs_treat_compare = [
             #  },
             {'field': 'Certainty_out1',
              "suppressHeaderMenuButton": True, 
-             'headerName': 'Certainty',
+             'headerName': 'Confidence of the evidence',
              "resizable": False,
              "headerComponent": "HeaderWithIcon",
              "tooltipField": 'Certainty_out1',
@@ -183,13 +183,14 @@ treat_compare_grid = dag.AgGrid(
     rowData = df.to_dict("records"),
     dangerously_allow_code=True,
     dashGridOptions = {"rowHeight": 60,
-                       "domLayout": "autoHeight"
+                       "domLayout": "autoHeight",
+                       "skipHeaderOnAutoSize": False,
                        },
     defaultColDef={
                     'filter':False,
                     'suppressHeaderMenuButton': True,
                     "floatingFilter": False,
-                    "resizable": False,
+                    "resizable": True,
                     # Use flex to make columns expand to fill available width
                     "flex": 1,
                     "minWidth": 80,
@@ -215,6 +216,7 @@ treat_compare_grid = dag.AgGrid(
            "width": "100%",
            "maxHeight": "1000px",   # set your max
             "overflowY": "auto",    # enable scrolling
+            "overflowX": "auto", 
         #    'height':f'{45.5 *30}px'
            }
 )
