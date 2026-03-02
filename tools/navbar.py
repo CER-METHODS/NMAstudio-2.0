@@ -10,10 +10,10 @@ UP_LOGO = "/assets/logos/logo_universite_paris.jpg"
 
 def Navbar():
     realhome_button = dbc.NavItem(dbc.NavLink('HOME', href="/home", external_link=True,
-                                          style = {'color':'#white','font-family': "sans-serif ",
+                                          style = {'color':'#464d40','font-family': "sans-serif ",
                                                    'font-size': 'large'}))
     home_button = dbc.NavItem(dbc.NavLink('Setup Analysis & Results', href="/results", external_link=True,
-                                          style = {'color':'#white','font-family': "sans-serif ",
+                                          style = {'color':'#464d40','font-family': "sans-serif ",
                                                    'font-size': 'large'}))
     skt_button = dbc.NavItem(dbc.NavLink('Knowledge Translation (under construction)', href="/skt",external_link=True,
                                          style = {'color':'lightsteelblue','font-family': "sans-serif ",
@@ -38,8 +38,9 @@ def Navbar():
     # saveload_button = saveload_modal
 
     navbar = dbc.Navbar([
-            html.Div(dbc.Col(html.Img(src=NMASTUDIO_LOGO, height="53px",
-                                      style={'filter': 'invert()',
+            html.Div(dbc.Col(html.Img(src=NMASTUDIO_LOGO, height="100px",
+                                      style={
+                                          # 'filter': 'invert()',
                                              # 'filter': 'invert(42 %) sepia(26 %) saturate(2474 %) hue-rotate(218deg) brightness(97 %) contrast(89 %)',
                                               #'filter': 'invert(44%) sepia(57%) saturate(3117%) hue-rotate(147deg) brightness(99%) contrast(94%)',
                                               'padding-left': '2%','padding-right': '2%',
@@ -101,7 +102,7 @@ def Navbar():
                 #     width="auto")
                     ], className="child child-right" ),
         ],
-        color="#5c7780",
+        color="#f9f0eb",
         dark=True,
     )
 

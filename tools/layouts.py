@@ -288,13 +288,13 @@ def real_homelayout():
                                                 html.Br(),html.Br(),
 
                                                 ], style={ 'width': '80%', 'padding-left': '3%'}),],
-                                              style={'height':'fit-content', 'background-color':'antiquewhite', 'justify-content': 'center'}),
+                                              style={'height':'fit-content', 'background-color':'#ede9e5', 'justify-content': 'center'}),
                                     
                                 #     html.Br(), html.Br(),html.Br(),
                                     html.Footer([html.P('Copyright © 2024. All rights reserved.', 
-                                         style={'color':'white', 'margin-left':'45px', 'margin-top': '2%'}),
+                                         style={'color':'black', 'margin-left':'45px', 'margin-top': '2%'}),
                                          dcc.Markdown('This project has received funding from the EU H2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 101031840 & the French National Research Agency under the project ANR-22-CE36-0013-01',
-                                         className="markdown_style",style={"color": "white", 
+                                         className="markdown_style",style={"color": "black", 
                                                                            "font-weight": "330", 
                                                                            "font-size":"14px",
                                                                            'padding-left': '3%'}),

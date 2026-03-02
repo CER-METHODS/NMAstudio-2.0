@@ -160,7 +160,7 @@ h6 {margin-top: 0;}
     font-size: 12px;
     font-family: "sans-serif" !important;
     /* margin-left: 10px; */
-    background-color: rgb(92, 119, 128);
+    background-color: #f9f0eb;
     height: 200px;
 }
 .slider {padding: 15px;}
@@ -2353,7 +2353,7 @@ margin: 10px
     white-space: nowrap;
     font-size: large;
     /* font-weight: bold; */
-    color:chartreuse
+    color:#c7641e
   }
   
   /* for Firefox */
