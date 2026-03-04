@@ -18,8 +18,8 @@ from assets.Infos.dataInfo import infoExpand
 from assets.Infos.leagueInfo import infoLeague2, infoLeague1, infoRoB
 
 OSLO_LOGO = "/assets/logos/oslo_logo.png"
-UP_LOGO = "/assets/logos/universite.jpeg"
-CRESS_LOGO = "/assets/logos/cress_logo2.jpeg"
+UP_LOGO = "/assets/logos/universite.png"
+CRESS_LOGO = "/assets/logos/cress_logo2.png"
 inserm_logo="/assets/logos/inserm_logo.png"
 NMASTUDIO_art = '/assets/logos/nmastudio_art2.gif'
 MAIN_PIC = '/assets/logos/mainpage.png'

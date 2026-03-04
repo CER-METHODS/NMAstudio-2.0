@@ -2549,3 +2549,42 @@ margin: 10px
 #grid_treat_compare .ag-header-cell-menu-button {
     display: none !important;
 }
+
+
+/* Apply this class to the html.Div WRAPPING the image */
+.namstudio-logo {
+    position: relative;
+    display: inline-block;
+    overflow: hidden; /* Clips the beam so it doesn't fly across the whole screen */
+}
+
+.namstudio-logo::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%; /* Start far to the left */
+    width: 200%; /* Extra wide to cover the angle */
+    height: 100%;
+    
+    /* 135deg = Top-Left to Bottom-Right */
+    /* We make the white "beam" very narrow (48% to 52%) */
+    background: linear-gradient(
+        135deg, 
+        rgba(255, 255, 255, 0) 45%, 
+        rgba(255, 255, 255, 0.8) 50%, 
+        rgba(255, 255, 255, 0) 55%
+    );
+    
+    animation: thinShine 4s ease-in-out infinite;
+}
+
+@keyframes thinShine {
+    0% {
+        left: -150%;
+        top: -150%;
+    }
+    100% {
+        left: 150%;
+        top: 150%;
+    }
+}
