@@ -265,7 +265,7 @@ def real_homelayout():
                                                         'width': '100%',
                                                         'margin-top': '0'
                                                         }),
-                                                dcc.Markdown('Please cite us as: Yu T, Metelli S, Papakonstantinou T, Chaimani A. NMAstudio 2.0: An interactive tool for network meta-analysis to enhance understanding, interpretation, and communication of the findings. Research Synthesis Methods 2026 \[to appear\].',
+                                                dcc.Markdown('Please cite us as: Yu T, Metelli S, Papakonstantinou T, Chaimani A. NMAstudio 2.0: An interactive tool for network meta-analysis to enhance understanding, interpretation, and communication of the findings. Research Synthesis Methods. Published online 2026:1-14. doi:10.1017/rsm.2026.10074',
                                                                 className="markdown_style", style={"color": "black", "margin-right":"10%"}),
                                                 html.Br(), 
 
