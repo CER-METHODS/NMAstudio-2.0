@@ -65,7 +65,7 @@ app.index_string = '''
             gtag('config', 'G-Y7P5T0R3ML');
         </script>
         {%metas%}
-        <title>NMAstudio</title>
+        <title>NMAstudio 2.0</title>
         {%favicon%}
         {%css%}
     </head>
