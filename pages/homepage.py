@@ -17,8 +17,8 @@ CONS = "/assets/logos/consist.gif"
 RANK = "/assets/logos/rank.gif"
 FUNEL = "/assets/logos/funel.gif"
 OSLO_LOGO = "/assets/logos/oslo_logo.png"
-UP_LOGO = "/assets/logos/universite.jpeg"
-CRESS_LOGO = "/assets/logos/cress_logo2.jpeg"
+UP_LOGO = "/assets/logos/universite.png"
+CRESS_LOGO = "/assets/logos/cress_logo2.png"
 inserm_logo = "/assets/logos/inserm_logo.png"
 ###################homepage###############################
 
@@ -332,7 +332,7 @@ layout = html.Div(
                                 "borderBottom": "2px solid",
                                 "fontWeight": "bold",
                                 "height": "fit-content",
-                                "marginRight": "20px",
+                                # "marginRight": "20px",
                             },
                         ),
                         dbc.NavLink(
@@ -410,7 +410,7 @@ layout = html.Div(
                             },
                         ),
                         dcc.Markdown(
-                            "Please cite us as: Tianqi Y, Silvia M, Chaimani A. NMAstudio: a fully interactive web-application for producing and visualising network meta-analyses. *Cochrane Colloquium 2023, London, UK.*",
+                            "Please cite us as: Yu T, Metelli S, Papakonstantinou T, Chaimani A. NMAstudio 2.0: An interactive tool for network meta-analysis to enhance understanding, interpretation, and communication of the findings. Research Synthesis Methods. Published online 2026:1-14. doi:10.1017/rsm.2026.10074",
                             className="markdown_style",
                             style={"color": "black", "marginRight": "10%"},
                         ),
@@ -457,7 +457,7 @@ layout = html.Div(
             ],
             style={
                 "height": "fit-content",
-                "backgroundColor": "antiquewhite",
+                "backgroundColor": "#ede9e5",
                 "justifyContent": "center",
             },
         ),
@@ -466,13 +466,13 @@ layout = html.Div(
             [
                 html.P(
                     "Copyright © 2025. All rights reserved.",
-                    style={"color": "white", "marginLeft": "45px", "marginTop": "2%"},
+                    style={"color": "black", "marginLeft": "52px", "marginTop": "2%"},
                 ),
                 dcc.Markdown(
                     "This project has received funding from the EU H2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 101031840 & the French National Research Agency under the project ANR-22-CE36-0013-01",
                     className="markdown_style",
                     style={
-                        "color": "white",
+                        "color": "black",
                         "fontWeight": "330",
                         "fontSize": "14px",
                         "paddingLeft": "3%",

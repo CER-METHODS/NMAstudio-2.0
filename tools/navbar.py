@@ -14,7 +14,7 @@ def Navbar():
             "HOME",
             href="/home",
             external_link=True,
-            style={"color": "#white", "fontFamily": "sans-serif ", "fontSize": "15px"},
+            style={"color": "#464d40", "fontFamily": "sans-serif ", "fontSize": "large"},
         )
     )
     results_button = dbc.NavItem(
@@ -23,9 +23,9 @@ def Navbar():
             href="/results",
             external_link=True,
             style={
-                "color": "#white",
+                "color": "#464d40",
                 "fontFamily": "sans-serif ",
-                "fontSize": "15px",
+                "fontSize": "large",
             },
         )
     )
@@ -35,9 +35,9 @@ def Navbar():
             href="/knowledge-translation",
             external_link=True,
             style={
-                "color": "#white",
+                "color": "#464d40",
                 "fontFamily": "sans-serif ",
-                "fontSize": "15px",
+                "fontSize": "large",
             },
             id="skt_button",
         )
@@ -48,9 +48,9 @@ def Navbar():
             href="/setup",
             external_link=True,
             style={
-                "color": "#white",
+                "color": "#464d40",
                 "fontFamily": "sans-serif ",
-                "fontSize": "15px",
+                "fontSize": "large",
             },
             id="",
         )
@@ -76,19 +76,19 @@ def Navbar():
                 dbc.Col(
                     html.Img(
                         src=NMASTUDIO_LOGO,
-                        height="53px",
+                        height="100px",
                         style={
-                            "filter": "invert()",
+                            # "filter": "invert()",
                             # 'filter': 'invert(42 %) sepia(26 %) saturate(2474 %) hue-rotate(218deg) brightness(97 %) contrast(89 %)',
                             #'filter': 'invert(44%) sepia(57%) saturate(3117%) hue-rotate(147deg) brightness(99%) contrast(94%)',
-                            "paddingLeft": "2%",
-                            "paddingRight": "2%",
-                            "paddingBottom": "0.4%",
-                            "paddingTop": "0.4%",
+                            # "paddingLeft": "2%",
+                            # "paddingRight": "2%",
+                            # "paddingBottom": "0.4%",
+                            # "paddingTop": "0.4%",
                             "marginLeft": "50px",
                         },
                     ),
-                    className="child",
+                    className='namstudio-logo',
                     sm=3,
                     md=2,
                 ),
@@ -184,7 +184,7 @@ def Navbar():
                 className="child child-right",
             ),
         ],
-        color="#5c7780",
+        color="#ede9e5",
         dark=True,
     )
 
