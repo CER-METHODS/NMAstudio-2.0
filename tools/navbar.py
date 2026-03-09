@@ -31,7 +31,7 @@ def Navbar():
     )
     skt_button = dbc.NavItem(
         dbc.NavLink(
-            "Knowledge Translation",
+            "NMA-KIT",
             href="/knowledge-translation",
             external_link=True,
             style={
