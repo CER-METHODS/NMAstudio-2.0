@@ -29,6 +29,18 @@ def Navbar():
             },
         )
     )
+    cinema_button = dbc.NavItem(
+        dbc.NavLink(
+            "CINeMA",
+            href="/cinema",
+            external_link=True,
+            style={
+                "color": "#464d40",
+                "fontFamily": "sans-serif ",
+                "fontSize": "large",
+            },
+        )
+    )
     skt_button = dbc.NavItem(
         dbc.NavLink(
             "NMA-KIT",
@@ -137,6 +149,7 @@ def Navbar():
                                     realhome_button,
                                     setup_button,
                                     results_button,
+                                    cinema_button,
                                     skt_button,
                                 ],
                                 navbar=True,

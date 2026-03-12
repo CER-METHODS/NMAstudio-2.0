@@ -476,8 +476,8 @@ def get_skt_elements(net_data, out_idx):
     i= int(out_idx) if out_idx is not None else 0
     df = df.dropna(subset=[f'TE{i+1}', f'seTE{i+1}'])
     if "treat1_class" and "treat2_class" in df.columns:
-        df_treat = df.treat1.dropna().append(df.treat2.dropna()).reset_index(drop=True)
-        df_class = df.treat1_class.dropna().append(df.treat2_class.dropna()).reset_index(drop=True)
+        df_treat = pd.concat([df.treat1.dropna(), df.treat2.dropna()]).reset_index(drop=True)
+        df_class = pd.concat([df.treat1_class.dropna(), df.treat2_class.dropna()]).reset_index(drop=True)
         long_df_class = pd.concat([df_treat,df_class], axis=1).reset_index(drop=True)
         long_df_class = long_df_class.rename({long_df_class.columns[0]: 'treat', long_df_class.columns[1]: 'class'}, axis='columns')
         if not is_numeric_dtype(long_df_class.columns[1]):
@@ -494,52 +494,96 @@ def get_skt_elements(net_data, out_idx):
     df_n2g = df.rename(columns={'treat2': 'treat', f'n2{i+1}': 'n'}).groupby(['treat'])
     df_n1, df_n2 = df_n1g.n.sum(), df_n2g.n.sum()
     all_nodes_sized = df_n1.add(df_n2, fill_value=0)
-    df_n1, df_n2 = df_n1g.rob.value_counts(), df_n2g.rob.value_counts()
-    all_nodes_robs = df_n1.add(df_n2, fill_value=0).rename(('count')).unstack('rob', fill_value=0)
-    all_nodes_sized = pd.concat([all_nodes_sized, all_nodes_robs], axis=1).reset_index()
+    
+    # Handle rob columns safely
+    if 'rob' in df.columns:
+        n1 = df_n1g['rob'].value_counts().unstack(fill_value=0)
+        n2 = df_n2g['rob'].value_counts().unstack(fill_value=0)
+        # Align indices before adding
+        all_idx = all_nodes_sized.index
+        n1 = n1.reindex(all_idx, fill_value=0)
+        n2 = n2.reindex(all_idx, fill_value=0)
+        all_nodes_robs = n1.add(n2, fill_value=0)
+    else:
+        all_nodes_robs = pd.DataFrame(index=all_nodes_sized.index)
+    
+    # Build the combined DataFrame properly
+    all_nodes_sized = all_nodes_sized.reset_index()
+    all_nodes_sized.columns = ['treat', 'n']
+    
+    if not all_nodes_robs.empty:
+        all_nodes_robs = all_nodes_robs.reset_index(drop=True)
+        all_nodes_sized = pd.concat([all_nodes_sized, all_nodes_robs], axis=1)
 
+    # Ensure rob columns exist (1, 2, 3 for low, unclear, high risk)
+    for c in [1, 2, 3, 1.0, 2.0, 3.0, '1', '2', '3']:
+        pass  # Check handled below
+    
+    # Normalize column check - find which format is used
+    existing_cols = set(all_nodes_sized.columns)
+    if not any(c in existing_cols for c in [1, 2, 3, 1.0, 2.0, 3.0, '1', '2', '3']):
+        # No rob columns exist, add them as zeros
+        all_nodes_sized[1] = 0
+        all_nodes_sized[2] = 0
+        all_nodes_sized[3] = 0
+    else:
+        # Add missing rob columns based on existing format
+        if any(isinstance(c, str) for c in existing_cols if c in ['1', '2', '3']):
+            for c in ['1', '2', '3']:
+                if c not in all_nodes_sized.columns:
+                    all_nodes_sized[c] = 0
+        elif any(isinstance(c, float) for c in existing_cols if c in [1.0, 2.0, 3.0]):
+            for c in [1.0, 2.0, 3.0]:
+                if c not in all_nodes_sized.columns:
+                    all_nodes_sized[c] = 0
+        else:
+            for c in [1, 2, 3]:
+                if c not in all_nodes_sized.columns:
+                    all_nodes_sized[c] = 0
 
-    if isinstance(all_nodes_sized.columns[2], str):
-        for c in {'1', '2', '3'}.difference(all_nodes_sized): all_nodes_sized[c] = 0
-    elif all_nodes_sized.columns[2] in {1, 2, 3}:
-        for c in {1, 2, 3}.difference(all_nodes_sized): all_nodes_sized[c] = 0
-    elif all_nodes_sized.columns[2] in {1.0, 2.0, 3.0}:
-        for c in {1.0, 2.0, 3.0}.difference(all_nodes_sized): all_nodes_sized[c] = 0
-
-    all_nodes_robs.drop(columns=[col for col in all_nodes_robs if col not in [1.0, 2.0, 3.0, 1, 2, 3, '1','2','3']], inplace=True)
-    all_nodes_sized.drop(columns=[col for col in all_nodes_sized if col not in ['treat', 'n', 'class', 1.0, 2.0, 3.0, 1, 2, 3, '1','2','3']], inplace=True)
-    # all_nodes_sized['n_2'] = all_nodes_sized['n']
+    # Keep only relevant columns
+    keep_cols = ['treat', 'n']
+    rob_cols = [c for c in all_nodes_sized.columns if c in [1.0, 2.0, 3.0, 1, 2, 3, '1', '2', '3']]
+    keep_cols.extend(rob_cols)
+    all_nodes_sized = all_nodes_sized[keep_cols]
+    
+    # Normalize node sizes
     min_size = min(all_nodes_sized['n'])
     max_size = max(all_nodes_sized['n'])
-
-    # Calculate the range of 'size'
-    size_range = (max_size - min_size)
-    
-    # Normalize the values in 'size' to the range of 10 to 60
-  
+    size_range = (max_size - min_size) if (max_size - min_size) > 0 else 1
     normalized_size = [(s - min_size) / size_range for s in all_nodes_sized.n]
-    
     number = [int(n * 60) + 20 for n in normalized_size]
-    all_nodes_sized['n_2']=number
+    all_nodes_sized['n_2'] = number
 
     cy_edges = [{'data': {'source': source, 'target': target,
                           'weight': weight * 1 if (len(edges)<100 and len(edges)>13) else weight * 0.75 if len(edges)<13  else weight * 0.7,
                           'weight_lab': weight}}
                 for source, target, weight in edges.values]
-    # max_trsfrmd_size_nodes = np.sqrt(all_nodes_sized.iloc[:,1].max()) / 70
-    # node_size = float(node_size) if node_size is not None else 0
 
-   
-    cy_nodes = [{"data": {"id": target,
-                            "label": target,
-                            'classes': 'genesis',
-                            'size': n2,
-                        #   'size': np.power(size,1/4)*8 /( max_trsfrmd_size_nodes-node_size),
-                            'pie1': r1 / (r1 + r2 + r3) if not r1 + r2 + r3 == 0 else None,
-                            'pie2': r2 / (r1 + r2 + r3) if not r1 + r2 + r3 == 0 else None,
-                            'pie3': r3 / (r1 + r2 + r3) if not r1 + r2 + r3 == 0 else None},
-                            } for
-                target, size, r1, r2, r3,n2 in all_nodes_sized.values]
+    # Build cy_nodes - handle variable number of rob columns
+    cy_nodes = []
+    for row in all_nodes_sized.itertuples(index=False):
+        target = row[0]  # treat
+        size = row[1]    # n
+        n2 = row[-1]     # n_2 (last column)
+        
+        # Get rob values (columns 2, 3, 4 are the rob columns)
+        r1 = row[2] if len(row) > 3 else 0
+        r2 = row[3] if len(row) > 4 else 0
+        r3 = row[4] if len(row) > 5 else 0
+        
+        total_rob = r1 + r2 + r3
+        cy_nodes.append({
+            "data": {
+                "id": target,
+                "label": target,
+                'classes': 'genesis',
+                'size': n2,
+                'pie1': r1 / total_rob if total_rob > 0 else None,
+                'pie2': r2 / total_rob if total_rob > 0 else None,
+                'pie3': r3 / total_rob if total_rob > 0 else None
+            }
+        })
 
     return cy_edges + cy_nodes
 

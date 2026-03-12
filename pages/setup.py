@@ -533,31 +533,31 @@ layout = html.Div(
                     id="select-out-type",
                 ),
                 html.Br(),
-                dbc.Row(
-                    html.Img(src="/assets/icons/arrow.png", style={"width": "60px"}),
-                    style={"display": "none", "justifyContent": "center"},
-                    id="arrow_step_cinema",
-                ),
-                html.Br(),
-                html.Div(
-                    dbc.Row(
-                        [
-                            dbc.Col(id="cinema_file"),
-                            dbc.Col(
-                                html.Div(
-                                    html.Span(
-                                        "* If you want to include CINeMA certainty of evidence in the league tables and the knowledge translation tool for multiple outcomes, you must upload the CINeMA reporting files for the corresponding outcomes here.",
-                                        className="upload_instuspan",
-                                    )
-                                ),
-                                className="upload_instrucol",
-                            ),
-                        ],
-                        className="upload_row",
-                    ),
-                    style={"display": "none", "justifyContent": "center"},
-                    id="cinema-file-upload",
-                ),   
+                # dbc.Row(
+                #     html.Img(src="/assets/icons/arrow.png", style={"width": "60px"}),
+                #     style={"display": "none", "justifyContent": "center"},
+                #     id="arrow_step_cinema",
+                # ),
+                # html.Br(),
+                # html.Div(
+                #     dbc.Row(
+                #         [
+                #             dbc.Col(id="cinema_file"),
+                #             dbc.Col(
+                #                 html.Div(
+                #                     html.Span(
+                #                         "* If you want to include CINeMA certainty of evidence in the league tables and the knowledge translation tool for multiple outcomes, you must upload the CINeMA reporting files for the corresponding outcomes here.",
+                #                         className="upload_instuspan",
+                #                     )
+                #                 ),
+                #                 className="upload_instrucol",
+                #             ),
+                #         ],
+                #         className="upload_row",
+                #     ),
+                #     style={"display": "none", "justifyContent": "center"},
+                #     id="cinema-file-upload",
+                # ),   
                 html.Br(),
                 dbc.Row(
                     html.Img(src="/assets/icons/arrow.png", style={"width": "60px"}),
@@ -852,23 +852,23 @@ def update_outcomes_type(number_outcomes, primary_out, noprimary):
 
 
 
-@callback(
-    [
-        Output("cinema_file", "children"),
-        Output("arrow_step_cinema", "style"),
-        Output("cinema-file-upload", "style"),
-    ],
-    [
-        Input("number-outcomes", "value"),
-        Input({"type": "outcometype", "index": ALL}, "value")
-    ]
-)
-def update_cinema_selection(
-    number_outcomes, outcometype
-):
-    return __upload_cinema(
-        number_outcomes, outcometype
-    )
+# @callback(
+#     [
+#         Output("cinema_file", "children"),
+#         Output("arrow_step_cinema", "style"),
+#         Output("cinema-file-upload", "style"),
+#     ],
+#     [
+#         Input("number-outcomes", "value"),
+#         Input({"type": "outcometype", "index": ALL}, "value")
+#     ]
+# )
+# def update_cinema_selection(
+#     number_outcomes, outcometype
+# ):
+#     return __upload_cinema(
+#         number_outcomes, outcometype
+#     )
 
 
 

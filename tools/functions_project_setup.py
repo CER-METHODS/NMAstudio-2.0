@@ -748,17 +748,16 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
         {"display": "none", "justifyContent": "center"},
     )
 
-def __upload_cinema(number_outcomes, outcometype):
+def __upload_cinema(number_outcomes):
     # print(primary_out)
     # print(outcometype)
-    if not number_outcomes or not outcometype or not all(outcometype):
+    if not number_outcomes or number_outcomes == 0:
         return (
             None,
-            {"display": "none", "justifyContent": "center"},
+            # {"display": "none", "justifyContent": "center"},
             {"display": "none", "justifyContent": "center"},
         )
 
-    number_outcomes = int(number_outcomes)
     cinema_file_upload = [
         html.Div(
             [
@@ -822,7 +821,7 @@ def __upload_cinema(number_outcomes, outcometype):
 
     return (
         cinema_file_upload,
-        {"display": "grid", "justifyContent": "center"},
+        # {"display": "grid", "justifyContent": "center"},
         {"display": "grid", "justifyContent": "center"},
     )
 

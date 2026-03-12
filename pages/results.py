@@ -3460,6 +3460,37 @@ def toggle_modal_rank(n1, n2, is_open):
 ## -------------------------------------------- CINEMA UPLOAD CALLBACKS ----------------------------------------------- ##
 
 
+### ----- CINeMA filename display for single outcome league table ------ ###
+@callback(
+    Output("cinema-filename-display", "children"),
+    [
+        Input("_outcome_select", "value"),
+        Input("cinema_net_data_STORAGE", "data"),
+    ],
+    [
+        State("cinema_filename_STORAGE", "data"),
+    ],
+)
+def update_cinema_filename_display(outcome_idx, cinema_data, cinema_filenames):
+    """
+    Display CINeMA filename if data exists for the selected outcome.
+    """
+    if outcome_idx is None:
+        outcome_idx = 0
+    else:
+        outcome_idx = int(outcome_idx)
+    
+    # Check if CINeMA data exists for this outcome
+    if cinema_data and isinstance(cinema_data, list) and len(cinema_data) > outcome_idx:
+        if cinema_data[outcome_idx] is not None and cinema_data[outcome_idx] != "":
+            # Get filename if available
+            if cinema_filenames and isinstance(cinema_filenames, list) and len(cinema_filenames) > outcome_idx:
+                if cinema_filenames[outcome_idx]:
+                    return f"✓ Loaded: {cinema_filenames[outcome_idx]}"
+    
+    return ""
+
+
 ### ----- upload CINeMA data file (single outcome league table) ------ ###
 # @callback(
 #     [
@@ -3538,50 +3569,50 @@ def toggle_modal_rank(n1, n2, is_open):
 #             f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}
 #         )
 
-@callback(
-    [
-        Output("cinema_net_data_STORAGE", "data"),
-        Output({"type": "uploaded_cinema", "index": ALL}, "children"),
-    ],
-    Input({"type": "cinemafile", "index": ALL}, "contents"),
-    State({"type": "cinemafile", "index": ALL}, "filename"),
-    State("number-outcomes", "value"),
-    prevent_initial_call=True,
-)
-def upload_cinema_files(
-    contents_list, filename_list, number_outcomes
-):
-    from tools.utils import parse_contents
-    from tools.functions_cinema import validate_cinema_csv
-
-    if number_outcomes is None or number_outcomes < 1:
-        raise PreventUpdate
-    # Initialize storage
+# @callback(
+#     [
+#         Output("cinema_net_data_STORAGE", "data"),
+#         Output({"type": "uploaded_cinema", "index": ALL}, "children"),
+#     ],
+#     Input({"type": "cinemafile", "index": ALL}, "contents"),
+#     State({"type": "cinemafile", "index": ALL}, "filename"),
+#     State("number_outcomes_STORAGE", "data"),
+#     prevent_initial_call=True,
+# )
+# def upload_cinema_files(
+#     contents_list, filename_list, number_outcomes
+# ):
+#     from tools.utils import parse_contents
+#     from tools.functions_cinema import validate_cinema_csv
+#     number_outcomes = int(number_outcomes or 0)
+#     if number_outcomes is None or number_outcomes < 1:
+#         raise PreventUpdate
+#     # Initialize storage
  
-    cinema_net_data = [None] * number_outcomes
+#     cinema_net_data = [None] * number_outcomes
 
-    # Initialize filename display
-    uploaded_labels = [""] * number_outcomes
+#     # Initialize filename display
+#     uploaded_labels = [""] * number_outcomes
 
-    for idx, contents in enumerate(contents_list):
-        if contents is None:
-            continue
+#     for idx, contents in enumerate(contents_list):
+#         if contents is None:
+#             continue
 
-        try:
-            cinema_df = parse_contents(contents, filename_list[idx])
+#         try:
+#             cinema_df = parse_contents(contents, filename_list[idx])
 
-            is_valid, error_msg = validate_cinema_csv(cinema_df)
-            if not is_valid:
-                print(f"CINeMA validation failed for {filename_list[idx]}: {error_msg}")
-                continue
+#             is_valid, error_msg = validate_cinema_csv(cinema_df)
+#             if not is_valid:
+#                 print(f"CINeMA validation failed for {filename_list[idx]}: {error_msg}")
+#                 continue
 
-            cinema_net_data[idx] = cinema_df.to_json(orient="split")
-            uploaded_labels[idx] = f"Loaded: {filename_list[idx]}"
+#             cinema_net_data[idx] = cinema_df.to_json(orient="split")
+#             uploaded_labels[idx] = f"Loaded: {filename_list[idx]}"
 
-        except Exception as e:
-            print(f"Error uploading CINeMA file for outcome {idx}: {e}")
+#         except Exception as e:
+#             print(f"Error uploading CINeMA file for outcome {idx}: {e}")
     
-    return cinema_net_data, uploaded_labels
+#     return cinema_net_data, uploaded_labels
 
 
 
@@ -3702,9 +3733,11 @@ def disable_cinema_toggle(cinema_net_data, outcome_idx):
 
     # Check if cinema data exists for current outcome (list format)
     if cinema_net_data is None or not isinstance(cinema_net_data, list):
+        print("CINeMA data is not a list or is None")
         return True
 
     if len(cinema_net_data) <= outcome_idx or cinema_net_data[outcome_idx] is None:
+        print(f"No CINeMA data for outcome index {outcome_idx}")
         return True
 
     # Validate the stored CINeMA data has required columns
@@ -3712,8 +3745,10 @@ def disable_cinema_toggle(cinema_net_data, outcome_idx):
         cinema_df = pd.read_json(cinema_net_data[outcome_idx], orient="split")
         is_valid, _ = validate_cinema_csv(cinema_df)
         if not is_valid:
+            print(f"CINeMA data for outcome index {outcome_idx} is invalid")
             return True
     except Exception:
+        print(f"Error occurred while validating CINeMA data for outcome index {outcome_idx}")
         return True
 
     return False

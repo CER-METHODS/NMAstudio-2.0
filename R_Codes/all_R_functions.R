@@ -406,11 +406,10 @@ league_rank_new <- function(dat, i){
     tabnarms <- table(dat1$studlab)
     sel.narms <- !iswhole((1 + sqrt(8 * tabnarms + 1)) / 2)
     if (sum(sel.narms) >= 1){dat1 <- dat1 %>% filter(!studlab %in% names(tabnarms)[sel.narms])}
-    sm1 <- dat[[paste0("effect_size", i+1)]][1]
     nma_primary <- netmeta(dat1[[paste0("TE", i+1)]], dat1[[paste0("seTE", i+1)]],
                          treat1=dat1$treat1, treat2=dat1$treat2,
                          studlab=dat1$studlab,
-                         sm =sm1,
+                         sm = sm,
                          random=TRUE, backtransf=TRUE,
                          reference.group=dat1$treat2[1])
     sortedseq <- sort(nma_primary$trts)
@@ -431,12 +430,23 @@ league_rank_new <- function(dat, i){
     #consistency node-split
     ne <- netsplit(nma_primary)
     comparison <- ne$compare.random$comparison[!is.na(ne$compare.random$p)]
-    direct <- exp(ne$direct.random$TE[!is.na(ne$compare.random$p)])
-    di_lower <- exp(ne$direct.random$lower[!is.na(ne$compare.random$p)])
-    di_upper <- exp(ne$direct.random$upper[!is.na(ne$compare.random$p)])
-    indirect <- exp(ne$indirect.random$TE[!is.na(ne$compare.random$p)])
-    indi_lower <- exp(ne$indirect.random$lower[!is.na(ne$compare.random$p)])
-    indi_upper <- exp(ne$indirect.random$upper[!is.na(ne$compare.random$p)])
+    
+    if (sm == "OR" || sm == "RR") {
+        direct <- exp(ne$direct.random$TE[!is.na(ne$compare.random$p)])
+        di_lower <- exp(ne$direct.random$lower[!is.na(ne$compare.random$p)])
+        di_upper <- exp(ne$direct.random$upper[!is.na(ne$compare.random$p)])
+        indirect <- exp(ne$indirect.random$TE[!is.na(ne$compare.random$p)])
+        indi_lower <- exp(ne$indirect.random$lower[!is.na(ne$compare.random$p)])
+        indi_upper <- exp(ne$indirect.random$upper[!is.na(ne$compare.random$p)])
+    } else {
+        direct <- ne$direct.random$TE[!is.na(ne$compare.random$p)]
+        di_lower <- ne$direct.random$lower[!is.na(ne$compare.random$p)]
+        di_upper <- ne$direct.random$upper[!is.na(ne$compare.random$p)]
+        indirect <- ne$indirect.random$TE[!is.na(ne$compare.random$p)]
+        indi_lower <- ne$indirect.random$lower[!is.na(ne$compare.random$p)]
+        indi_upper <- ne$indirect.random$upper[!is.na(ne$compare.random$p)]
+    }
+    
     p <- ne$compare.random$p[!is.na(ne$compare.random$p)]
     direct <- ifelse(
                   length(direct) > 0 & !is.na(direct),
@@ -453,13 +463,25 @@ league_rank_new <- function(dat, i){
     colnames(df_cons) <- c("comparison", "direct", "indirect", "p-value")
     comp_all <- ne$compare.random$comparison
     k_all <- ne$k
-    direct_all <- exp(ne$direct.random$TE)
-    direct_low <- exp(ne$direct.random$lower)
-    direct_up  <- exp(ne$direct.random$upper)
-    nma_all <- exp(ne$random$TE)
-    indirect_all <- exp(ne$indirect.random$TE)
-    indirect_low <- exp(ne$indirect.random$lower)
-    indirect_up  <- exp(ne$indirect.random$upper)
+    
+    if (sm == "OR" || sm == "RR") {
+        direct_all <- exp(ne$direct.random$TE)
+        direct_low <- exp(ne$direct.random$lower)
+        direct_up  <- exp(ne$direct.random$upper)
+        nma_all <- exp(ne$random$TE)
+        indirect_all <- exp(ne$indirect.random$TE)
+        indirect_low <- exp(ne$indirect.random$lower)
+        indirect_up  <- exp(ne$indirect.random$upper)
+    } else {
+        direct_all <- ne$direct.random$TE
+        direct_low <- ne$direct.random$lower
+        direct_up  <- ne$direct.random$upper
+        nma_all <- ne$random$TE
+        indirect_all <- ne$indirect.random$TE
+        indirect_low <- ne$indirect.random$lower
+        indirect_up  <- ne$indirect.random$upper
+    }
+    
     p_all <- ne$compare.random$p
     netsplit_all <- data.frame(comp_all, k_all, direct_all,direct_low, direct_up, nma_all, indirect_all, indirect_low, indirect_up, p_all)
     colnames(netsplit_all) <- c("comparison", "k", "direct", 'direct_low', 'direct_up', "nma", "indirect",'indirect_low', 'indirect_up', "p-value")

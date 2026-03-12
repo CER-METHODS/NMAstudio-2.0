@@ -81,6 +81,7 @@ STORAGE_SCHEMA = {
     "outcome_names_STORAGE": "list",  # List of outcome names (e.g., ["PASI90", "SAE", "AE"])
     "cinema_net_data_STORAGE": "list",  # List of CINeMA data JSON strings (one per outcome)
     "cinema_net_data_STORAGE2": "list",  # CINeMA data for "both outcomes" league table [outcome1_json, outcome2_json]
+    "cinema_filename_STORAGE": "list",  # List of CINeMA filenames (one per outcome)
     "protocol_link_STORAGE": "strng",  # Protocol link URL
     "project_title_STORAGE": "strng",  # Project title
     "picos_text_STORAGE": "strng",  # PICOS textarea content
@@ -112,6 +113,7 @@ EMPTY_STORAGE = {
     "outcome_names_STORAGE": [],  # List of outcome names
     "cinema_net_data_STORAGE": [],  # List of CINeMA data JSON strings (one per outcome)
     "cinema_net_data_STORAGE2": [],  # CINeMA data for "both outcomes" league table
+    "cinema_filename_STORAGE": [],  # Uploaded filename for treatment full names
     "protocol_link_STORAGE": "",  # Protocol link URL
     "project_title_STORAGE": "",  # Project title
     "picos_text_STORAGE": "",  # PICOS textarea content
@@ -184,6 +186,7 @@ def __empty_project():
         dcc.Store(id="outcome_names_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="cinema_net_data_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="cinema_net_data_STORAGE2", data=None, storage_type=SESSION_TYPE),
+        dcc.Store(id="cinema_filename_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="protocol_link_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="project_title_STORAGE", data=None, storage_type=SESSION_TYPE),
         dcc.Store(id="picos_text_STORAGE", data=None, storage_type=SESSION_TYPE),

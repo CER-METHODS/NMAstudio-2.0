@@ -128,6 +128,28 @@ def toggle_skt_version(path, toggle_value):
     else:
         return {"display": "block"}, {"display": "none"}
 
+
+@callback(
+    Output("cinema_warning_div", "style"),
+    Input("kt_page_location", "pathname"),
+    State("cinema_net_data_STORAGE", "data"),
+)
+def show_cinema_warning(pathname, cinema_data):
+    """Show warning if no CINeMA files are uploaded."""
+    if pathname != "/knowledge-translation":
+        raise PreventUpdate
+    
+    # Check if cinema_data has any valid data
+    has_cinema_data = False
+    if cinema_data and isinstance(cinema_data, list):
+        has_cinema_data = any(item is not None and item != "" for item in cinema_data)
+    
+    if has_cinema_data:
+        return {"display": "none"}
+    else:
+        return {"display": "block", "textAlign": "center", "marginTop": "10px", "marginBottom": "10px"}
+
+
 from tools.functions_skt_abs_forest import __Change_Abs
 
 

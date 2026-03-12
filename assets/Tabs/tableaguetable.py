@@ -1,5 +1,7 @@
 from assets.dropdowns_values import *
 from assets.Infos.leagueInfo import infoCinema, infoLeague1, infoRoB
+from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 
 tab_league = html.Div(
@@ -39,27 +41,33 @@ tab_league = html.Div(
                 ),
                 dbc.Col(
                     [
-                        dcc.Upload(
-                            html.A(
-                                "Upload CINeMA report",
-                                style={
-                                    "margin-left": "5px",
-                                    "font-size": "15px",
-                                    "font-weight": "bold",
-                                    "color": "rgb(90, 135, 196)",
-                                },
-                            ),
-                            id="datatable-secondfile-upload",
-                            multiple=False,
+                        # Link to CINeMA page - always a link, not an upload
+                        dcc.Link(
+                            "Upload CINeMA report",
+                            id="cinema-link-to-page",
+                            href="/cinema",
                             style={
+                                "margin-left": "5px",
+                                "font-size": "15px",
+                                "font-weight": "bold",
+                                "color": "rgb(90, 135, 196)",
+                                "textDecoration": "underline",
+                                "paddingTop": "12px",
                                 "display": "inline-block",
-                                "font-size": "12px",
-                                "padding-top": "12px",
-                                "margin-right": "-30px",
                             },
-                        )
+                        ),
+                        # Display loaded filename when CINeMA data exists
+                        html.Span(
+                            id="cinema-filename-display",
+                            style={
+                                "marginLeft": "10px",
+                                "fontSize": "13px",
+                                "color": "green",
+                                "fontWeight": "bold",
+                            }
+                        ),
                     ],
-                    style={"display": "inline-block"},
+                    style={"display": "inline-block", "paddingTop": "12px"},
                 ),
                 infoCinema,
                 dbc.Col(

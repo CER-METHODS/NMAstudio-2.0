@@ -252,6 +252,16 @@ def switch_table():
                                                     'text-align': 'center',
                                                     'color':'#5c7780',
                                                        }),
+                    # CINeMA warning - shown when no CINeMA files are uploaded
+                    html.Div(
+                        id="cinema_warning_div",
+                        children=[
+                            html.Span("* No CINeMA files uploaded, some features are not available. Go to ", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
+                            dcc.Link("CINeMA", href="/cinema", style={"color": "red", "fontSize": "16px", "fontWeight": "bold", "textDecoration": "underline"}),
+                            html.Span(" page to upload the files.", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
+                        ],
+                        style={"display": "none", "textAlign": "center", "marginTop": "10px", "marginBottom": "10px"}
+                    ),
                     dbc.Row(dbc.Col([
                             html.P(
                             "Standard Version",
