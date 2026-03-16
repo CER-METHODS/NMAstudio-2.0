@@ -896,9 +896,7 @@ def __update_output_bothout(
     cinema_net_data,
     forest_data,
     reset_btn,
-    outcome_idx,
     net_storage,
-    filename_cinema2,
 ):
     # Guard: Check if required data is available
     if not net_storage or not league_table_data:
@@ -912,19 +910,24 @@ def __update_output_bothout(
     else:
         return [], [], toggle_cinema if toggle_cinema is not None else False
 
-    if outcome_idx is None or len(outcome_idx) == 0:
-        # If outcome_idx is None, set default values
-        outcome_idx1 = 0
-        outcome_idx2 = 1
-    elif (
-        len(outcome_idx) > 0 and outcome_idx[0] is not None and len(outcome_idx[0]) == 2
-    ):
-        # If outcome_idx exists, is non-empty, and contains two values in its first element
-        outcome_idx1 = outcome_idx[0][0]
-        outcome_idx2 = outcome_idx[0][1]
-    else:
-        # In all other cases, return an empty list
-        return [], [], []
+    # Read outcome indices from league_table_data["compared_outcomes"]["indices"]
+    outcome_idx1 = 0
+    outcome_idx2 = 1
+    if isinstance(league_table_data, dict):
+        compared = league_table_data.get("compared_outcomes", {})
+        indices = compared.get("indices", []) if isinstance(compared, dict) else []
+        if len(indices) >= 2:
+            outcome_idx1 = indices[0]
+            outcome_idx2 = indices[1]
+        elif len(indices) == 1:
+            outcome_idx1 = indices[0]
+
+    # Guard: need a valid combined league table to render
+    if not isinstance(league_table_data, dict):
+        return [], [], toggle_cinema if toggle_cinema is not None else False
+    compared_check = league_table_data.get("compared_outcomes", {})
+    if not isinstance(compared_check, dict) or not compared_check.get("league_table"):
+        return [], [], toggle_cinema if toggle_cinema is not None else False
 
     reset_btn_triggered = False
     triggered = [tr["prop_id"] for tr in dash.callback_context.triggered]
@@ -978,64 +981,56 @@ def __update_output_bothout(
     comprs_conf_lt = comprs_conf_ut = None
 
     if toggle_cinema:
-        cinema_net_data1 = pd.read_json(cinema_net_data[0], orient="split")
-        cinema_net_data2 = pd.read_json(cinema_net_data[1], orient="split")
-        confidence_map = {
-            k: n for n, k in enumerate(["very low", "low", "moderate", "high"])
-        }
-        comparisons1 = cinema_net_data1.Comparison.str.split(":", expand=True)
-        confidence1 = (
-            cinema_net_data1["Confidence rating"].str.lower().map(confidence_map)
-        )
-        if filename_cinema2 is not None or (
-            filename_cinema2 is None and "Default_data" in cinema_net_data2.columns
+        # Use outcome_idx1 and outcome_idx2 to index into the shared cinema_net_data storage
+        if (
+            not cinema_net_data
+            or not isinstance(cinema_net_data, list)
+            or len(cinema_net_data) <= max(outcome_idx1, outcome_idx2)
+            or cinema_net_data[outcome_idx1] is None
+            or cinema_net_data[outcome_idx2] is None
         ):
+            # Not enough cinema data for both outcomes – fall back to ROB mode
+            toggle_cinema = False
+        else:
+            cinema_net_data1 = pd.read_json(cinema_net_data[outcome_idx1], orient="split")
+            cinema_net_data2 = pd.read_json(cinema_net_data[outcome_idx2], orient="split")
+            confidence_map = {
+                k: n for n, k in enumerate(["very low", "low", "moderate", "high"])
+            }
+            comparisons1 = cinema_net_data1.Comparison.str.split(":", expand=True)
+            confidence1 = (
+                cinema_net_data1["Confidence rating"].str.lower().map(confidence_map)
+            )
+            # outcome2 always has real data (same storage, indexed by outcome_idx2)
             confidence2 = (
                 cinema_net_data2["Confidence rating"].str.lower().map(confidence_map)
             )
-        else:
-            confidence2 = pd.Series(np.array([np.nan] * len(confidence1)), copy=False)
-        comparisons2 = (
-            cinema_net_data2.Comparison.str.split(":", expand=True)
-            if filename_cinema2 is not None
-            or (
-                filename_cinema2 is None
-                and "Default_data" not in cinema_net_data2.columns
-            )
-            else comparisons1
-        )
-        comprs_conf_ut = comparisons2.copy()  # Upper triangle
-        comparisons1.columns = [1, 0]  # To get lower triangle
-        comprs_conf_lt = comparisons1  # Lower triangle
-        comprs_downgrade_lt = comprs_conf_lt
-        comprs_downgrade_ut = comprs_conf_ut
-        if "Reason(s) for downgrading" in cinema_net_data1.columns:
-            downgrading1 = cinema_net_data1["Reason(s) for downgrading"]
-            comprs_downgrade_lt["Downgrading"] = downgrading1
-            if (
-                (filename_cinema2 is not None)
-                or (
-                    filename_cinema2 is None
-                    and "Default_data" in cinema_net_data2.columns
+            comparisons2 = cinema_net_data2.Comparison.str.split(":", expand=True)
+            comprs_conf_ut = comparisons2.copy()  # Upper triangle
+            comparisons1.columns = [1, 0]  # To get lower triangle
+            comprs_conf_lt = comparisons1  # Lower triangle
+            comprs_downgrade_lt = comprs_conf_lt
+            comprs_downgrade_ut = comprs_conf_ut
+            if "Reason(s) for downgrading" in cinema_net_data1.columns:
+                downgrading1 = cinema_net_data1["Reason(s) for downgrading"]
+                comprs_downgrade_lt["Downgrading"] = downgrading1
+                if "Reason(s) for downgrading" in cinema_net_data2.columns:
+                    downgrading2 = cinema_net_data2["Reason(s) for downgrading"]
+                else:
+                    downgrading2 = pd.Series(
+                        np.array([np.nan] * len(downgrading1)), copy=False
+                    )
+                comprs_downgrade_ut["Downgrading"] = downgrading2
+                comprs_downgrade = pd.concat([comprs_downgrade_ut, comprs_downgrade_lt])
+                comprs_downgrade = comprs_downgrade.pivot(
+                    index=0, columns=1, values="Downgrading"
                 )
-                and ("Reason(s) for downgrading" in cinema_net_data2.columns)
-            ):
-                downgrading2 = cinema_net_data2["Reason(s) for downgrading"]
-            else:
-                downgrading2 = pd.Series(
-                    np.array([np.nan] * len(downgrading1)), copy=False
-                )
-            comprs_downgrade_ut["Downgrading"] = downgrading2
-            comprs_downgrade = pd.concat([comprs_downgrade_ut, comprs_downgrade_lt])
-            comprs_downgrade = comprs_downgrade.pivot(
-                index=0, columns=1, values="Downgrading"
-            )
-        comprs_conf_lt["Confidence"] = confidence1
-        comprs_conf_ut["Confidence"] = confidence2
-        comprs_conf = pd.concat([comprs_conf_ut, comprs_conf_lt])
-        comprs_conf = comprs_conf.pivot_table(index=0, columns=1, values="Confidence")
+            comprs_conf_lt["Confidence"] = confidence1
+            comprs_conf_ut["Confidence"] = confidence2
+            comprs_conf = pd.concat([comprs_conf_ut, comprs_conf_lt])
+            comprs_conf = comprs_conf.pivot_table(index=0, columns=1, values="Confidence")
 
-        robs = comprs_conf
+            robs = comprs_conf
 
     # Filter according to cytoscape selection
 

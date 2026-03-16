@@ -2144,15 +2144,13 @@ def update_league_table(
         Input("cytoscape", "selectedEdgeData"),
         Input("rob_vs_cinema-both", "value"),
         Input("league_table_data_STORAGE", "data"),
-        Input("cinema_net_data_STORAGE2", "data"),
+        Input("cinema_net_data_STORAGE", "data"),
         Input("forest_data_STORAGE", "data"),
-        Input({"type": "outcomeprimary", "index": ALL}, "value"),
     ],
     [
         State("net_data_STORAGE", "data"),
-        State("datatable-secondfile-upload-2", "filename"),
     ],
-    prevent_initial_call=True,
+    prevent_initial_call=False,
 )
 def update_league_table_both(
     store_node,
@@ -2161,9 +2159,7 @@ def update_league_table_both(
     league_table_data,
     cinema_net_data,
     forest_data,
-    outcome_idx,
     net_storage,
-    filename_cinema2,
 ):
     """Update the league table for both outcomes."""
     return __update_output_bothout(
@@ -2174,36 +2170,79 @@ def update_league_table_both(
         cinema_net_data,
         forest_data,
         None,  # reset_btn - not used
-        outcome_idx,
         net_storage,
-        filename_cinema2,
     )
 
 
-### ---------------------------------- CINEMA UPLOAD LABELS FOR BOTH OUTCOMES ---------------------------------- ###
+### ---------------------------------- CINEMA DISPLAY FOR BOTH OUTCOMES ---------------------------------- ###
 @callback(
     [
-        Output("cinema-upload-label-1", "children"),
-        Output("cinema-upload-label-2", "children"),
+        Output("cinema-link-both", "style"),
+        Output("cinema-filename-display-both", "children"),
     ],
-    Input("league_table_data_STORAGE", "data"),
+    [
+        Input("league_table_data_STORAGE", "data"),
+        Input("cinema_net_data_STORAGE", "data"),
+    ],
+    [
+        State("cinema_filename_STORAGE", "data"),
+    ],
     prevent_initial_call=False,
 )
-def update_cinema_upload_labels(league_table_data):
-    """Update CINeMA upload labels with actual outcome names from compared_outcomes."""
-    # Default labels
-    label1 = "Upload CINeMA report for outcome 1"
-    label2 = "Upload CINeMA report for outcome 2"
+def update_cinema_display_both_outcomes(league_table_data, cinema_data, cinema_filenames):
+    """
+    Single CINeMA link for the two-outcome league table.
+    Checks both compared outcome indices — if both have CINeMA data, hide the link and
+    show a confirmation message; otherwise keep the link visible.
+    """
+    link_visible_style = {
+        "margin-left": "5px",
+        "font-size": "15px",
+        "font-weight": "bold",
+        "color": "rgb(90, 135, 196)",
+        "textDecoration": "underline",
+    }
+    link_hidden_style = {"display": "none"}
+
+    # Get compared outcome indices
+    outcome1_idx = 0
+    outcome2_idx = 1
 
     if league_table_data and isinstance(league_table_data, dict):
         compared = league_table_data.get("compared_outcomes", {})
-        names = compared.get("names", [])
-        if len(names) >= 1:
-            label1 = f"Upload CINeMA report for {names[0]}"
-        if len(names) >= 2:
-            label2 = f"Upload CINeMA report for {names[1]}"
+        indices = compared.get("indices", [])
+        if len(indices) >= 1:
+            outcome1_idx = indices[0]
+        if len(indices) >= 2:
+            outcome2_idx = indices[1]
 
-    return label1, label2
+    # Check if CINeMA data exists for BOTH selected outcomes
+    def has_cinema(idx):
+        if cinema_data and isinstance(cinema_data, list) and len(cinema_data) > idx:
+            return cinema_data[idx] is not None and cinema_data[idx] != ""
+        return False
+
+    both_loaded = has_cinema(outcome1_idx) and has_cinema(outcome2_idx)
+
+    if both_loaded:
+        # Build display text from filenames if available
+        def get_fname(idx):
+            if cinema_filenames and isinstance(cinema_filenames, list) and len(cinema_filenames) > idx:
+                return cinema_filenames[idx] or ""
+            return ""
+        fname1 = get_fname(outcome1_idx)
+        fname2 = get_fname(outcome2_idx)
+        if fname1 and fname2:
+            display_text = f"✓ Loaded: {fname1}, {fname2}"
+        elif fname1:
+            display_text = f"✓ Loaded: {fname1}"
+        elif fname2:
+            display_text = f"✓ Loaded: {fname2}"
+        else:
+            display_text = "✓ CINeMA files uploaded"
+        return link_hidden_style, display_text
+
+    return link_visible_style, ""
 
 
 ### ---------------------------------- FUNNEL, CONSISTENCY, RANKING  CALLBACKS ---------------------------------- ###
@@ -3617,100 +3656,100 @@ def update_cinema_filename_display(outcome_idx, cinema_data, cinema_filenames):
 
 
 ### ----- upload CINeMA data files (both outcomes league table) ------ ###
-@callback(
-    [
-        Output("cinema_net_data_STORAGE2", "data"),
-        Output("file-list-out1", "children"),
-        Output("file-list-out2", "children"),
-    ],
-    [
-        Input("datatable-secondfile-upload-1", "contents"),
-        Input("datatable-secondfile-upload-2", "contents"),
-    ],
-    [
-        State("datatable-secondfile-upload-1", "filename"),
-        State("datatable-secondfile-upload-2", "filename"),
-        State("cinema_net_data_STORAGE2", "data"),
-    ],
-    prevent_initial_call=True,
-)
-def upload_cinema_both_outcomes(
-    contents1, contents2, filename1, filename2, cinema_net_data2
-):
-    """
-    Upload CINeMA reports for both outcomes league table.
-    Stores CINeMA data in cinema_net_data_STORAGE2 as a list [outcome1_json, outcome2_json].
-    Only stores valid CINeMA files (with required columns).
-    Data is persisted to localStorage.
-    """
-    from tools.utils import parse_contents
-    from tools.functions_cinema import validate_cinema_csv
+# @callback(
+#     [
+#         Output("cinema_net_data_STORAGE2", "data"),
+#         Output("file-list-out1", "children"),
+#         Output("file-list-out2", "children"),
+#     ],
+#     [
+#         Input("datatable-secondfile-upload-1", "contents"),
+#         Input("datatable-secondfile-upload-2", "contents"),
+#     ],
+#     [
+#         State("datatable-secondfile-upload-1", "filename"),
+#         State("datatable-secondfile-upload-2", "filename"),
+#         State("cinema_net_data_STORAGE2", "data"),
+#     ],
+#     prevent_initial_call=True,
+# )
+# def upload_cinema_both_outcomes(
+#     contents1, contents2, filename1, filename2, cinema_net_data2
+# ):
+#     """
+#     Upload CINeMA reports for both outcomes league table.
+#     Stores CINeMA data in cinema_net_data_STORAGE2 as a list [outcome1_json, outcome2_json].
+#     Only stores valid CINeMA files (with required columns).
+#     Data is persisted to localStorage.
+#     """
+#     from tools.utils import parse_contents
+#     from tools.functions_cinema import validate_cinema_csv
 
-    # Determine which input triggered the callback
-    triggered = [tr["prop_id"] for tr in dash.callback_context.triggered]
+#     # Determine which input triggered the callback
+#     triggered = [tr["prop_id"] for tr in dash.callback_context.triggered]
 
-    # Initialize storage list if empty [outcome1, outcome2]
-    if cinema_net_data2 is None or not isinstance(cinema_net_data2, list):
-        cinema_net_data2 = [None, None]
-    else:
-        # Make a copy to avoid mutating the original
-        cinema_net_data2 = list(cinema_net_data2)
+#     # Initialize storage list if empty [outcome1, outcome2]
+#     if cinema_net_data2 is None or not isinstance(cinema_net_data2, list):
+#         cinema_net_data2 = [None, None]
+#     else:
+#         # Make a copy to avoid mutating the original
+#         cinema_net_data2 = list(cinema_net_data2)
 
-    # Ensure list has at least 2 elements
-    while len(cinema_net_data2) < 2:
-        cinema_net_data2.append(None)
+#     # Ensure list has at least 2 elements
+#     while len(cinema_net_data2) < 2:
+#         cinema_net_data2.append(None)
 
-    file1_msg = ""
-    file2_msg = ""
+#     file1_msg = ""
+#     file2_msg = ""
 
-    try:
-        # Process file 1 if uploaded (for outcome 1)
-        if (
-            "datatable-secondfile-upload-1.contents" in triggered
-            and contents1 is not None
-        ):
-            cinema_df1 = parse_contents(contents1, filename1)
-            # Validate CINeMA CSV format
-            is_valid, error_msg = validate_cinema_csv(cinema_df1)
-            if is_valid:
-                cinema_net_data2[0] = cinema_df1.to_json(orient="split")
-                file1_msg = html.Span(
-                    f"Loaded: {filename1}",
-                    style={"color": "green", "fontSize": "12px"},
-                )
-            else:
-                file1_msg = html.Span(
-                    f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
-                )
+#     try:
+#         # Process file 1 if uploaded (for outcome 1)
+#         if (
+#             "datatable-secondfile-upload-1.contents" in triggered
+#             and contents1 is not None
+#         ):
+#             cinema_df1 = parse_contents(contents1, filename1)
+#             # Validate CINeMA CSV format
+#             is_valid, error_msg = validate_cinema_csv(cinema_df1)
+#             if is_valid:
+#                 cinema_net_data2[0] = cinema_df1.to_json(orient="split")
+#                 file1_msg = html.Span(
+#                     f"Loaded: {filename1}",
+#                     style={"color": "green", "fontSize": "12px"},
+#                 )
+#             else:
+#                 file1_msg = html.Span(
+#                     f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
+#                 )
 
-        # Process file 2 if uploaded (for outcome 2)
-        if (
-            "datatable-secondfile-upload-2.contents" in triggered
-            and contents2 is not None
-        ):
-            cinema_df2 = parse_contents(contents2, filename2)
-            # Validate CINeMA CSV format
-            is_valid, error_msg = validate_cinema_csv(cinema_df2)
-            if is_valid:
-                cinema_net_data2[1] = cinema_df2.to_json(orient="split")
-                file2_msg = html.Span(
-                    f"Loaded: {filename2}",
-                    style={"color": "green", "fontSize": "12px"},
-                )
-            else:
-                file2_msg = html.Span(
-                    f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
-                )
+#         # Process file 2 if uploaded (for outcome 2)
+#         if (
+#             "datatable-secondfile-upload-2.contents" in triggered
+#             and contents2 is not None
+#         ):
+#             cinema_df2 = parse_contents(contents2, filename2)
+#             # Validate CINeMA CSV format
+#             is_valid, error_msg = validate_cinema_csv(cinema_df2)
+#             if is_valid:
+#                 cinema_net_data2[1] = cinema_df2.to_json(orient="split")
+#                 file2_msg = html.Span(
+#                     f"Loaded: {filename2}",
+#                     style={"color": "green", "fontSize": "12px"},
+#                 )
+#             else:
+#                 file2_msg = html.Span(
+#                     f"Invalid: {error_msg}", style={"color": "red", "fontSize": "12px"}
+#                 )
 
-        return cinema_net_data2, file1_msg, file2_msg
+#         return cinema_net_data2, file1_msg, file2_msg
 
-    except Exception as e:
-        print(f"Error uploading CINeMA files: {e}")
-        return (
-            cinema_net_data2,
-            html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
-            html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
-        )
+#     except Exception as e:
+#         print(f"Error uploading CINeMA files: {e}")
+#         return (
+#             cinema_net_data2,
+#             html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
+#             html.Span(f"Error: {str(e)}", style={"color": "red", "fontSize": "12px"}),
+#         )
 
 
 ### ----- disable CINeMA toggle when no CINeMA file uploaded or invalid ------ ###
@@ -3757,30 +3796,39 @@ def disable_cinema_toggle(cinema_net_data, outcome_idx):
 @callback(
     Output("rob_vs_cinema-both", "disabled"),
     [
-        Input("cinema_net_data_STORAGE2", "data"),
+        Input("cinema_net_data_STORAGE", "data"),
+        Input("league_table_data_STORAGE", "data"),
     ],
 )
-def disable_cinema_toggle_both(cinema_net_data2):
+def disable_cinema_toggle_both(cinema_net_data, league_table_data):
     """
-    Disable CINeMA toggle switch for both outcomes table when no valid CINeMA data.
-    cinema_net_data2 is a list [outcome1_json, outcome2_json].
+    Disable CINeMA toggle switch for the two-outcome table unless both selected
+    outcomes have valid CINeMA data in the shared storage.
     """
     from tools.functions_cinema import validate_cinema_csv
 
-    # Check if cinema data exists for both outcomes (list format)
-    if cinema_net_data2 is None or not isinstance(cinema_net_data2, list):
+    outcome1_idx = 0
+    outcome2_idx = 1
+    if isinstance(league_table_data, dict):
+        compared = league_table_data.get("compared_outcomes", {})
+        indices = compared.get("indices", []) if isinstance(compared, dict) else []
+        if len(indices) >= 1:
+            outcome1_idx = indices[0]
+        if len(indices) >= 2:
+            outcome2_idx = indices[1]
+
+    if cinema_net_data is None or not isinstance(cinema_net_data, list):
         return True
 
-    if len(cinema_net_data2) < 2:
+    if len(cinema_net_data) <= max(outcome1_idx, outcome2_idx):
         return True
 
-    if cinema_net_data2[0] is None or cinema_net_data2[1] is None:
+    if not cinema_net_data[outcome1_idx] or not cinema_net_data[outcome2_idx]:
         return True
 
-    # Validate both CINeMA datasets have required columns
     try:
-        cinema_df1 = pd.read_json(cinema_net_data2[0], orient="split")
-        cinema_df2 = pd.read_json(cinema_net_data2[1], orient="split")
+        cinema_df1 = pd.read_json(cinema_net_data[outcome1_idx], orient="split")
+        cinema_df2 = pd.read_json(cinema_net_data[outcome2_idx], orient="split")
         is_valid1, _ = validate_cinema_csv(cinema_df1)
         is_valid2, _ = validate_cinema_csv(cinema_df2)
         if not is_valid1 or not is_valid2:

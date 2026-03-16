@@ -170,80 +170,31 @@ tab_league_both = html.Div(
                 ),
                 dbc.Col(
                     [
-                        dcc.Upload(
-                            html.A(
-                                "Upload CINeMA report for outcome 1",
-                                id="cinema-upload-label-1",
-                                style={
-                                    "margin-left": "5px",
-                                    "font-size": "15px",
-                                    "font-weight": "bold",
-                                    "color": "rgb(90, 135, 196)",
-                                },
-                            ),
-                            id="datatable-secondfile-upload-1",
-                            multiple=False,
+                        # Single link to CINeMA page for both outcomes
+                        dcc.Link(
+                            id="cinema-link-both",
+                            children="Upload CINeMA report",
+                            href="/cinema",
                             style={
-                                "display": "inline-block",
-                                "font-size": "14px",
-                                "padding-left": "45px",
+                                "margin-left": "5px",
+                                "font-size": "15px",
+                                "font-weight": "bold",
+                                "color": "rgb(90, 135, 196)",
+                                "textDecoration": "underline",
                             },
-                        )
-                    ],
-                    style={"display": "inline-block"},
-                ),
-                dbc.Col(
-                    [
-                        html.Ul(
-                            id="file-list-out1",
+                        ),
+                        # Display status when CINeMA data exists for both selected outcomes
+                        html.Span(
+                            id="cinema-filename-display-both",
                             style={
-                                "margin-left": "15px",
-                                "color": "black",
-                                "font-size": "11px",
-                            },
-                        )
+                                "marginLeft": "10px",
+                                "fontSize": "13px",
+                                "color": "green",
+                                "fontWeight": "bold",
+                            }
+                        ),
                     ],
-                    style={"display": "inline-block"},
-                ),
-                dbc.Col(
-                    [
-                        dcc.Upload(
-                            html.A(
-                                "Upload CINeMA report for outcome 2",
-                                id="cinema-upload-label-2",
-                                style={
-                                    "margin-left": "5px",
-                                    "margin-top": "1px",
-                                    "font-size": "15px",
-                                    "font-weight": "bold",
-                                    "padding-bottom": "4px",
-                                    "color": "rgb(90, 135, 196)",
-                                },
-                            ),
-                            id="datatable-secondfile-upload-2",
-                            multiple=False,
-                            style={"display": "inline-block", "font-size": "12px"},
-                        )
-                    ],
-                    style={"display": "inline-block"},
-                ),
-                dbc.Col(
-                    [
-                        html.Ul(
-                            id="file-list-out2",
-                            style={
-                                "margin-left": "15px",
-                                "color": "black",
-                                "font-size": "11px",
-                                "vertical-alignment": "middle",
-                            },
-                        )
-                    ],
-                    style={
-                        "display": "inline-block",
-                        "margin-top": "0px",
-                        "margin-bottom": "0px",
-                    },
+                    style={"display": "inline-block", "paddingTop": "12px"},
                 ),
             ]
         ),

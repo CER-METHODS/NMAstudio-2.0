@@ -858,7 +858,7 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
                                        n=dat[[paste0("n", i)]],
                                        studlab=studlab,
                                        treat=treat,
-                                       incr=0.5,
+                                      #  incr=0.5,
                                        sm=sm)
         pairwise_dat[[i]] <- pair_dat[,1:9]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
@@ -875,7 +875,7 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
                                             n=dat[[paste0("n", i)]],
                                             studlab=studlab,
                                             treat=treat,
-                                            incr=0.5,
+                                            # incr=0.5,
                                             sm=sm)
         pairwise_dat[[i]] <- pair_dat[,1:9]                                   
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
