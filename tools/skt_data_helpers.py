@@ -289,7 +289,7 @@ def Generate_kt_standad_columnDefs(num_outcomes, outcome_names, effect_sizes):
             {
                 "field": cert_field,
                 "suppressHeaderMenuButton": True,
-                "headerName": "Confidence of the evidence",
+                "headerName": "Confidence in the evidence",
                 "resizable": True,
                 "suppressSizeToFit": True,
                 "headerComponent": "HeaderWithIcon",
@@ -772,7 +772,7 @@ def Generate_advanced_detailColumnDefs(effect_size):
         {"field": "p-value", "headerName": "p-value\n(Consistency)", "width": 140, "resizable": True,
          'cellStyle': {'text-align': 'center', 'display': 'grid', 'line-height': 'normal', 'white-space': 'pre', 'align-items': 'center'}},
 
-        {"field": "Certainty", "headerName": "confidence of the evidence", "headerComponent": "HeaderWithIcon", "filter": True,
+        {"field": "Certainty", "headerName": "Confidence in the evidence", "headerComponent": "HeaderWithIcon", "filter": True,
          "width": 110, "resizable": True, "tooltipField": 'Certainty',
          "tooltipComponentParams": {"color": '#d8f0d3'}, "tooltipComponent": "CustomTooltip2",
          'cellStyle': {"styleConditions": [

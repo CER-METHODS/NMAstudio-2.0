@@ -246,26 +246,42 @@ layout = html.Div(
                     },
                     id="result_selected",
                 ),
+                html.Div(
+                        [
+                            html.Button(
+                                "Download settings of statistical analysis",
+                                id="statsettings",
+                                style={
+                                    "display": "inline-block", 
+                                    "padding": "1px",
+                                    'background-color': '#00ac9c',
+                                    'color': 'black',
+                                    'width': '120%'
+                                    },
+                            ),
+                            Download(id="download-statistic"),
+                        ], style={"display": "grid", "justify-content": "center"}
+                    )
             ],
             style={
                 "display": "grid",
                 "width": "1050px",
                 "justify-self": "center",
-                "grid-template-columns": "0.7fr 0.7fr 0.2fr 0.4fr 0.4fr 0.4fr",
+                "grid-template-columns": "0.3fr 0.2fr 0.5fr",
             },
         ),
         html.Br(),
         # Statistics settings download button
-        html.Div(
-            [
-                html.Button(
-                    "Download settings of statistical analysis",
-                    id="statsettings",
-                    style={"display": "inline-block", "padding": "1px"},
-                ),
-                Download(id="download-statistic"),
-            ]
-        ),
+        # html.Div(
+        #     [
+        #         html.Button(
+        #             "Download settings of statistical analysis",
+        #             id="statsettings",
+        #             style={"display": "inline-block", "padding": "1px"},
+        #         ),
+        #         Download(id="download-statistic"),
+        #     ]
+        # ),
         html.Br(),
         html.Br(),
         # Horizontal divider
@@ -1230,10 +1246,7 @@ def update_project_title_display(project_title):
     Shows the project title or "Not provided" if not set.
     """
     if project_title and isinstance(project_title, str) and project_title.strip():
-        title = project_title.strip()
-        # Truncate if too long
-        display_title = title if len(title) <= 80 else title[:77] + "..."
-        return display_title
+        return project_title.strip()
     return "Not provided"
 
 

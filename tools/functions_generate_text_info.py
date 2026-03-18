@@ -154,19 +154,28 @@ def __generate_text_info__(nodedata, edgedata, instruct_data, out_idx, net_data,
         num_RCT = f"Randomized controlled trials: {len(n_rct)}"
 
         treat_desc = None
-        if describ_df is not None and {'treatment', 'description'}.issubset(describ_df.columns):
-            row = describ_df.loc[describ_df['treatment'] == selected_id, 'description']
-            if not row.empty:
-                treat_desc = html.Span(
-                    row.iloc[0],
-                    style={'display': 'grid', 'margin': '2%'}
-                )
+        if describ_df is not None and len(describ_df) > 0:
+            describ_df_clean = describ_df.copy()
+            describ_df_clean.columns = [str(col).strip().lower() for col in describ_df_clean.columns]
+
+            treatment_col = 'treatment' if 'treatment' in describ_df_clean.columns else ('treat' if 'treat' in describ_df_clean.columns else None)
+            description_col = 'description' if 'description' in describ_df_clean.columns else ('describ' if 'describ' in describ_df_clean.columns else None)
+
+            if treatment_col and description_col:
+                row = describ_df_clean.loc[
+                    describ_df_clean[treatment_col].astype(str).str.strip() == str(selected_id).strip(),
+                    description_col,
+                ]
+                if not row.empty and pd.notna(row.iloc[0]):
+                    treat_desc = html.Span(
+                        str(row.iloc[0]),
+                        style={'display': 'grid', 'margin': '2%'}
+                    )
 
         treat_info = html.Span(
             selected_id,
             style={'display': 'grid', 'text-align': 'center', 'font-weight': 'bold'}
         )
-
         numRCT_info = html.Span(
             num_RCT,
             style={'display': 'grid', 'text-align': 'center', 'font-weight': 'bold'}

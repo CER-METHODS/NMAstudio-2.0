@@ -173,7 +173,7 @@ tab_league_both = html.Div(
                         # Single link to CINeMA page for both outcomes
                         dcc.Link(
                             id="cinema-link-both",
-                            children="Upload CINeMA report",
+                            children="Upload CINeMA report for both outcomes",
                             href="/cinema",
                             style={
                                 "margin-left": "5px",

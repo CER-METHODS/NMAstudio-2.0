@@ -12,7 +12,7 @@ import io
 
 from tools.functions_project_setup import __upload_cinema
 
-dash.register_page(__name__, path="/cinema")
+dash.register_page(__name__, path="/cinema", name="Appraisal")
 
 
 layout = html.Div(id="cinema-page", children=[
@@ -24,20 +24,22 @@ layout = html.Div(id="cinema-page", children=[
                                 dbc.Col(
                                     html.Div([
                                         html.Span(
-                                            "Some features in the NMAstudio require users to upload CINeMA files for each outcome. Please go to the ",
+                                            "Some features in the NMAstudio require users to upload CINeMA reports for each outcome. Please go to the ",
                                             style={"fontSize": "larger", 'color':'red'}
                                         ),
                                         html.A(
-                                            html.Img(
-                                                src="/assets/logos/cinema_logo.png",
-                                                style={"height": "50px", "verticalAlign": "middle", "margin": "0 5px"}
-                                            ),
+                                            'CINeMA',
+                                            # html.Img(
+                                            #     src="/assets/logos/cinema_logo.png",
+                                            #     style={"height": "50px", "verticalAlign": "middle", "margin": "0 5px"}
+                                            # ),
                                             href="https://cinema.ispm.unibe.ch/",
                                             target="_blank",
-                                            title="Go to CINeMA application"
+                                            title="Go to CINeMA application",
+                                            style={"color": "#3498db"},
                                         ),
                                         html.Span(
-                                            " application to obtain the files.",
+                                            " application to obtain the reports.",
                                             style={"fontSize": "larger", 'color':'red'}
                                         ),
                                     ], style={"display": "flex", "alignItems": "center", "justifyContent": "center", "flexWrap": "wrap"}),
@@ -74,15 +76,16 @@ layout = html.Div(id="cinema-page", children=[
         Output("cinema-file-upload", "style"),
     ],
     [
-        Input("number_outcomes_STORAGE", "data")
+        Input("number_outcomes_STORAGE", "data"),
+        Input("outcome_names_STORAGE", "data"),
     ]
 )
 def update_cinema_selection(
-    number_outcomes
+    number_outcomes, outcome_names
 ):
     num_outcomes = int(number_outcomes or 0)
     return __upload_cinema(
-        num_outcomes
+        num_outcomes, outcome_names
     )
 
 
@@ -153,7 +156,7 @@ def upload_cinema_files(
             uploaded_labels[idx] = f"Loaded: {filename_list[idx]}"
 
         except Exception as e:
-            print(f"Error uploading CINeMA file for outcome {idx}: {e}")
+            print(f"Error uploading CINeMA report for outcome {idx}: {e}")
     
     return cinema_net_data, uploaded_labels, stored_filenames
 

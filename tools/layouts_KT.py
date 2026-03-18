@@ -256,11 +256,36 @@ def switch_table():
                     html.Div(
                         id="cinema_warning_div",
                         children=[
-                            html.Span("* No CINeMA files uploaded, some features are not available. Go to ", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
-                            dcc.Link("CINeMA", href="/cinema", style={"color": "red", "fontSize": "16px", "fontWeight": "bold", "textDecoration": "underline"}),
-                            html.Span(" page to upload the files.", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
+                            html.Span("* No CINeMA reports uploaded, some features are not available. Go to ", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
+                            dcc.Link("APPRAISAL", href="/cinema", style={"color": "red", "fontSize": "16px", "fontWeight": "bold", "textDecoration": "underline"}),
+                            html.Span(" page to upload the reports.", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
                         ],
                         style={"display": "none", "textAlign": "center", "marginTop": "10px", "marginBottom": "10px"}
+                    ),
+                    # Interpretation warning
+                    html.Div(
+                        children=[
+                            html.Span(
+                                "⚠ The results shown in the Standard version alone are not sufficient for reliable interpretation. "
+                                "We recommend consulting a NMA methodologist and reviewing the results and underlying data in both "
+                                "the Standard and Advanced versions to ensure that potential limitations are fully understood.",
+                                style={
+                                    "color": "#b74f43",
+                                    "fontSize": "medium",
+                                    "fontStyle": "italic",
+                                }
+                            ),
+                        ],
+                        style={
+                            "backgroundColor": "#fff3cd",
+                            "border": "1px solid #ffc107",
+                            "borderRadius": "6px",
+                            "padding": "10px 16px",
+                            "margin": "12px 0px 4px 0px",
+                            "textAlign": "left",
+                            "width": "70%",
+                            "justify-self": "center",
+                        }
                     ),
                     dbc.Row(dbc.Col([
                             html.P(
@@ -623,7 +648,7 @@ def skt_layout():
                                                                                                                     'display': 'inline-block',
                                                                                                                     'justify-self':'center',
                                                                                                                     'border': 'unset',
-                                                                                                                    'margin-left':'11%',
+                                                                                                                    'margin-left':'15%',
                                                                                                                     'padding': '4px'}),
                                                                         html.Div([html.Button("Check statistical info", 
                                                                                                 id="statsettings", 

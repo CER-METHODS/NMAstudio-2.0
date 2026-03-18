@@ -129,7 +129,7 @@ ColumnDefs_treat_compare = [
             #  },
             {'field': 'Certainty_out1',
              "suppressHeaderMenuButton": True, 
-             'headerName': 'Confidence of the evidence',
+             'headerName': 'Confidence in the evidence',
              "resizable": False,
              "headerComponent": "HeaderWithIcon",
              "tooltipField": 'Certainty_out1',

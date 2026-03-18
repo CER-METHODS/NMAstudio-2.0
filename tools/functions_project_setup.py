@@ -748,7 +748,7 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
         {"display": "none", "justifyContent": "center"},
     )
 
-def __upload_cinema(number_outcomes):
+def __upload_cinema(number_outcomes, outcome_names=None):
     # print(primary_out)
     # print(outcometype)
     if not number_outcomes or number_outcomes == 0:
@@ -758,13 +758,24 @@ def __upload_cinema(number_outcomes):
             {"display": "none", "justifyContent": "center"},
         )
 
+    if isinstance(outcome_names, list):
+        resolved_outcome_names = []
+        for i in range(number_outcomes):
+            name = outcome_names[i] if i < len(outcome_names) else None
+            if isinstance(name, str) and name.strip():
+                resolved_outcome_names.append(name.strip())
+            else:
+                resolved_outcome_names.append(f"outcome {i + 1}")
+    else:
+        resolved_outcome_names = [f"outcome {i + 1}" for i in range(number_outcomes)]
+
     cinema_file_upload = [
         html.Div(
             [
                 dbc.Row(
                     [
                         html.P(
-                            f"Upload CINeMA file for outcome {i + 1}:",
+                            f"Upload CINeMA report for {resolved_outcome_names[i]}:",
                             className="selcect_title",
                         ),
                         html.Div(

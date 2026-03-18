@@ -409,11 +409,20 @@ layout = html.Div(
                                 "marginTop": "0",
                             },
                         ),
-                        dcc.Markdown(
-                            "Please cite us as: Yu T, Metelli S, Papakonstantinou T, Chaimani A. NMAstudio 2.0: An interactive tool for network meta-analysis to enhance understanding, interpretation, and communication of the findings. Research Synthesis Methods. Published online 2026:1-14. doi:10.1017/rsm.2026.10074",
+                        html.Span(
+                            [
+                                "Please cite us as: ",
+                                html.A(
+                                    "Yu T, Metelli S, Papakonstantinou T, Chaimani A. NMAstudio 2.0: An interactive tool for network meta-analysis to enhance understanding, interpretation, and communication of the findings. Research Synthesis Methods. Published online 2026:1-14. doi: 10.1017/rsm.2026.10074",
+                                    href="https://doi.org/10.1017/rsm.2026.10074",
+                                    target="_blank",
+                                    style={"color": "#3498db", "textDecoration": "underline", "fontWeight": "bold"},
+                                ),
+                            ],
                             className="markdown_style",
                             style={"color": "black", "marginRight": "10%"},
                         ),
+                        html.Br(),
                         html.Br(),
                         dcc.Markdown(
                             "NMAstudio is a web application to produce and visualise interactive outputs from network meta-analyses. NMAstudio is written in Python, and linked to the R-package netmeta for performing network meta analysis.",
@@ -425,7 +434,7 @@ layout = html.Div(
                             href="https://www.jstatsoft.org/article/view/v106i02",
                             external_link=True,
                             className="markdown_style",
-                            style={"fontSize": "14px", "color": "#3498db"},
+                            style={"fontSize": "14px", "color": "#3498db", "padding": "unset"},
                         ),
                         html.Br(),
                         html.Br(),
