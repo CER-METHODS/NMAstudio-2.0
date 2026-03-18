@@ -14,7 +14,7 @@ from assets.cytoscape_styleesheeet import get_stylesheet
 
 options_format = [
     dict(label="long", value="long"),
-    dict(label="contrast", value="contrast"),
+    dict(label="wide", value="contrast"),
     dict(label="iv", value="iv"),
 ]
 options_outcomes = [

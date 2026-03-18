@@ -106,188 +106,176 @@ def __update_options(
             html.Div(
                 [
                     dbc.Row(
-                        [
-                            html.P(
-                                "Select effect size",
-                                style={"color": "black", "vertical-align": "middle"},
-                            )
-                        ]
+                        [html.P("Select effect size", className="selcect_title")],
+                        style={"justifyContent": "center", "display": "grid"},
                     )
                 ]
                 + [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Row(
-                                    [
-                                        html.P(
-                                            f"{name}",
-                                            className="selectbox",
-                                            style={
-                                                "display": "inline-block",
-                                                "text-align": "right",
-                                                "margin-left": "5px",
-                                                "font-size": "12px",
-                                                "color": "black",
-                                            },
-                                        ),
-                                        dcc.Dropdown(
-                                            id={
-                                                "type": "dataselectors",
-                                                "index": f"dropdown-{name_outcomes}",
-                                            },
-                                            options=options_effect_size_cont
-                                            if val == "continuous"
-                                            else options_effect_size_bin,
-                                            searchable=True,
-                                            placeholder="...",
-                                            clearable=False,
-                                            style={
-                                                "width": "60px",
-                                                "height": "30px",
-                                                "vertical-align": "middle",
-                                                "font-family": "sans-serif",
-                                                "margin-bottom": "2px",
-                                                "display": "inline-block",
-                                                "color": "black",
-                                                "font-size": "10px",
-                                            },
-                                        ),
-                                    ]
-                                ),
-                                style={"margin-left": "55px", "margin-right": "5px"},
-                            )
-                            for name, val in zip(name_outcomes, search_values)
-                        ]
-                    )
-                ],
-            ),
-            html.Div(
-                [
-                    dbc.Row(
-                        [
-                            html.P(
-                                "Outcome direction",
-                                style={"color": "black", "vertical-align": "middle"},
-                            )
-                        ]
-                    )
-                ]
-                + [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                dbc.Row(
-                                    [
-                                        html.P(
-                                            f"{name}",
-                                            className="selectbox",
-                                            style={
-                                                "display": "inline-block",
-                                                "text-align": "right",
-                                                "margin-left": "-1.5px",
-                                                "font-size": "12px",
-                                                "color": "black",
-                                            },
-                                        ),
-                                        dcc.Dropdown(
-                                            id={
-                                                "type": "dataselectors",
-                                                "index": f"dropdown-outcome-{name_outcomes}",
-                                            },
-                                            options=options_outcome_direction,
-                                            searchable=True,
-                                            placeholder="...",
-                                            clearable=False,
-                                            style={
-                                                "width": "60px",
-                                                "height": "30px",
-                                                "vertical-align": "middle",
-                                                "font-family": "sans-serif",
-                                                "margin-bottom": "2px",
-                                                "display": "inline-block",
-                                                "color": "black",
-                                                "font-size": "10px",
-                                            },
-                                        ),
-                                    ]
-                                ),
-                                style={"margin-left": "55px", "margin-right": "5px"},
-                            )
-                            for name, val in zip(name_outcomes, search_values)
-                        ]
-                    )
-                ],
-            ),
-            html.Div(
-                [
-                    html.Div(),
                     html.Div(
                         [
-                            dbc.Row(
+                            html.P(
+                                f"{name}:",
+                                className="selectbox",
+                                style={
+                                    "margin": "0",
+                                    "textAlign": "right",
+                                    "fontSize": "x-large",
+                                    "fontWeight": "600",
+                                    "color": "black",
+                                },
+                            ),
+                            dcc.Dropdown(
+                                id={
+                                    "type": "dataselectors",
+                                    "index": f"dropdown-{name_outcomes}",
+                                },
+                                options=options_effect_size_cont
+                                if val == "continuous"
+                                else options_effect_size_bin,
+                                searchable=True,
+                                placeholder="Select effect size...",
+                                clearable=False,
+                                style={
+                                    "width": "100%",
+                                    "minWidth": "260px",
+                                    "height": "42px",
+                                    "fontFamily": "sans-serif",
+                                    "color": "black",
+                                    "fontSize": "x-large",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "grid",
+                            "gridTemplateColumns": "220px minmax(260px, 1fr)",
+                            "columnGap": "12px",
+                            "alignItems": "center",
+                            "marginBottom": "10px",
+                            "width": "100%",
+                            "maxWidth": "700px",
+                        },
+                    )
+                    for name, val in zip(name_outcomes, search_values)
+                ],
+                style={"justifyContent": "center", "display": "grid"},
+            ),
+            html.Br(),
+            html.Div(
+                [
+                    dbc.Row(
+                        [html.P("Outcome direction", className="selcect_title")],
+                        style={"justifyContent": "center", "display": "grid"},
+                    )
+                ]
+                + [
+                    html.Div(
+                        [
+                            html.P(
+                                f"{name}:",
+                                className="selectbox",
+                                style={
+                                    "margin": "0",
+                                    "textAlign": "right",
+                                    "fontSize": "x-large",
+                                    "fontWeight": "600",
+                                    "color": "black",
+                                },
+                            ),
+                            dcc.Dropdown(
+                                id={
+                                    "type": "dataselectors",
+                                    "index": f"dropdown-outcome-{name_outcomes}",
+                                },
+                                options=options_outcome_direction,
+                                searchable=True,
+                                placeholder="Select direction...",
+                                clearable=False,
+                                style={
+                                    "width": "100%",
+                                    "minWidth": "260px",
+                                    "height": "42px",
+                                    "fontFamily": "sans-serif",
+                                    "color": "black",
+                                    "fontSize": "x-large",
+                                },
+                            ),
+                        ],
+                        style={
+                            "display": "grid",
+                            "gridTemplateColumns": "220px minmax(260px, 1fr)",
+                            "columnGap": "12px",
+                            "alignItems": "center",
+                            "marginBottom": "10px",
+                            "width": "100%",
+                            "maxWidth": "700px",
+                        },
+                    )
+                    for name, val in zip(name_outcomes, search_values)
+                ],
+                style={"justifyContent": "center", "display": "grid"},
+            ),
+            html.Br(),
+            html.Div(
+                [
+                    dbc.Row(
+                        [html.P("Select variables", className="selcect_title")],
+                        style={"justifyContent": "center", "display": "grid"},
+                    )
+                ]
+                + [
+                    html.Div(
+                        [
+                            html.Div(
                                 [
                                     html.P(
-                                        "Select variables",
+                                        f"{name}:",
+                                        className="selectbox",
                                         style={
+                                            "margin": "0",
+                                            "textAlign": "right",
+                                            "fontSize": "x-large",
+                                            "fontWeight": "600",
                                             "color": "black",
-                                            "vertical-align": "top",
                                         },
-                                    )
-                                ]
-                            )
-                        ]
-                        + [
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        dbc.Row(
-                                            [
-                                                html.P(
-                                                    f"{name}:",
-                                                    className="selectbox",
-                                                    style={
-                                                        "display": "inline-block",
-                                                        "text-align": "right",
-                                                        "margin-left": "0px",
-                                                        "font-size": "12px",
-                                                    },
-                                                ),
-                                                dcc.Dropdown(
-                                                    id={
-                                                        "type": "dataselectors",
-                                                        "index": f"dropdown-{var_name}",
-                                                    },
-                                                    options=options_var,
-                                                    searchable=True,
-                                                    placeholder="...",
-                                                    className="box",
-                                                    clearable=False,
-                                                    style={
-                                                        "width": "80px",  # 'height': '30px',
-                                                        "height": "30px",
-                                                        "vertical-align": "middle",
-                                                        "font-family": "sans-serif",
-                                                        "margin-bottom": "2px",
-                                                        "display": "inline-block",
-                                                        "color": "black",
-                                                        "font-size": "10px",
-                                                        "margin-left": "-7px",
-                                                    },
-                                                ),
-                                            ]
-                                        ),
-                                        style={"margin-bottom": "0px"},
-                                    )
-                                    for var_name, name in zip(var_names, col_var)
+                                    ),
+                                    dcc.Dropdown(
+                                        id={
+                                            "type": "dataselectors",
+                                            "index": f"dropdown-{var_name}",
+                                        },
+                                        options=options_var,
+                                        searchable=True,
+                                        placeholder="Select column...",
+                                        className="box",
+                                        clearable=False,
+                                        style={
+                                            "width": "100%",
+                                            "minWidth": "260px",
+                                            "height": "42px",
+                                            "fontFamily": "sans-serif",
+                                            "color": "black",
+                                            "fontSize": "x-large",
+                                        },
+                                    ),
                                 ],
-                                style={"display": "inline-block"},
+                                style={
+                                    "display": "grid",
+                                    "gridTemplateColumns": "220px minmax(260px, 1fr)",
+                                    "columnGap": "12px",
+                                    "alignItems": "center",
+                                    "marginBottom": "10px",
+                                },
                             )
-                            for var_names, col_var in zip(vars_names, col_vars)
+                            for var_name, name in zip(var_names, col_var)
                         ],
-                    ),
-                ]
+                        style={"width": "100%", "maxWidth": "700px"},
+                    )
+                    for var_names, col_var in zip(vars_names, col_vars)
+                ],
+                style={"justifyContent": "center", "display": "grid"},
             ),
-        ]
+        ],
+        className="upload_second_select",
     )
 
     return selectors_ef
@@ -622,52 +610,53 @@ def __selectbox1_options(search_value_format, contents, filename):
                             )
                         ]
                         + [
-                            dbc.Row(
+                            html.Div(
                                 [
-                                    dbc.Col(
-                                        dbc.Row(
-                                            [
-                                                html.P(
-                                                    f"{name}:",
-                                                    className="selectbox",
-                                                    style={
-                                                        "display": "inline-block",
-                                                        "text-align": "right",
-                                                        "margin-left": "0px",
-                                                    },
-                                                ),
-                                                dcc.Dropdown(
-                                                    id={
-                                                        "type": "dataselectors_1",
-                                                        "index": f"dropdown-{var_name}",
-                                                    },
-                                                    options=options_var,
-                                                    searchable=True,
-                                                    placeholder="...",
-                                                    className="box",
-                                                    clearable=True,
-                                                    style={
-                                                        "width": "80px",  # 'height': '30px',
-                                                        "height": "30px",
-                                                        "vertical-align": "middle",
-                                                        "font-family": "sans-serif",
-                                                        "margin-bottom": "2px",
-                                                        "display": "inline-block",
-                                                        "color": "black",
-                                                        "margin-left": "-7px",
-                                                    },
-                                                ),
-                                            ]
-                                        ),
-                                        style={"margin-bottom": "0px"},
+                                    html.Div(
+                                        [
+                                            html.P(
+                                                f"{name}:",
+                                                className="selectbox",
+                                                style={
+                                                    "margin": "0",
+                                                    "textAlign": "right",
+                                                    "fontSize": "x-large",
+                                                    "color": "black",
+                                                },
+                                            ),
+                                            dcc.Dropdown(
+                                                id={
+                                                    "type": "dataselectors_1",
+                                                    "index": f"dropdown-{var_name}",
+                                                },
+                                                options=options_var,
+                                                searchable=True,
+                                                placeholder="Select column...",
+                                                className="box",
+                                                clearable=True,
+                                                style={
+                                                    "width": "100%",
+                                                    "minWidth": "260px",
+                                                    "height": "42px",
+                                                    "fontFamily": "sans-serif",
+                                                    "color": "black",
+                                                    # "fontSize": "x-large",
+                                                },
+                                            ),
+                                        ],
+                                        style={
+                                            "display": "grid",
+                                            "gridTemplateColumns": "180px minmax(260px, 1fr)",
+                                            "columnGap": "12px",
+                                            "alignItems": "center",
+                                            "marginBottom": "10px",
+                                        },
                                     )
                                     for var_name, name in zip(var_names, col_var)
                                 ],
                                 style={
-                                    "display": "grid",
-                                    "gridTemplateColumns": "1fr 1fr",
-                                    "width": "400px",
-                                    "justifyContent": "center",
+                                    "width": "100%",
+                                    "maxWidth": "620px",
                                 },
                             )
                             for var_names, col_var in zip(vars_names, col_vars)
@@ -717,7 +706,14 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
                                         id={"type": "nameoutcomes", "index": f"{i}"},
                                         placeholder="outcome name",
                                         className="upload_radio",
-                                        style={"width": "150px"},
+                                        style={
+                                            "width": "300px",
+                                            "fontSize": "x-large",
+                                            "color": "black",
+                                            "padding": "6px 10px",
+                                            "border": "1px solid #b0b0b0",
+                                            "borderRadius": "6px",
+                                        },
                                     ),
                                 ]
                             ),
@@ -725,8 +721,10 @@ def __outcomes_type(number_outcomes, primary_out, noprimary):
                         style={
                             "display": "grid",
                             "background-color": "beige",
-                            "width": "500px",
+                            "width": "700px",
                             "justify-content": "center",
+                            "padding": "12px",
+                            "rowGap": "10px",
                         },
                     )
                 ],
@@ -984,21 +982,28 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                                 options=options_effect_size_cont
                                                 if outcometype[i] == "continuous"
                                                 else options_effect_size_bin,
-                                                #    inline=True,
                                                 className="upload_radio",
-                                                #    style={'width': '60px', "height":'30px',
-                                                #                            'vertical-align': 'middle',
-                                                #                            "font-family": "sans-serif",
-                                                #                            'margin-bottom': '2px',
-                                                #                            'display': 'inline-block',
-                                                #                            'color': 'black',
-                                                #                            'font-size': '10px'}
+                                                style={
+                                                    "display": "flex",
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                    "gap": "40px",
+                                                    "width": "100%",
+                                                    "color": "black",
+                                                    "fontSize": "x-large",
+                                                },
+                                                labelStyle={
+                                                    "display": "inline-flex",
+                                                    "alignItems": "center",
+                                                    "margin": "0 16px",
+                                                },
                                             ),
                                         ]
                                     ),
                                     style={
-                                        "margin-left": "55px",
-                                        "margin-right": "5px",
+                                        "display": "flex",
+                                        "justifyContent": "center",
+                                        "width": "100%",
                                     },
                                 )
                             ]
@@ -1040,21 +1045,28 @@ def __variable_selection(number_outcomes, outcometype, data_format, contents, fi
                                                     "index": f"{i}",
                                                 },
                                                 options=options_outcome_direction,
-                                                #   inline=True,
                                                 className="upload_radio",
-                                                # style={'width': '60px', "height": '30px',
-                                                #                       'vertical-align': 'middle',
-                                                #                       "font-family": "sans-serif",
-                                                #                       'margin-bottom': '2px',
-                                                #                       'display': 'inline-block',
-                                                #                       'color': 'black',
-                                                #                       'font-size': '10px'}
+                                                style={
+                                                    "display": "flex",
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                    "gap": "40px",
+                                                    "width": "100%",
+                                                    "color": "black",
+                                                    "fontSize": "x-large",
+                                                },
+                                                labelStyle={
+                                                    "display": "inline-flex",
+                                                    "alignItems": "center",
+                                                    "margin": "0 16px",
+                                                },
                                             ),
                                         ]
                                     ),
                                     style={
-                                        "margin-left": "55px",
-                                        "margin-right": "5px",
+                                        "display": "flex",
+                                        "justifyContent": "center",
+                                        "width": "100%",
                                     },
                                 )
                             ]
@@ -1221,7 +1233,10 @@ def __effect_modifier_options(search_value_format, contents, filename):
                                                 "font-size": "x-large",
                                                 "width": "620px",
                                                 "justify-content": "center",
+                                                "justifyItems": "center",
+                                                "margin": "0 auto",
                                             },
+                                            labelStyle={"display": "flex", "justifyContent": "center", "width": "100%"},
                                         ),
                                         dcc.Checklist(
                                             id="no_effect_modifier",
