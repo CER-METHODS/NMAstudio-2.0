@@ -911,27 +911,42 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
     return(final_dat1)
 }
 #----------------------------------- pairwise function to convert contrast data -----------------------------------------#
-
 get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
    pairwise_dat <- list()
    extra_cols_list <- list()
    for (i in 1:num_outcome){
     sm <- dat[[paste0("effect_size", i)]][1]
+    sm_norm <- toupper(trimws(as.character(sm)))
 
-    if(sm %in% c('RR','OR')) {
+    colname_or_fallback <- function(primary, fallback=NULL){
+      if (primary %in% names(dat)) return(primary)
+      if (!is.null(fallback) && fallback %in% names(dat)) return(fallback)
+      return(primary)
+    }
+
+    r1_col <- colname_or_fallback(paste0("r1", i), "r1")
+    r2_col <- colname_or_fallback(paste0("r2", i), "r2")
+    n1_col <- colname_or_fallback(paste0("n1", i), "n1")
+    n2_col <- colname_or_fallback(paste0("n2", i), "n2")
+    y1_col <- colname_or_fallback(paste0("y1", i), "y1")
+    y2_col <- colname_or_fallback(paste0("y2", i), "y2")
+    sd1_col <- colname_or_fallback(paste0("sd1", i), "sd1")
+    sd2_col <- colname_or_fallback(paste0("sd2", i), "sd2")
+
+    if(sm_norm %in% c('RR','OR','RD')) {
         dat_i <- dat[complete.cases(
-                  dat[[paste0("r1", i)]],
-                  dat[[paste0("r2", i)]],
-                  dat[[paste0("n1", i)]],
-                  dat[[paste0("n2", i)]],
+                  dat[[r1_col]],
+                  dat[[r2_col]],
+                  dat[[n1_col]],
+                  dat[[n2_col]],
                   dat$treat1,
                   dat$treat2,
                   dat$studlab
                 ), ]
 
         pair_dat <- meta::pairwise(data=dat_i,
-                           event=list(dat_i[[paste0("r1", i)]], dat_i[[paste0("r2", i)]]),
-                           n=list(dat_i[[paste0("n1", i)]], dat_i[[paste0("n2", i)]]),
+                           event=list(dat_i[[r1_col]], dat_i[[r2_col]]),
+                           n=list(dat_i[[n1_col]], dat_i[[n2_col]]),
                            studlab=studlab,
                            treat=list(treat1,treat2),
                            sm=sm)
@@ -947,19 +962,20 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
     }else {
         dat_i <- dat[complete.cases(
-                  dat[[paste0("y1",  i)]],
-                  dat[[paste0("y2",  i)]],
-                  dat[[paste0("sd1", i)]],
-                  dat[[paste0("sd2", i)]],
-                  dat[[paste0("n1",  i)]],
-                  dat[[paste0("n2",  i)]],
+                  dat[[y1_col]],
+                  dat[[y2_col]],
+                  dat[[sd1_col]],
+                  dat[[sd2_col]],
+                  dat[[n1_col]],
+                  dat[[n2_col]],
                   dat$studlab,
                   dat$treat1,
                   dat$treat2
                 ), ]
         pair_dat <- meta::pairwise(data=dat_i,
-                           event=list(dat_i[[paste0("r1", i)]], dat_i[[paste0("r2", i)]]),
-                           n=list(dat_i[[paste0("n1", i)]], dat_i[[paste0("n2", i)]]),
+                           mean=list(dat_i[[y1_col]], dat_i[[y2_col]]),
+                           sd=list(dat_i[[sd1_col]], dat_i[[sd2_col]]),
+                           n=list(dat_i[[n1_col]], dat_i[[n2_col]]),
                            studlab=studlab,
                            treat=list(treat1,treat2),
                            sm=sm)
