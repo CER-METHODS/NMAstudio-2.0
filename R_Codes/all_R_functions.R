@@ -911,23 +911,18 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
 }
 #----------------------------------- pairwise function to convert contrast data -----------------------------------------#
 
+
 get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
    pairwise_dat <- list()
    extra_cols_list <- list()
-   
-   # Debug: Print package versions
-   cat("DEBUG: meta package version:", as.character(packageVersion("meta")), "\n")
-   cat("DEBUG: dplyr package version:", as.character(packageVersion("dplyr")), "\n")
-   
    for (i in 1:num_outcome){
     sm <- dat[[paste0("effect_size", i)]][1]
     sm_norm <- toupper(trimws(as.character(sm)))
-    cat("DEBUG: Processing outcome", i, "with effect size:", sm_norm, "\n")
 
     colname_or_fallback <- function(primary, fallback=NULL){
       if (primary %in% names(dat)) return(primary)
       if (!is.null(fallback) && fallback %in% names(dat)) return(fallback)
-      return(NA)  # Return NA if column doesn't exist
+      return(primary)
     }
 
     r1_col <- colname_or_fallback(paste0("r1", i), "r1")
@@ -939,14 +934,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
     sd1_col <- colname_or_fallback(paste0("sd1", i), "sd1")
     sd2_col <- colname_or_fallback(paste0("sd2", i), "sd2")
 
-    # Check for binary outcomes
     if(sm_norm %in% c('RR','OR','RD')) {
-        # Verify all required columns exist for binary outcome
-        if(is.na(r1_col) || is.na(r2_col) || is.na(n1_col) || is.na(n2_col)) {
-            stop(paste("Missing required binary outcome columns for outcome", i, 
-                      ". Required: r1/r1", i, ", r2/r2", i, ", n1/n1", i, ", n2/n2", i))
-        }
-        
         dat_i <- dat[complete.cases(
                   dat[[r1_col]],
                   dat[[r2_col]],
@@ -964,14 +952,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            treat=list(treat1,treat2),
                            sm=sm)
 
-        # Debug: Print actual column names and count
-        cat("DEBUG: Binary outcome pair_dat columns:", paste(names(pair_dat), collapse=", "), "\n")
-        cat("DEBUG: Binary outcome pair_dat ncol:", ncol(pair_dat), "\n")
-        
-        # Select first 9 columns safely - only select columns that exist
-        cols_to_select <- intersect(1:9, 1:ncol(pair_dat))
-        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop=FALSE]
-        
+        pairwise_dat[[i]] <- pair_dat[,1:9]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -981,12 +962,6 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class1'] <- paste0("treat_class1", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
     }else {
-        # Check for continuous outcomes
-        if(is.na(y1_col) || is.na(y2_col) || is.na(sd1_col) || is.na(sd2_col) || is.na(n1_col) || is.na(n2_col)) {
-            stop(paste("Missing required continuous outcome columns for outcome", i, 
-                      ". Required: y1/y1", i, ", y2/y2", i, ", sd1/sd1", i, ", sd2/sd2", i, ", n1/n1", i, ", n2/n2", i))
-        }
-        
         dat_i <- dat[complete.cases(
                   dat[[y1_col]],
                   dat[[y2_col]],
@@ -1005,15 +980,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            studlab=studlab,
                            treat=list(treat1,treat2),
                            sm=sm)
-        
-        # Debug: Print actual column names and count
-        cat("DEBUG: Continuous outcome pair_dat columns:", paste(names(pair_dat), collapse=", "), "\n")
-        cat("DEBUG: Continuous outcome pair_dat ncol:", ncol(pair_dat), "\n")
-        
-        # Select first 9 columns safely - only select columns that exist
-        cols_to_select <- intersect(1:9, 1:ncol(pair_dat))
-        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop=FALSE]
-        
+        pairwise_dat[[i]] <- pair_dat[,1:9]                                   
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -1024,15 +991,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
         }
     ## extract extra columns (everything after column 9) and store in a list
-    # Safely select columns 3:5 and 10+ if they exist
-    cols_to_extract <- c(3:5, if(ncol(pair_dat) >= 10) 10:ncol(pair_dat))
-    cols_to_extract <- intersect(cols_to_extract, 1:ncol(pair_dat))
-    if(length(cols_to_extract) > 0) {
-        add_columns <- pair_dat[, cols_to_extract, drop = FALSE]
-    } else {
-        # If no extra columns, create empty data frame with key columns
-        add_columns <- pair_dat[, c(1, 2, 3), drop = FALSE]
-    }
+    add_columns <- pair_dat[, c(3:5, 10:ncol(pair_dat)), drop = FALSE]
     extra_cols_list[[i]] <- add_columns
     }
     # pick the longest (max rows)
@@ -1048,12 +1007,7 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
     # # combine safely
     # final_dat1 <- cbind(final_dat, new_cols)
 
-    # Only rename columns if new_cols has more than 3 columns
-    if(ncol(new_cols) > 3) {
-        extra_col_names <- names(new_cols)[4:ncol(new_cols)]
-        names(final_dat1)[names(final_dat1) %in% extra_col_names] <- extra_col_names
-    }
-    
+    names(final_dat1) <- c(names(final_dat), names(new_cols)[4:length(new_cols)])
     # Rename rob1/year1 back to rob/year (meta::pairwise adds "1" suffix to extra columns)
     names(final_dat1)[names(final_dat1) == 'rob1'] <- 'rob'
     names(final_dat1)[names(final_dat1) == 'year1'] <- 'year'

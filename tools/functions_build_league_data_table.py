@@ -455,12 +455,14 @@ def __update_output_new(
         slctd_edgs = (
             [e["source"] + e["target"] for e in store_edge] if store_edge else []
         )
+        treat1_str = net_data["treat1"].astype(str)
+        treat2_str = net_data["treat2"].astype(str)
         # Filter net_data (converted data) ONLY - matching NMAstudio-app-main behavior
         net_data = net_data[
-            net_data.treat1.isin(slctd_nods)
-            | net_data.treat2.isin(slctd_nods)
-            | (net_data.treat1 + net_data.treat2).isin(slctd_edgs)
-            | (net_data.treat2 + net_data.treat1).isin(slctd_edgs)
+            treat1_str.isin(slctd_nods)
+            | treat2_str.isin(slctd_nods)
+            | (treat1_str + treat2_str).isin(slctd_edgs)
+            | (treat2_str + treat1_str).isin(slctd_edgs)
         ]
 
         # DO NOT filter raw_data - keep it unfiltered as in NMAstudio-app-main
@@ -1351,11 +1353,13 @@ def __update_output_bothout(
         slctd_edgs = (
             [e["source"] + e["target"] for e in store_edge] if store_edge else []
         )
+        treat1_str = net_data["treat1"].astype(str)
+        treat2_str = net_data["treat2"].astype(str)
         net_data = net_data[
-            net_data.treat1.isin(slctd_nods)
-            | net_data.treat2.isin(slctd_nods)
-            | (net_data.treat1 + net_data.treat2).isin(slctd_edgs)
-            | (net_data.treat2 + net_data.treat1).isin(slctd_edgs)
+            treat1_str.isin(slctd_nods)
+            | treat2_str.isin(slctd_nods)
+            | (treat1_str + treat2_str).isin(slctd_edgs)
+            | (treat2_str + treat1_str).isin(slctd_edgs)
         ]
 
     league_table = build_league_table(
