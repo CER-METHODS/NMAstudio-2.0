@@ -860,7 +860,9 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
                                        treat=treat,
                                       #  incr=0.5,
                                        sm=sm)
-        pairwise_dat[[i]] <- pair_dat[,1:9]
+        canonical_pair_cols <- c("studlab", "treat1", "treat2", "TE", "seTE", "event1", "n1", "event2", "n2")
+        cols_to_select <- intersect(canonical_pair_cols, names(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop = FALSE]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -877,7 +879,9 @@ get_pairwise_data_long_new <- function(dat, num_outcome=1){
                                             treat=treat,
                                             # incr=0.5,
                                             sm=sm)
-        pairwise_dat[[i]] <- pair_dat[,1:9]                                   
+        canonical_pair_cols <- c("studlab", "treat1", "treat2", "TE", "seTE", "event1", "n1", "event2", "n2")
+        cols_to_select <- intersect(canonical_pair_cols, names(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop = FALSE]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -952,7 +956,9 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            treat=list(treat1,treat2),
                            sm=sm)
 
-        pairwise_dat[[i]] <- pair_dat[,1:9]
+        canonical_pair_cols <- c("studlab", "treat1", "treat2", "TE", "seTE", "event1", "n1", "event2", "n2")
+        cols_to_select <- intersect(canonical_pair_cols, names(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop = FALSE]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -980,7 +986,9 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            studlab=studlab,
                            treat=list(treat1,treat2),
                            sm=sm)
-        pairwise_dat[[i]] <- pair_dat[,1:9]                                   
+        canonical_pair_cols <- c("studlab", "treat1", "treat2", "TE", "seTE", "event1", "n1", "event2", "n2")
+        cols_to_select <- intersect(canonical_pair_cols, names(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop = FALSE]
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -990,8 +998,14 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class1'] <- paste0("treat_class1", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
         }
-    ## extract extra columns (everything after column 9) and store in a list
-    add_columns <- pair_dat[, c(3:5, 10:ncol(pair_dat)), drop = FALSE]
+    ## extract key columns + extras safely (robust to column order differences)
+    key_cols <- c("studlab", "treat1", "treat2")
+    if (!all(key_cols %in% names(pair_dat))) {
+      stop("Required join keys (studlab, treat1, treat2) not found in pairwise output")
+    }
+    canonical_pair_cols <- c("studlab", "treat1", "treat2", "TE", "seTE", "event1", "n1", "event2", "n2")
+    extra_cols <- setdiff(names(pair_dat), canonical_pair_cols)
+    add_columns <- pair_dat[, c(key_cols, extra_cols), drop = FALSE]
     extra_cols_list[[i]] <- add_columns
     }
     # pick the longest (max rows)
@@ -1007,7 +1021,9 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
     # # combine safely
     # final_dat1 <- cbind(final_dat, new_cols)
 
-    names(final_dat1) <- c(names(final_dat), names(new_cols)[4:length(new_cols)])
+    if (ncol(new_cols) > 3) {
+      names(final_dat1) <- c(names(final_dat), names(new_cols)[4:ncol(new_cols)])
+    }
     # Rename rob1/year1 back to rob/year (meta::pairwise adds "1" suffix to extra columns)
     names(final_dat1)[names(final_dat1) == 'rob1'] <- 'rob'
     names(final_dat1)[names(final_dat1) == 'year1'] <- 'year'
