@@ -99,4 +99,4 @@ if __name__ == "__main__":
     # context = generate_ssl_perm_and_key(cert_name='cert.pem', key_name='key.pem')
     # app.run(debug=False, ssl_context=context)
     # app.run(host="0.0.0.0", port=8080, debug=False)
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=False)

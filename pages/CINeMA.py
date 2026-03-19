@@ -12,7 +12,7 @@ import io
 
 from tools.functions_project_setup import __upload_cinema
 
-dash.register_page(__name__, path="/cinema", name="Appraisal")
+dash.register_page(__name__, path="/cinema", name="CINeMA")
 
 
 layout = html.Div(id="cinema-page", children=[
@@ -56,7 +56,7 @@ layout = html.Div(id="cinema-page", children=[
                             dbc.Col(
                                 html.Div(
                                     html.Span(
-                                        "* If you want to include CINeMA certainty of evidence in the league tables and the knowledge translation tool for multiple outcomes, you must upload the CINeMA reporting files for the corresponding outcomes here.",
+                                        "* If you want to include CINeMA certainty in evidence in the league tables and the knowledge translation tool for multiple outcomes, you must upload the CINeMA reporting files for the corresponding outcomes here.",
                                         className="upload_instuspan",
                                     )
                                 ),

@@ -248,7 +248,7 @@ modal_treat_compare = [
      'cellStyle': {
         'background-color': '#ffecb3',
         },
-     "cellRenderer": "StudyLink",
+    #  "cellRenderer": "StudyLink",
      },
      
    #   {"headerName": "NTC", 

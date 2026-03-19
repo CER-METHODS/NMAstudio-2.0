@@ -502,7 +502,7 @@ def display_modal_column( m, effect_modifiers, df_modal):
         'cellStyle': {
             'background-color': '#ffecb3',
             },
-        "cellRenderer": "StudyLink",
+        # "cellRenderer": "StudyLink",
         },
         
 

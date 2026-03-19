@@ -31,7 +31,7 @@ def Navbar():
     )
     cinema_button = dbc.NavItem(
         dbc.NavLink(
-            "APPRAISAL",
+            "CINeMA",
             href="/cinema",
             external_link=True,
             style={

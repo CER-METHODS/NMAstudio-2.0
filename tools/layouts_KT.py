@@ -257,7 +257,7 @@ def switch_table():
                         id="cinema_warning_div",
                         children=[
                             html.Span("* No CINeMA reports uploaded, some features are not available. Go to ", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
-                            dcc.Link("APPRAISAL", href="/cinema", style={"color": "red", "fontSize": "16px", "fontWeight": "bold", "textDecoration": "underline"}),
+                            dcc.Link("CINeMA", href="/cinema", style={"color": "red", "fontSize": "16px", "fontWeight": "bold", "textDecoration": "underline"}),
                             html.Span(" page to upload the reports.", style={"color": "red", "fontSize": "16px", "fontWeight": "bold"}),
                         ],
                         style={"display": "none", "textAlign": "center", "marginTop": "10px", "marginBottom": "10px"}

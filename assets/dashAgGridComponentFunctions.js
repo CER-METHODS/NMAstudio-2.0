@@ -120,7 +120,7 @@ dagcomponentfuncs.CustomTooltip = function (props) {
     const backgroundColor = getBackgroundColorForCertainty(certainty);
 
     const info = [
-        React.createElement('h4', {}, "Certainty of evidence: " + certainty),
+        React.createElement('h4', {}, "Certainty in evidence: " + certainty),
         React.createElement('div', { style: { marginBottom: 8 } }, ''),
         React.createElement('div', {}, 'Within-study bias: ' + withinstudy),
         React.createElement('div', {}, 'Reporting bias: ' + reporting),
@@ -172,7 +172,7 @@ dagcomponentfuncs.CustomTooltip2 = function (props) {
     const backgroundColor = getBackgroundColorForCertainty(certainty);
 
     const info = [
-        React.createElement('h4', {}, "Certainty of evidence: " + certainty),
+        React.createElement('h4', {}, "Certainty in evidence: " + certainty),
         React.createElement('div', { style: { marginBottom: 8 } }, ''),
         React.createElement('div', {}, 'Within-study bias: '+ withinstudy),
         React.createElement('div', {}, 'Reporting bias: '+reporting),
