@@ -951,7 +951,10 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            treat=list(treat1,treat2),
                            sm=sm)
 
-        pairwise_dat[[i]] <- pair_dat[,1:9]
+        # Select first 9 columns safely - only select columns that exist
+        cols_to_select <- intersect(1:9, 1:ncol(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop=FALSE]
+        
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -979,7 +982,11 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
                            studlab=studlab,
                            treat=list(treat1,treat2),
                            sm=sm)
-        pairwise_dat[[i]] <- pair_dat[,1:9]                                   
+        
+        # Select first 9 columns safely - only select columns that exist
+        cols_to_select <- intersect(1:9, 1:ncol(pair_dat))
+        pairwise_dat[[i]] <- pair_dat[, cols_to_select, drop=FALSE]
+        
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'TE'] <- paste0("TE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'seTE'] <- paste0("seTE", i)
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'event1'] <- paste0("event1", i)
@@ -990,7 +997,10 @@ get_pairwise_data_contrast_new <- function(dat, num_outcome=1){
         names(pairwise_dat[[i]])[names(pairwise_dat[[i]]) == 'treat_class2'] <- paste0("treat_class2", i)
         }
     ## extract extra columns (everything after column 9) and store in a list
-    add_columns <- pair_dat[, c(3:5, 10:ncol(pair_dat)), drop = FALSE]
+    # Safely select columns 3:5 and 10+ if they exist
+    cols_to_extract <- c(3:5, if(ncol(pair_dat) >= 10) 10:ncol(pair_dat))
+    cols_to_extract <- intersect(cols_to_extract, 1:ncol(pair_dat))
+    add_columns <- pair_dat[, cols_to_extract, drop = FALSE]
     extra_cols_list[[i]] <- add_columns
     }
     # pick the longest (max rows)
