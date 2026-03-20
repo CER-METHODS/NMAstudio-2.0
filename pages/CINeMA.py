@@ -39,7 +39,7 @@ layout = html.Div(id="cinema-page", children=[
                                             style={"color": "#3498db"},
                                         ),
                                         html.Span(
-                                            " application to obtain the reports.",
+                                            " application to evaluate the confidence in the results and obtain the reports",
                                             style={"fontSize": "larger", 'color':'red'}
                                         ),
                                     ], style={"display": "flex", "alignItems": "center", "justifyContent": "center", "flexWrap": "wrap"}),

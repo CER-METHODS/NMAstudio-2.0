@@ -419,7 +419,7 @@ def skt_nonexpert():
                                                                             dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
                                                                             html.Div([
                                                                                     dbc.Popover(
-                                                                                        "Select nodes/edges to display results for specific interventions or comparisons in the table below.",
+                                                                                        "Click an edge or a node to select the corresponding direct comparison or intervention and filter or highlight the outputs at the right accordingly. Hold the 'shift' button to select multiple nodes and edges. Click at the center of the network diagram to move it up, down, left, or right. Zoom in and out with your mouse or trackpad. Click anywhere at the white space in the graph window to reset the network diagram to the default options.",
                                                                                         target="infoicon-standard-diagram",
                                                                                         trigger="hover",
                                                                                         placement="top",
@@ -638,6 +638,17 @@ def skt_layout():
                                                                     ],className='tab1_col'),
                                                     dbc.Col([
                                                                 dbc.Row([html.Span('Interventions Diagram', className='inter_label'),
+                                                                         html.Div([
+                                                                             dbc.Popover(
+                                                                                 "Click an edge or a node to select the corresponding direct comparison or intervention and filter or highlight the outputs at the right accordingly. Hold the 'shift' button to select multiple nodes and edges. Click at the center of the network diagram to move it up, down, left, or right. Zoom in and out with your mouse or trackpad. Click anywhere at the white space in the graph window to reset the network diagram to the default options.",
+                                                                                 target="infoicon-advanced-diagram",
+                                                                                 trigger="hover",
+                                                                                 placement="top",
+                                                                                 id="popover-advanced-diagram",
+                                                                                 className="popover-grid",
+                                                                             ),
+                                                                             html.A("ⓘ", id="infoicon-advanced-diagram", className='kt-info-icon'),
+                                                                         ], id="query-diagram-advanced", style={'width': '3%', 'display': 'flex', 'justify-content': 'center'}),
                                                                          html.Div(KT2_Dropdown_graphlayout, 
                                                                                   style={'font-size': '11px','justify-self': 'end', 'margin-left':'60px'}),
                                                                         html.Button('Click to see treatment names', id='fullname_button',className='sub-button',
