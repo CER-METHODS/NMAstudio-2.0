@@ -145,6 +145,10 @@ PSORIASIS_DATA = {
         CINEMA_NET_DATA1.to_json(orient="split"),
         CINEMA_NET_DATA2.to_json(orient="split"),
     ],
+    "cinema_filename_STORAGE": [
+        "cinema_report_PASI90.csv",
+        "cinema_report_SAE.csv",
+    ],
     "protocol_link_STORAGE": "https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535.pub4/full",
     "project_title_STORAGE": "Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis",
 }

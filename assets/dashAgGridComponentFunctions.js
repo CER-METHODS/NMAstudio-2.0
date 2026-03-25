@@ -547,7 +547,7 @@ dagcomponentfuncs.HeaderWithIcon = function (props) {
                     key: "label",
                     style: {
                         textAlign: 'center',
-                        whiteSpace: 'nowrap', // prevent wrapping
+                        whiteSpace: 'pre', 
                     }
                 },
                 props.displayName

@@ -66,7 +66,7 @@ FAQ_total = html.Div([
             dbc.Button("Do I need to be an NMA expert to use this tool?", id="faq_ques4", className="faq_ques", n_clicks=0),
             dbc.Collapse(
                 dbc.Card(dbc.CardBody(
-                    "No. The Standard version is designed for users with limited experience, while the Advanced version is for experienced users."
+                    "No. The Detailed report is designed for users with limited experience, while the Advanced version is for experienced users."
                 )),
                 id="faq_ans4",
                 is_open=False,
@@ -83,20 +83,20 @@ FAQ_total = html.Div([
     dbc.Collapse(
         html.Div([
 
-            dbc.Button("What is the Standard version?", id="faq_ques5", className="faq_ques", n_clicks=0),
+            dbc.Button("What is the KIT summary?", id="faq_ques5", className="faq_ques", n_clicks=0),
             dbc.Collapse(
                 dbc.Card(dbc.CardBody(
-                    "The Standard version focuses on key results, rankings, and certainty of evidence in a simple and clear format."
+                    "The KIT summary focuses on key results, rankings, and certainty of evidence in a simple and clear format."
                 )),
                 id="faq_ans5",
                 is_open=False,
                 className="faq_ans",
             ),
 
-            dbc.Button("What is the Advanced version?", id="faq_ques6", className="faq_ques", n_clicks=0),
+            dbc.Button("What is the Detailed report?", id="faq_ques6", className="faq_ques", n_clicks=0),
             dbc.Collapse(
                 dbc.Card(dbc.CardBody(
-                    "The Advanced version provides detailed statistical results, including direct and indirect effects and inconsistency checks."
+                    "The Detailed report provides detailed statistical results, including direct and indirect effects and inconsistency checks."
                 )),
                 id="faq_ans6",
                 is_open=False,
@@ -262,34 +262,9 @@ def switch_table():
                         ],
                         style={"display": "none", "textAlign": "center", "marginTop": "10px", "marginBottom": "10px"}
                     ),
-                    # Interpretation warning
-                    html.Div(
-                        children=[
-                            html.Span(
-                                "⚠ The results shown in the Standard version alone are not sufficient for reliable interpretation. "
-                                "We recommend consulting a NMA methodologist and reviewing the results and underlying data in both "
-                                "the Standard and Advanced versions to ensure that potential limitations are fully understood.",
-                                style={
-                                    "color": "#b74f43",
-                                    "fontSize": "medium",
-                                    "fontStyle": "italic",
-                                }
-                            ),
-                        ],
-                        style={
-                            "backgroundColor": "#fff3cd",
-                            "border": "1px solid #ffc107",
-                            "borderRadius": "6px",
-                            "padding": "10px 16px",
-                            "margin": "12px 0px 4px 0px",
-                            "textAlign": "left",
-                            "width": "70%",
-                            "justify-self": "center",
-                        }
-                    ),
                     dbc.Row(dbc.Col([
                             html.P(
-                            "Standard Version",
+                            "KIT summary",
                             id='skttable_1',
                             style={'display': 'inline-block',
                                     'margin': 'auto',
@@ -308,7 +283,7 @@ def switch_table():
                                         'margin': 'auto', 'font-size': '10px',
                                         'padding-left': '10px',
                                         'padding-right': '10px'}),
-                            html.P('Advanced Version',
+                            html.P('Detailed report',
                                     id='skttable_2',
                                     style={'display': 'inline-block',
                                         'margin': 'auto',
@@ -326,6 +301,31 @@ def skt_nonexpert():
     return html.Div([
             html.Div(id='skt_all',children=[
                                             html.Br(id='yoda_stand_start'),html.Br(),
+                                            # Interpretation warning (Standard only)
+                                            html.Div(
+                                                children=[
+                                                    html.Span(
+                                                        "⚠ The results shown in the KIT summary alone are not sufficient for reliable interpretation. "
+                                                        "We recommend consulting a NMA methodologist and reviewing the results and underlying data in both "
+                                                        "the KIT summary and Detailed report to ensure that potential limitations are fully understood.",
+                                                        style={
+                                                            "color": "#b74f43",
+                                                            "fontSize": "medium",
+                                                            "fontStyle": "italic",
+                                                        }
+                                                    ),
+                                                ],
+                                                style={
+                                                    "backgroundColor": "#fff3cd",
+                                                    "border": "1px solid #ffc107",
+                                                    "borderRadius": "6px",
+                                                    "padding": "10px 16px",
+                                                    "margin": "12px 0px 4px 0px",
+                                                    "textAlign": "left",
+                                                    "width": "90%",
+                                                    "justify-self": "center",
+                                                }
+                                            ),
                                             # dcc.Markdown('Instruction: Hover your mouse over the table header to see how you can interact with it.',
                                             #     className="markdown_style_main",
                                             #     style={
