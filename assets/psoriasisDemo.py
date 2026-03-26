@@ -80,6 +80,10 @@ RANKING_DATA2 = pd.read_csv("db/ranking/rank2.csv")
 FUNNEL_DATA = pd.read_csv("db/funnel/funnel_data.csv")
 FUNNEL_DATA_OUT2 = pd.read_csv("db/funnel/funnel_data_out2.csv")
 
+# Load treatment names and instructions
+TREATMENT_FULLNAMES = pd.read_csv("db/skt/fullname.csv")
+TREATMENT_INSTRUCTIONS = pd.read_csv("db/skt/instruction.csv")
+
 PSORIASIS_DATA = {
     "nmastudio-version": "2.0",
     "raw_data_STORAGE": {"data": RAW_DATA.to_json(orient="split")},
@@ -151,4 +155,8 @@ PSORIASIS_DATA = {
     ],
     "protocol_link_STORAGE": "https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD011535.pub4/full",
     "project_title_STORAGE": "Systemic pharmacological treatments for chronic plaque psoriasis: a network meta-analysis",
+    "treat_fullname_STORAGE": TREATMENT_FULLNAMES.to_dict(orient="records"),
+    "treat_fullname_filename_STORAGE": "fullname.csv",
+    "treat_instruction_STORAGE": TREATMENT_INSTRUCTIONS.to_dict(orient="records"),
+    "treat_instruction_filename_STORAGE": "instruction.csv",
 }

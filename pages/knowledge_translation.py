@@ -124,9 +124,9 @@ layout = html.Div(
 def toggle_skt_version(path, toggle_value):
     """Switch between Standard (non-expert) and Advanced (expert) versions."""
     if toggle_value:
-        return {"display": "none"}, {"display": "block"}
-    else:
         return {"display": "block"}, {"display": "none"}
+    else:
+        return {"display": "none"}, {"display": "block"}
 
 
 @callback(
