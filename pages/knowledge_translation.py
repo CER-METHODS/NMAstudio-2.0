@@ -1397,22 +1397,28 @@ def generate_kt_standad_data(
 @callback(
     Output("popover-container-standard", "children"),
     Input("KT_standard_data_STORAGE", "data"),
-    State("net_data_STORAGE", "data"),
-    State("number_outcomes_STORAGE", "data"),
     prevent_initial_call="initial_duplicate",
 )
-def generate_kt_standad_popover(data, net_data, num_outcomes):
+def generate_kt_standad_popover(data):
     if data:
-        from tools.utils import get_net_data_json
+        label_field_by_outcome = {}
+        certainty_outcomes = set()
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            for key in row.keys():
+                key_str = str(key)
 
-        net_df = pd.read_json(get_net_data_json(net_data), orient="split").round(3)
+                label_match = re.fullmatch(r"(.+)_out(\d+)_label", key_str)
+                if label_match:
+                    out_idx = int(label_match.group(2))
+                    label_field_by_outcome[out_idx] = key_str
 
-        num_outcomes = int(num_outcomes or 0)
-        effect_sizes = [
-            net_df[f"effect_size{i+1}"].iloc[0]
-            for i in range(num_outcomes)
-            if f"effect_size{i+1}" in net_df.columns
-        ]
+                cert_match = re.fullmatch(r"Certainty_out(\d+)", key_str)
+                if cert_match:
+                    certainty_outcomes.add(int(cert_match.group(1)))
+
+        detected_outcomes = sorted(set(label_field_by_outcome.keys()) | certainty_outcomes)
 
         children = [
             dbc.Popover(
@@ -1425,26 +1431,32 @@ def generate_kt_standad_popover(data, net_data, num_outcomes):
             )
         ]
 
-        for i, effect_size in enumerate(effect_sizes):
-            children.extend([
-                dbc.Popover(
-                    "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
-                    target=f"info-icon-{effect_size}_out{i+1}_label",
-                    trigger="click",
-                    placement="top",
-                    id=f"popover-{effect_size}_out{i+1}_label",
-                    className="popover-grid",
-                ),
+        for out_idx in detected_outcomes:
+            label_field = label_field_by_outcome.get(out_idx)
+
+            if label_field:
+                children.append(
+                    dbc.Popover(
+                        "Click a cell to open a popup for detailed and study-level information for the corresponding comparison.",
+                        target=f"info-icon-{label_field}",
+                        trigger="click",
+                        placement="top",
+                        id=f"popover-{label_field}",
+                        className="popover-grid",
+                    )
+                )
+
+            children.append(
                 dbc.Popover(
                     "Hover your mouse over a cell to view detailed information for each field.",
-                    target=f"info-icon-Certainty_out{i+1}",
+                    target=f"info-icon-Certainty_out{out_idx}",
                     trigger="click",
                     placement="top",
-                    id=f"popover-certainty{i+1}",
+                    id=f"popover-certainty{out_idx}",
                     className="popover-grid",
-                ),
-            ])
-        
+                )
+            )
+
         return children
 
     return None
