@@ -1397,9 +1397,19 @@ def generate_kt_standad_data(
 @callback(
     Output("popover-container-standard", "children"),
     Input("KT_standard_data_STORAGE", "data"),
+    Input("toggle_grid_select", "value"),
+    Input("kt_page_location", "pathname"),
     prevent_initial_call="initial_duplicate",
 )
-def generate_kt_standad_popover(data):
+def generate_kt_standad_popover(data, toggle_value, pathname):
+    if pathname != "/knowledge-translation":
+        return None
+
+    # Show and regenerate Standard popovers only when KIT summary is active.
+    # In current toggle semantics, True => KIT summary, False => Detailed report.
+    if not toggle_value:
+        return None
+
     if data:
         label_field_by_outcome = {}
         certainty_outcomes = set()
