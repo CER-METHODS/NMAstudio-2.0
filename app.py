@@ -41,6 +41,38 @@ LOAD = "/assets/logos/small.gif"
 
 server = app.server
 
+GA_ID = "G-Y7P5T0R3ML"
+
+app.index_string = f"""
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('js', new Date());
+
+          gtag('config', '{GA_ID}');
+        </script>
+
+        {{%metas%}}
+        <title>{{%title%}}</title>
+        {{%favicon%}}
+        {{%css%}}
+    </head>
+    <body>
+        {{%app_entry%}}
+        <footer>
+            {{%config%}}
+            {{%scripts%}}
+            {{%renderer%}}
+        </footer>
+    </body>
+</html>
+"""
+
 
 def get_new_layout():
     SESSION_ID = get_new_session_id()
