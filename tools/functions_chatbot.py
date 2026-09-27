@@ -91,8 +91,8 @@ def render_textbox(text:str, box:str = "AI"):
 ##################### chat model#################################################################
 import os
 llm = ChatGroq(temperature=0.8, 
-               model="llama-3.1-8b-instant",
-            #    api_key = os.getenv("API_KEY"),
+               model="openai/gpt-oss-20b",
+               api_key = os.getenv("API_KEY"),
                max_tokens=300
                )
 # Define the system message introducing the AI assistant's capabilities.
