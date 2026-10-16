@@ -367,6 +367,19 @@ def get_skt_network_data(net_data_storage):
 #####################skt advanced data helpers #########################
 def Generate_advanced_data(data, p_score, net_dat, effect_size, out_idx, consistency_data, net_split_data, lower, cinema_data):
     n_treatments = len(p_score)
+
+    # Align p-score orientation with the Results page.
+    # For harmful outcomes, the displayed ranking should be inverted.
+    try:
+        direction_col = f"outcome{out_idx + 1}_direction"
+        if direction_col in net_dat.columns:
+            direction_value = net_dat[direction_col].iloc[1]
+            if direction_value != "beneficial" and "pscore" in p_score.columns:
+                p_score = p_score.copy()
+                p_score["pscore"] = 1 - p_score["pscore"]
+    except Exception:
+        # Fall back to the raw ranking values if direction metadata is unavailable.
+        pass
     
     # Parse cinema_data and build lookup
     cinema_lookup = _build_cinema_lookup(cinema_data)
