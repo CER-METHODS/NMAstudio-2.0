@@ -140,6 +140,29 @@ def Navbar():
                 "display": "none",  # Hidden by default, shown by browser-warning.js
             },
         ),
+        html.Div(
+            [
+                html.Span(
+                    "⚠ This tool supports NMA practice but does not replace understanding of NMA methods, assumptions, and limitations. Users should ensure appropriate analyses and critically evaluate their results.",
+                    style={
+                        "color": "#b74f43",
+                        "fontSize": "15px",
+                        "fontStyle": "italic",
+                        "display": "block",
+                        "textAlign": "center",
+                        "padding": "8px 16px",
+                    },
+                )
+            ],
+            style={
+                "backgroundColor": "rgb(234 211 192)",
+                "borderRadius": "8px",
+                "maxWidth": "1200px",
+                "width": "46%",
+                "alignSelf": "center",
+                "marginLeft": "3%",
+            },
+        ),
             html.Div(
                 [
                     dbc.Col(
